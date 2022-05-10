@@ -15,16 +15,18 @@ exports.getDisasterManagement = function(req, res) {
 	var html_data = {};
 
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'disaster', req.session);
+	var cur_date = new Date(req.session.cur_date);
+	var true_date = new Date();
 
 	disasterModel.getDisasterLogs(null, function(err, disasters) {
 		if (err)
 			throw err;
 		else {
-			cropCalendarModel.getCropCalendars({ status: ['In-Progress', 'Active']}, function(err, active_calendars) {
+			cropCalendarModel.getCropCalendars({ status: ['In-Progress', 'Active'], date: html_data.cur_date}, function(err, active_calendars) {
 				if (err)
 					throw err;
 				else {
-					var active_disasters = disasters.filter(e => e.status == 1), inactive_disasters = disasters.filter(e => e.status == 0);
+					var active_disasters = disasters.filter(e => e.status == 1 && cur_date <= new Date(e.target_date)), inactive_disasters = disasters.filter(e => e.status == 0);
 					var active_rainfall = active_disasters.filter(e => e.type == 'Heavy Rainfall'), 
 					inactive_rainfall = inactive_disasters.filter(e => e.type == 'Heavy Rainfall');
 					var active_drought = active_disasters.filter(e => e.type == 'Drought'), 
@@ -34,18 +36,19 @@ exports.getDisasterManagement = function(req, res) {
 					var active_drought_arr = [], inactive_drought_arr = [];
 
 					for (var i = 0; i < active_rainfall.length; i++) {
-						active_rainfall_arr.push(prepareRainfallDisaster(active_rainfall[i], active_calendars));
+						active_rainfall_arr.push(prepareRainfallDisaster(active_rainfall[i], active_calendars, html_data));
 					}
-					for (var i = 0; i < inactive_rainfall.length; i++) {
-						inactive_rainfall_arr.push(prepareRainfallDisaster(inactive_rainfall[i], active_calendars));
+					var len = inactive_rainfall.length > 3 ? 3 : inactive_rainfall.length; 
+					for (var i = 0; i < len; i++) {
+						inactive_rainfall_arr.push(prepareRainfallDisaster(inactive_rainfall[i], active_calendars, html_data));
 					}
-					//console.log(rainfall_arr);
+					//
 					html_data['active_rainfall'] = active_rainfall_arr;
 					html_data['inactive_rainfall'] = inactive_rainfall_arr;
 					html_data['notifs'] = req.notifs;
 					html_data['active_drought'] = active_drought_arr;
 					html_data['inactive_drought'] = inactive_drought_arr;
-					//console.log(html_data);
+					//
 					res.render('disaster_warnings', html_data);					
 				}
 			});
@@ -61,7 +64,7 @@ exports.ajaxGetRecommendations = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			cropCalendarModel.getCropCalendars({ where: { key: 'calendar_id', val: req.query.calendar_id }, status: [] }, function(err, active_calendars) {
+			cropCalendarModel.getCropCalendars({ where: { key: 'calendar_id', val: req.query.calendar_id }, status: [], date: html_data.cur_date }, function(err, active_calendars) {
 				if (err)
 					throw err;
 				else {
@@ -77,7 +80,7 @@ exports.ajaxGetRecommendations = function(req, res) {
 								rainfall_arr.push(prepareRainfallDisaster(rainfall[i], active_calendars));
 							}
 
-							//console.log(consolidateRecommendations(nutrients, rainfall_arr));
+							//
 							res.send(consolidateRecommendations(nutrients, rainfall_arr));
 						}
 					});			
@@ -114,7 +117,7 @@ function dateDiffInDays(a, b) {
   return Math.floor((utc2 - utc1) / _MS_PER_DAY);
 }
 
-function prepareRainfallDisaster(rainfall, active_calendars) {
+function prepareRainfallDisaster(rainfall, active_calendars, html_data) {
 	var rainfall_obj = {};
 	var stage = null, recommendation, damages, risk_lvl, text_color, damage_color, risk_n;
 	rainfall['mph'] = Math.round(rainfall.wind_speed * 2.237 * 100)/100;
@@ -124,7 +127,7 @@ function prepareRainfallDisaster(rainfall, active_calendars) {
 	'Tropical Storm' : rainfall.mph < 111 ?
 	'Hurricane' : rainfall.mph >= 111 ?
 	'Major Hurricane' : 'Major Hurricane';
-	rainfall.days = dateDiffInDays(new Date(), new Date(rainfall.target_date));
+	rainfall.days = dateDiffInDays(new Date(html_data.cur_date), new Date(rainfall.target_date));
 	rainfall.date_recorded = dataformatter.formatDate(new Date(rainfall.date_recorded), 'YYYY-MM-DD');
 	rainfall.target_date = dataformatter.formatDate(new Date(rainfall.target_date), 'mm DD, YYYY');
 
@@ -141,7 +144,6 @@ function prepareRainfallDisaster(rainfall, active_calendars) {
 		}
 
 		dat = dateDiffInDays(new Date(active_calendars[x].sow_date_completed), new Date(rainfall.target_date));
-		console.log('Dat: '+dat);
 
 		maturity_days = active_calendars[x].maturity_days;
 
@@ -241,7 +243,7 @@ function prepareRainfallDisaster(rainfall, active_calendars) {
 				damage: damages, damage_color: damage_color, risk_n: risk_n }, recommendation: recommendation };
 
 		stage = null;
-		//console.log(farm_obj);
+		//
 		rainfall_obj.farms.push(farm_obj);
 	}
 	rainfall_obj.farms.sort((a, b) => b.severity.risk_n - a.severity.risk_n);

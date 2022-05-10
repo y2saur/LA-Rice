@@ -17,7 +17,7 @@ function recommendFertilizerPlan(obj, materials) {
 		P: { min: obj.p_lvl, max: obj.p_lvl*1.1 },
 		K: { min: obj.k_lvl },
 	};
-	//console.log(obj);
+	//
 	var temp_obj = {};
 	var variables = {};
 	for (var i = 0; i < materials.length; i++) {
@@ -48,7 +48,7 @@ function recommendFertilizerPlan(obj, materials) {
 }
 
 function processAmountEquation(arr, variables) {
-	//console.log(arr);
+	//
 	var order = [];
 	var inner_most_opening, inner_most_closing;
 	var i = 0, x = 0;
@@ -92,7 +92,7 @@ function processAmountEquation(arr, variables) {
 	});
 
 	var str = arr.join('');
-	//console.log(str);
+	//
 	return Math.ceil(Function("return " + str)());
 }
 
@@ -141,7 +141,6 @@ function processInventory(arr, recommendation, applied) {
 
 exports.ajaxGetActiveCNRPlans = function(req, res) {
 	const farm_id = req.query.farm_id;
-	console.log(farm_id);
 	nutrientModel.getAggregatedCNRAssignment(function(err, cnr_assignments) {
 		if (err)
 			throw err;
@@ -216,8 +215,12 @@ exports.getNutrientMgtPlan = function(req, res) {
 					if (farm_filter == undefined || farm_filter == null) {
 						farm_filter = farm_list[0].farm_name;
 					}
-					calendar_filter = crop_plans.filter(e => e.farm_name == farm_filter)[0].calendar_id;
 
+					if (crop_plans.length != 0)
+						calendar_filter = crop_plans.filter(e => e.farm_name == farm_filter)[0].calendar_id;
+					else 
+						calendar_filter = null;
+					
 					html_data['farm_list'] = farm_list;
 					html_data['crop_plans'] = { filtered: crop_plans.filter(e=>e.farm_name == farm_filter), list: JSON.stringify(crop_plans) };
 					html_data['filter'] = JSON.stringify({ farm: farm_filter, calendar: calendar_filter });
@@ -245,6 +248,8 @@ exports.getNutrientMgtPlan = function(req, res) {
 exports.ajaxGetNutrientPlanView = function(req, res) {
 	var query = { farm_name: req.query.farm_name };
 	var html_data = {};
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'monitor_farms', req.session);
+	
 	var summary = '';
 	cropCalendarModel.readCropCalendar({ calendar_id: req.query.calendar_id }, function(err, calendar_details) {
 		if (err)
@@ -292,7 +297,7 @@ exports.ajaxGetNutrientPlanView = function(req, res) {
 												if (err)
 													throw err;
 												else {
-													//console.log(frp);
+													//
 													nutrientModel.getNutrientPlanItems({ fr_plan_id: frp[0].fr_plan_id }, function(err, fr_items) {
 														if (err)
 															throw err;
@@ -319,13 +324,15 @@ exports.ajaxGetNutrientPlanView = function(req, res) {
 																				fr_items[i].target_application_date = dataformatter.formatDate(new Date(fr_items[i].target_application_date), 'YYYY-MM-DD');
 																			}
 																			
-																			html_data = js.init_session(html_data, 'role', 'name', 'username', 'monitor_farms', req.session);
+																			
 																			html_data['detailed_data'] = dataformatter.processNPKValues(result, result[0].farm_area, applied, summary, wo_list);
 																			if (forecast != 0) {
 																				html_data['yield_forecast'] = forecast[0].forecast;
 																			}
 																			fr_items = fr_items.filter(e => e.isCreated == 0);
-																			//console.log(fr_items);
+																			//
+																			frp[0]['formatted_date'] = dataformatter.formatDate(new Date(frp[0].last_updated), 'YYYY-MM-DD');
+																			html_data['frp_details'] = frp[0];
 																			html_data['recommendation'] = recommendFertilizerPlan(result[0], material_list);
 																			html_data['detailed_data']['calendar_id'] = req.query.calendar_id;
 																			html_data['fr_items'] = fr_items;
@@ -456,7 +463,6 @@ exports.getRecommendationSystem = function(req, res) {
 										cnr_arr.push(obj);
 										cnr_items_arr.push(temp_arr);
 									});
-									console.log(cnr_arr[0].items);
 									html_data['cnr_plan_json'] = JSON.stringify(cnr_items_arr);
 									html_data['cnr_plans'] = cnr_arr;
 									html_data['farm_list'] = { lowland: farm_list.filter(e=>e.land_type=='Lowland'), upland: farm_list.filter(e=>e.land_type=='Upland') };
@@ -503,14 +509,12 @@ exports.updateCNRPlan = function(req, res) {
 				if (err)
 					throw err;
 				else {
-					console.log(assignment_del);
 				}
 			});
 			nutrientModel.deleteCNRItems({ cnr_id: result[0].cnr_id }, function(err, items_del) {
 				if (err)
 					throw err;
 				else {
-					console.log(items_del);
 				}
 			});
 			nutrientModel.createCNRItems(items, function(err, cnr_items) {
@@ -539,7 +543,6 @@ exports.updateCNRPlan = function(req, res) {
 
 exports.createCNRPlan = function(req, res) {
 	var { name, farms, items } = req.query;
-	console.log(farms);
 	if (farms == undefined)
 		farms = [];
 

@@ -668,28 +668,71 @@ $(document).ready(function() {
 	// Run this each time a page is loaded
 	$.get('/get_weather_forecast', {}, function(forecast_result) {
 		//console.log(formatDate(new Date(forecast_result[0].date), 'YYYY-MM-DD'));
-		if (forecast_result == 0) {
-			refresh_on = hour + 1;
-			$.get('/forecast_weather14d', {}, function(result) {
-				console.log(result);
-				loaded = false;
-			});
-			// $.get('/agroapi/weather/forecast', { start: d2, end: d1 }, function(result) {
-			// 	let query = normalizeForDB(result, hour);
+		if (view == 'home' || view == 'add_crop_calendar') {
+			jQuery.ajaxSetup({async: false });
+			var hour = new Date();
+			hour = hour.getHours();
+			var forecast_records = null;
+			var day;
 
-			// 	$.post('/upload_weather_forecast', query, function(upload_result) {
-			// 		console.log('DB upload success');
+			if (forecast_result.length != 0) {
+				forecast_records = normalizeToJSON(forecast_result);
+				day = formatDate(new Date(forecast_result[0].date), 'YYYY-MM-DD');
 
-			// 		loaded = false;
-			// 	});
-			// });	
+				// Append clickable daily weather cards
+				appendForecastCards(forecast_records.data, forecast_records.keys);
+				appendDailyDetails(processDailyDetails(forecast_records.data[day]));
+				styleSelectedCard(0);
+				switchWeek(0);
+
+				generateRecommendation(forecast_records);
+			}
+			else {
+				console.log('err');
+			}
+			
+			if (forecast_records != null) {
+				// var options = { data: processChartData(forecast_records.data[day]) }
+				// options = setChartOptions(options);
+
+				// var ctx = document.getElementById('weather_chart').getContext('2d');
+
+				// var weather_chart = new Chart(ctx, options);
+
+				// Change viewed active daily detail
+				$('#weather_table').on('click', '.forecast_card', function() {
+					styleSelectedCard($('.forecast_card').index(this));
+					appendDailyDetails(processDailyDetails(forecast_records.data[$(this).attr('value')]));
+
+					// var options = { data: processChartData(forecast_records.data[$(this).attr('value')]) }
+					// options = setChartOptions(options);
+					// var ctx = document.getElementById('weather_chart').getContext('2d');
+
+					// weather_chart.destroy();
+					// weather_chart = new Chart(ctx, options);
+				});
+
+				// Change week
+				$('.week_switch').on('click', function() {
+					var index = $('.week_switch').index(this);
+					var card = index == 0 ? 0 : 7;
+					var day = $($('.forecast_card')[card]).attr('value');
+					switchWeek(index);
+
+					styleSelectedCard(card);
+					appendDailyDetails(processDailyDetails(forecast_records.data[day]));
+
+					// var options = { data: processChartData(forecast_records.data[day]) }
+					// options = setChartOptions(options);
+					// var ctx = document.getElementById('weather_chart').getContext('2d');
+
+					// weather_chart.destroy();
+					// weather_chart = new Chart(ctx, options);
+				});
+			}
 		}
-		else if (hour == refresh_on && hour != forecast_result[0].time_uploaded || 
-			formatDate(new Date(forecast_result[0].date), 'YYYY-MM-DD') != formatDate(new Date(), 'YYYY-MM-DD')) {
-			console.log(new Date()+' : Deleting DB records...');
-			$.get('/clear_weather_forecast', {}, function(status) {
-
-				//console.log('Generating weather forecast...');
+		else {
+			if (forecast_result == 0) {
 				refresh_on = hour + 1;
 				$.get('/forecast_weather14d', {}, function(result) {
 					console.log(result);
@@ -704,12 +747,34 @@ $(document).ready(function() {
 				// 		loaded = false;
 				// 	});
 				// });	
-			})
-		}
-		else {
-			console.log('Getting weather forecast...');
+			}
+			else if (hour == refresh_on && hour != forecast_result[0].time_uploaded || 
+				formatDate(new Date(forecast_result[0].date), 'YYYY-MM-DD') != formatDate(new Date(), 'YYYY-MM-DD')) {
+				console.log(new Date()+' : Deleting DB records...');
+				$.get('/clear_weather_forecast', {}, function(status) {
 
-			refresh_on = forecast_result[0].time_uploaded + 1;
+					//console.log('Generating weather forecast...');
+					refresh_on = hour + 1;
+					$.get('/forecast_weather14d', {}, function(result) {
+						console.log(result);
+						loaded = false;
+					});
+					// $.get('/agroapi/weather/forecast', { start: d2, end: d1 }, function(result) {
+					// 	let query = normalizeForDB(result, hour);
+
+					// 	$.post('/upload_weather_forecast', query, function(upload_result) {
+					// 		console.log('DB upload success');
+
+					// 		loaded = false;
+					// 	});
+					// });	
+				})
+			}
+			else {
+				console.log('Getting weather forecast...');
+
+				refresh_on = forecast_result[0].time_uploaded + 1;
+			}
 		}
 
 		/************  DB to UI Start *************/
@@ -804,71 +869,4 @@ $(document).ready(function() {
 
 
 	// }, 600000);
-
-
-	if (view == 'home' || view == 'add_crop_calendar') {
-		jQuery.ajaxSetup({async: false });
-		var hour = new Date();
-		hour = hour.getHours();
-		var forecast_records = null;
-		var day;
-
-		$.get('/get_weather_forecast', {}, function(forecast_result) {
-			if (forecast_result.length != 0) {
-				forecast_records = normalizeToJSON(forecast_result);
-				day = formatDate(new Date(forecast_result[0].date), 'YYYY-MM-DD');
-
-				// Append clickable daily weather cards
-				appendForecastCards(forecast_records.data, forecast_records.keys);
-				appendDailyDetails(processDailyDetails(forecast_records.data[day]));
-				styleSelectedCard(0);
-				switchWeek(0);
-
-				generateRecommendation(forecast_records);
-			}
-			else {
-				console.log('err');
-			}
-		});
-		if (forecast_records != null) {
-			// var options = { data: processChartData(forecast_records.data[day]) }
-			// options = setChartOptions(options);
-
-			// var ctx = document.getElementById('weather_chart').getContext('2d');
-
-			// var weather_chart = new Chart(ctx, options);
-
-			// Change viewed active daily detail
-			$('#weather_table').on('click', '.forecast_card', function() {
-				styleSelectedCard($('.forecast_card').index(this));
-				appendDailyDetails(processDailyDetails(forecast_records.data[$(this).attr('value')]));
-
-				// var options = { data: processChartData(forecast_records.data[$(this).attr('value')]) }
-				// options = setChartOptions(options);
-				// var ctx = document.getElementById('weather_chart').getContext('2d');
-
-				// weather_chart.destroy();
-				// weather_chart = new Chart(ctx, options);
-			});
-
-			// Change week
-			$('.week_switch').on('click', function() {
-				var index = $('.week_switch').index(this);
-				var card = index == 0 ? 0 : 7;
-				var day = $($('.forecast_card')[card]).attr('value');
-				switchWeek(index);
-
-				styleSelectedCard(card);
-				appendDailyDetails(processDailyDetails(forecast_records.data[day]));
-
-				// var options = { data: processChartData(forecast_records.data[day]) }
-				// options = setChartOptions(options);
-				// var ctx = document.getElementById('weather_chart').getContext('2d');
-
-				// weather_chart.destroy();
-				// weather_chart = new Chart(ctx, options);
-			});
-		}
-	}
-
 });

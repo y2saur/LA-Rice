@@ -21,7 +21,7 @@ exports.forecastYield = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			//console.log(farms);
+			//
 			html_data["notifs"] = req.notifs;
 			res.render('yield_forecast_test', { list: farms });
 		}
@@ -92,9 +92,9 @@ exports.getFarmDetails = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			console.log(details);
+			//
 			html_data["details"] = details;
-			////console.log(details);
+			////
 			farmtypes.push(details[0].land_type);
 		}
 
@@ -151,8 +151,8 @@ exports.getFarmDetails = function(req, res) {
 									html_data["pesticide"] = pesticides;
 								}
 								
-								////console.log(req.query.center);
-								////console.log("CENTER");
+								////
+								////
 								var center = req.query.center;
 								if(center == null){
 									var lat = 13.073091;
@@ -163,24 +163,23 @@ exports.getFarmDetails = function(req, res) {
 									var lon = center[0];
 								}
 								
-								new Date(Date.now());
+								new Date(req.session.cur_date);
 
-								var d1 = new Date(Date.now());
-								var d2 = new Date(Date.now());
+								var d1 = new Date(req.session.cur_date);
+								var d2 = new Date(req.session.cur_date);
 								d2.setDate(d2.getDate() - 2);
 								d1.setDate(d1.getDate() - 1);
 
-								var start_date = dataformatter.dateToUnix(d2);
-								var end_date = dataformatter.dateToUnix(d1);
+								var temp_date = dataformatter.processChangedDate(d2, d1);
+								var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
 								
-								var x = new Date();
+								var x = new Date(req.session.cur_date);
 								var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
-
 								request(url, { json: true }, function(err, response, body) {
 									if (err)
 										throw err;
 									else {
-										// //console.log(body);
+										// //
 										for (var i = 0; i < body.length; i++) {
 											body[i].dt = dataformatter.unixtoDate(body[i].dt);
 										}
@@ -198,7 +197,7 @@ exports.getFarmDetails = function(req, res) {
 													forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 													hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 												}
-												// //console.log(forecast_body);
+												// //
 												
 												//***** Get unique hour timestamps from forecast and filter data
 												hour_arr = [...new Map(hour_arr.map(item =>
@@ -215,11 +214,11 @@ exports.getFarmDetails = function(req, res) {
 							
 												forecast = dataformatter.mapAndFormatForecastResult(result, hour_arr);
 												
-												// //console.log(forecast[0]);
+												// //
 												var daily_ctr = 0;
 												var dmin_temp = 0, dmax_temp = 0, dhumidity = 0, dpressure = 0, drainfall = 0;
 												for(var i = 0; i < forecast.length; i++){
-													// //console.log(forecast[i]);
+													// //
 			
 													var ctr = 0;
 													var min_temp = 0, max_temp = 0, humidity = 0, pressure = 0, rainfall = 0;
@@ -260,7 +259,7 @@ exports.getFarmDetails = function(req, res) {
 													precipitation : drainfall / daily_ctr
 												}
 												
-												// //console.log(weather);
+												// //
 			
 			
 												var season = {
@@ -268,7 +267,7 @@ exports.getFarmDetails = function(req, res) {
 													season_humidity : 65
 												}
 												var cc_query = {
-													status: ['In-Progress', 'Active', "Completed"]
+													status: ['In-Progress', 'Active', "Completed"], date: req.session.cur_date
 												}
 												cropCalendarModel.getCropCalendars(cc_query, function(err, stage){
 													if(err)
@@ -280,7 +279,7 @@ exports.getFarmDetails = function(req, res) {
 																index = i;
 																break;
 															}
-														// console.log(stage[index]);
+														//
 														if(index == null){
 															var cur_stage = {
 																stage_name : null
@@ -326,8 +325,8 @@ exports.getFarmDetails = function(req, res) {
 															//ADD CROP CYCLE DETAILS (WORK ORDERS)
 															var calendar_id = req.query.calendar_id;
 	
-															var crop_calendar_query = { status: ['In-Progress', 'Active','Completed'] , where : {key : "calendar_id", val : calendar_id}}
-															//console.log("---------------------");
+															var crop_calendar_query = { status: ['In-Progress', 'Active','Completed'] , where : {key : "calendar_id", val : calendar_id}, date: req.session.cur_date }
+															//
 															cropCalendarModel.getCropCalendars(crop_calendar_query, function(err, crop_calendar_details){
 																if(err)
 																	throw err;
@@ -368,8 +367,8 @@ exports.getFarmDetails = function(req, res) {
 																	}
 	
 																}
-																// console.log("crop_calendar_details");
-																// console.log(crop_calendar_details);
+																//
+																//
 																var wo_query = {
 																	where: {
 																		key: ['crop_calendar_id'],
@@ -416,8 +415,8 @@ exports.getFarmDetails = function(req, res) {
 																			workorders[i].date_created = dataformatter.formatDate(dataformatter.formatDate(new Date(workorders[i].date_created)), 'YYYY-MM-DD');
 																		}
 																	}
-																	// //console.log("WORKORDERS");
-																	// //console.log(workorders);
+																	// //
+																	// //
 																	
 																	pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnosis){
 
@@ -425,7 +424,6 @@ exports.getFarmDetails = function(req, res) {
 																			throw err;
 																		else{
 																			var i, x;
-																			console.log(farm_id);
 																			for(i = 0; i < diagnosis.length; i++){
 																				diagnosis[i].date_diagnosed = dataformatter.formatDate(dataformatter.formatDate(new Date(diagnosis[i].date_diagnosed)), 'YYYY-MM-DD');
 																				
@@ -453,7 +451,6 @@ exports.getFarmDetails = function(req, res) {
 																				}
 																			}
 																		}
-																	
 																		html_data["workorders"] = workorders;
 																		html_data["queries"] = queries;
 																		html_data["statements"] = statements;
@@ -505,7 +502,7 @@ exports.assignFarmers = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			//console.log(result);
+			//
 			res.send({ success: true });
 		}
 	});
@@ -573,7 +570,7 @@ exports.getGeoMap = function(req, res) {
 						}
 						else {
 							var html_data = { farm_data: dataformatter.aggregateFarmData(farm_data, plot_data, employee_data)};
-							////console.log(html_data);
+							////
 							html_data["notifs"] = req.notifs;
 							res.render('home', {});
 						}
@@ -591,7 +588,7 @@ exports.singleFarmDetails = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			////console.log(result);
+			////
 			res.send({ farm_list: result });
 		}
 	});
@@ -624,7 +621,7 @@ exports.getIncludedCalendars = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			cropCalendarModel.getCropCalendars({ status: ['Completed'], where: { key: 'farm_name', val: req.query.farm_name } }, function(err, calendar_list) {
+			cropCalendarModel.getCropCalendars({ status: ['Completed'], where: { key: 'farm_name', val: req.query.farm_name }, date: req.session.cur_date }, function(err, calendar_list) {
 		   		if (err)
 		   			throw err;
 		   		else {
@@ -644,7 +641,7 @@ exports.getIncludedCalendars = function(req, res) {
 		   				});
 		   			}
 		   			else {
-		   				//console.log(calendar_list);
+		   				//
 			   			if (calendar_list.length < 4) {
 			   				res.send({ result: null });
 			   			}
@@ -667,7 +664,7 @@ function normalizeForecastVariables(data) {
 	var normalized_data = { data: [], val: [] };
 	var obj_keys = ['temp', 'humidity', 'pressure', 'rainfall', 'seed_id', 'yield', 'N',
 	'P', 'K', 'seed_rate'];
-	//console.log(data);
+	//
 	for (var i = 0; i < data.length; i++) {
 		for (var x = 0; x < data[i].length; x++) {
 			data[i][x] = parseFloat(data[i][x]);
@@ -744,12 +741,11 @@ exports.completeYieldForecast = function(req, res) {
 	var current_calendar = null;
 	var training_set = [];
 	var testing_set = [];
-
 	cropCalendarModel.getCurrentCropCalendar({ farm_name: req.params.farm_name }, function(err, calendar) {
 		if (err)
 			throw err;
 		else {
-			cropCalendarModel.getCropCalendars({ status: ['Completed'], where: { key: 'farm_name', val: req.params.farm_name } }, function(err, calendar_list) {
+			cropCalendarModel.getCropCalendars({ status: ['Completed'], where: { key: 'farm_name', val: req.params.farm_name }, date: req.session.cur_date }, function(err, calendar_list) {
 		   		if (err)
 		   			throw err;
 		   		else {
@@ -759,161 +755,141 @@ exports.completeYieldForecast = function(req, res) {
 	   					else {
 		   					calendar_list = calendar_list.filter(e => new Date(e.harvest_date) < curr_calendar[0].harvest_date);
 			   				current_calendar = curr_calendar[0];
-
-			   				console.log(current_calendar);
-				   			if (calendar_list.length < 4) {
-				   				insufficient = true;
-				   				// Update db to reflect insufficient historical records
-				   				var forecast_update = {
-				   					forecast: -1
-								};
-								var forecast_filter = {
-									calendar_id: current_calendar.calendar_id
-								}
-				   				farmModel.updateForecastYieldRecord(forecast_update, forecast_filter, function(err, update_status) {
-									if (err)
-										throw err;
-									else {
-										// Redirect
-										res.redirect(req.params.redirect);
-									}
-								})
-				   			}
-			   				// Get env variables of previous harvest from db
+				   			// Get env variables of previous harvest from db
 			   				var query = {
 			   					calendar_id : calendar_list.map(({ calendar_id }) => calendar_id)
 			   				}
-			   				console.log(query);
-							farmModel.getForecastedYieldRecord(query, function(err, forecast_records) {
-								if (err)
-									throw err;
-								else {
-									// Transform db records
-									delete forecast_records.forecast;
+			   				if (calendar_list.map(({ calendar_id }) => calendar_id).length >= 4) {
+								farmModel.getForecastedYieldRecord(query, function(err, forecast_records) {
+									if (err)
+										throw err;
+									else {
+										// Transform db records
+										delete forecast_records.forecast;
 
-									for (var o = 0; o < forecast_records.length; o++) {
-										training_set.push(Object.values(forecast_records[o]));
+										for (var o = 0; o < forecast_records.length; o++) {
+											training_set.push(Object.values(forecast_records[o]));
+										}
+										testing_set = training_set.slice();
+										for (var i = 0; i < testing_set.length/2; i++) {
+											testing_set.shift();
+										}
 									}
-									testing_set = training_set.slice();
-									for (var i = 0; i < testing_set.length/2; i++) {
-										testing_set.shift();
-									}
+								});
+			   				}
 
-									// console.log(training_set);
-									// console.log(testing_set);
-									// If there is existing crop cycle - Get current env variables
-									if (current_calendar != null) {
-										console.log(current_calendar);
-										req.params.start = new Date(req.params.start) > new Date() ? dataformatter.formatDate(new Date(), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.params.start), 'YYYY-MM-DD');
-										req.params.end = new Date(req.params.end) > new Date() ? dataformatter.formatDate(new Date(), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.params.end), 'YYYY-MM-DD');
+			   				//
+							//
+							// If there is existing crop cycle - Get current env variables
+							if (current_calendar != null) {
+								req.params.start = new Date(req.params.start) > new Date(req.session.cur_date) ? dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.params.start), 'YYYY-MM-DD');
+								req.params.end = new Date(req.params.end) > new Date(req.session.cur_date) ? dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.params.end), 'YYYY-MM-DD');
 
-										// Get polygon id
-										var url = 'http://api.agromonitoring.com/agro/1.0/polygons?appid='+key;
-									    request(url, { json: true }, function(err, response, polygon_list) {
+								// Get polygon id
+								var url = 'http://api.agromonitoring.com/agro/1.0/polygons?appid='+key;
+							    request(url, { json: true }, function(err, response, polygon_list) {
+							        if (err)
+							        	throw err;
+							        else {
+							        	var polygon_id = polygon_list.filter(e => e.name == req.params.farm_name)[0].id;
+										var start_date = dataformatter.dateToUnix(req.params.start), end_date = dataformatter.dateToUnix(req.params.end);
+										var lat = req.query.lat, lon = req.query.lon, threshold = req.query.threshold;
+
+										lat = temp_lat;
+										lon = temp_lon;
+
+										var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?accumulated_temperature?polyid='+polygon_id+'&lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
+
+									    request(url, { json: true }, function(err, response, body) {
 									        if (err)
 									        	throw err;
 									        else {
-									        	var polygon_id = polygon_list.filter(e => e.name == req.params.farm_name)[0].id;
-												var start_date = dataformatter.dateToUnix(req.params.start), end_date = dataformatter.dateToUnix(req.params.end);
-												var lat = req.query.lat, lon = req.query.lon, threshold = req.query.threshold;
+									        	var rainfall = 0;
+									             body_rainfall = body.filter(e => e.rain != undefined || e.rain != null);
+									        	if (body_rainfall.length != 0) {
+									        		for (var i = 0; i < body_rainfall.length; i++) {
+										        		rainfall += typeof body_rainfall[i].rain['3h'] == 'undefined' ? body_rainfall[i].rain['1h'] : body_rainfall[i].rain['3h'] 
+										        	}
+										        	rainfall /= body_rainfall.length
+									        	}
+										        //
+										        if (body.length == 0) {
+										        	var stat_obj = {
+										        		avg_temp: 0,
+											        	avg_humidity: 0,
+											        	avg_pressure: 0,
+										        		avg_rainfall: rainfall
+										        	}
+										        }
+										        else {
+										        	var stat_obj = {
+										        		avg_temp: body.reduce((total, next) => total + next.main.temp, 0) / body.length,
+											        	avg_humidity: body.reduce((total, next) => total + next.main.humidity, 0) / body.length,
+											        	avg_pressure: body.reduce((total, next) => total + next.main.pressure, 0) / body.length,
+										        		avg_rainfall: rainfall
+										        	}
 
-												lat = temp_lat;
-												lon = temp_lon;
+										        }
+													
+									        	// Replace last data of testing set with current env variables
+												nutrientModel.getNutrientDetails({ specific: { calendar_id: current_calendar.calendar_id } }, function(err, curr_nutrient_details) {
+													if (err)
+														throw err;
+													else {
+														stat_obj['seed_id'] = current_calendar.seed_id;
+														if (calendar_list.map(({ calendar_id }) => calendar_id).length >= 4)
+															stat_obj['harvest_yield'] = testing_set[testing_set.length-1][5];
+														else
+															stat_obj['harvest_yield'] = 0;
+														stat_obj['deficient_N'] = curr_nutrient_details[0].deficient_N;
+														stat_obj['deficient_P'] = curr_nutrient_details[0].deficient_P;
+														stat_obj['deficient_K'] = curr_nutrient_details[0].deficient_K;
+														stat_obj['seed_rate'] = current_calendar.seed_rate;
 
-												var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?accumulated_temperature?polyid='+polygon_id+'&lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
+														testing_set[testing_set.length-1] = Object.values(stat_obj);
 
-											    request(url, { json: true }, function(err, response, body) {
-											        if (err)
-											        	throw err;
-											        else {
+														var forecast;
+														if (calendar_list.map(({ calendar_id }) => calendar_id).length >= 4) {
+															// Create actual forecast
+															training_set = normalizeForecastVariables(training_set);
+															testing_set = normalizeForecastVariables(testing_set);
+															forecast = analyzer.forecastYield(training_set, testing_set);
+														}
+														else {
+															forecast = [[0, 0, 0, 0, 0, -1]];
+														}
 
-											        	
-											        	
-											        	var rainfall = 0;
-											             body_rainfall = body.filter(e => e.rain != undefined || e.rain != null);
-											        	if (body_rainfall.length != 0) {
-											        		for (var i = 0; i < body_rainfall.length; i++) {
-												        		rainfall += typeof body_rainfall[i].rain['3h'] == 'undefined' ? body_rainfall[i].rain['1h'] : body_rainfall[i].rain['3h'] 
-												        	}
-												        	rainfall /= body_rainfall.length
-											        	}
-												        //console.log(body.length);
-												        if (body.length == 0) {
-												        	var stat_obj = {
-												        		avg_temp: 0,
-													        	avg_humidity: 0,
-													        	avg_pressure: 0,
-												        		avg_rainfall: rainfall
-												        	}
-												        }
-												        else {
-												        	var stat_obj = {
-												        		avg_temp: body.reduce((total, next) => total + next.main.temp, 0) / body.length,
-													        	avg_humidity: body.reduce((total, next) => total + next.main.humidity, 0) / body.length,
-													        	avg_pressure: body.reduce((total, next) => total + next.main.pressure, 0) / body.length,
-												        		avg_rainfall: rainfall
-												        	}
-
-												        }
-															
-											        	// Replace last data of testing set with current env variables
-														nutrientModel.getNutrientDetails({ specific: { calendar_id: current_calendar.calendar_id } }, function(err, curr_nutrient_details) {
+														// Update db records
+														var forecast_update = {
+															temp: stat_obj.avg_temp,
+															humidity: stat_obj.avg_humidity,
+															pressure: stat_obj.avg_pressure,
+															rainfall: stat_obj.avg_rainfall,
+															forecast: Math.round(forecast[0][5]),
+															N: stat_obj.deficient_N,
+															P: stat_obj.deficient_P,
+															K: stat_obj.deficient_K,
+															seed_rate: stat_obj.seed_rate
+														};
+														var forecast_filter = {
+															calendar_id: current_calendar.calendar_id
+														}
+														farmModel.updateForecastYieldRecord(forecast_update, forecast_filter, function(err, update_status) {
 															if (err)
 																throw err;
 															else {
-																stat_obj['seed_id'] = current_calendar.seed_id;
-																stat_obj['harvest_yield'] = testing_set[testing_set.length-1][5];
-																stat_obj['deficient_N'] = curr_nutrient_details[0].deficient_N;
-																stat_obj['deficient_P'] = curr_nutrient_details[0].deficient_P;
-																stat_obj['deficient_K'] = curr_nutrient_details[0].deficient_K;
-																stat_obj['seed_rate'] = current_calendar.seed_rate;
-
-																testing_set[testing_set.length-1] = Object.values(stat_obj);
-																console.log(testing_set);
-
-																// Create actual forecast
-																training_set = normalizeForecastVariables(training_set);
-																testing_set = normalizeForecastVariables(testing_set);
-
-																var forecast = analyzer.forecastYield(training_set, testing_set);
-
-																console.log(forecast);
-																// Update db records
-																var forecast_update = {
-																	temp: stat_obj.avg_temp,
-																	humidity: stat_obj.avg_humidity,
-																	pressure: stat_obj.avg_pressure,
-																	rainfall: stat_obj.avg_rainfall,
-																	forecast: Math.round(forecast[0][5]),
-																	N: stat_obj.deficient_N,
-																	P: stat_obj.deficient_P,
-																	K: stat_obj.deficient_K,
-																	seed_rate: stat_obj.seed_rate
-																};
-																var forecast_filter = {
-																	calendar_id: current_calendar.calendar_id
-																}
-																console.log(forecast_update);
-																farmModel.updateForecastYieldRecord(forecast_update, forecast_filter, function(err, update_status) {
-																	if (err)
-																		throw err;
-																	else {
-
-																		// Redirect
-																		res.redirect(req.params.redirect);
-																	}
-																})
+																// Redirect
+																res.redirect(req.params.redirect);
 															}
-														});
-											        }
-											    });
+														})
+													}
+												});
 									        }
 									    });
-												
-									}
-
-								}
-							});
+							        }
+							    });
+										
+							}	
 	   					}
 	   				});
 		   		}
@@ -925,35 +901,33 @@ exports.completeYieldForecast = function(req, res) {
 
 exports.createYieldForecast = function(req, res) {
 	var training = req.query.training, testing = req.query.testing;
-	//console.log(training);
-	// console.log('-----------------');
-	// console.log(testing);
+	//
+	//
+	//
 	var training_set = normalizeForecastVariables(training);
 	var testing_set = normalizeForecastVariables(testing);
-	// console.log(training_set);
-	// console.log('-------------------');
-	//console.log(testing_set);
+	//
+	//
+	//
 	var forecast = analyzer.forecastYield(training_set, testing_set);
-	//console.log(forecast);
+	//
 	res.send(forecast);
 }
 
 exports.ajaxGetForecastRecord = function(req, res) {
 	var query = req.query;
-	console.log(query);
 	farmModel.getForecastedYieldRecord(query, function(err, records) {
 		if (err)
 			throw err;
 		else {
-			console.log(records);
 			res.send(records);
 		}
 	});
 }
 
 exports.getYieldVariables = function(req, res) {
-	req.query.start = new Date(req.query.start) > new Date() ? dataformatter.formatDate(new Date(), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.query.start), 'YYYY-MM-DD');
-	req.query.end = new Date(req.query.end) > new Date() ? dataformatter.formatDate(new Date(), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.query.end), 'YYYY-MM-DD');
+	req.query.start = new Date(req.query.start) > new Date(req.session.cur_date) ? dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.query.start), 'YYYY-MM-DD');
+	req.query.end = new Date(req.query.end) > new Date(req.session.cur_date) ? dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD') : dataformatter.formatDate(new Date(req.query.end), 'YYYY-MM-DD');
 
 	var polygon_id = req.query.polyid;
 	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
@@ -963,12 +937,12 @@ exports.getYieldVariables = function(req, res) {
 	lon = temp_lon;
 
 	var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?accumulated_temperature?polyid='+polygon_id+'&lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
-	//console.log(url);
+	//
     request(url, { json: true }, function(err, response, body) {
         if (err)
         	throw err;
         else {
-        	//console.log(body);
+        	//
         	var rainfall = 0;
              body_rainfall = body.filter(e => e.rain != undefined || e.rain != null);
         	if (body_rainfall.length != 0) {
@@ -1072,7 +1046,7 @@ exports.queryYieldVariables = function(req, res) {
 
 						        	html_data['uvi_history'] = dataformatter.smoothDailyData(body, 'uvi_history');;
 
-						        	//console.log(html_data);
+						        	//
 									res.send(html_data);
 						        }
 						    });
@@ -1123,9 +1097,10 @@ exports.getHistoricalNDVI = function(req, res) {
 }
 
 exports.getSatelliteImageryData = function(req, res) {
-	//console.log(req.query.start);
+	//
 	var polygon_id = req.query.polygon_id;
-	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
 	var obj;
 
 	var data = {
@@ -1134,6 +1109,7 @@ exports.getSatelliteImageryData = function(req, res) {
 		end: end_date,
 		clouds_max: 1
 	};
+
 	var options = {
 		url: 'https://api.agromonitoring.com/agro/1.0/image/search?polyid='+polygon_id+'&start='+start_date+'&end='+end_date+'&appid='+key+'&clouds_max='+60,
 		method: 'GET',
@@ -1155,7 +1131,7 @@ exports.getSatelliteImageryData = function(req, res) {
         	}
 			//var result = body[body.length-1];
 			//result.dt = dataformatter.unixtoDate(result.dt);
-			////console.log(body);
+			////
 			res.send(body);
 		}
 	});
@@ -1164,26 +1140,58 @@ exports.getSatelliteImageryData = function(req, res) {
 //**** Soil Data ****//
 exports.getCurrentSoilData = function(req, res){
 	var polygon_id = req.query.polyid;
-	var url = 'http://api.agromonitoring.com/agro/1.0/soil?polyid='+polygon_id+'&appid='+key;
+	var cur_date = new Date(req.session.cur_date);
+	var true_date = new Date();
 
-    request(url, { json: true }, function(err, response, body) {
-        if (err)
-        	throw err;
-        else {
-        	// console.log(body);
-			body.dt = dataformatter.unixtoDate(body.dt);
-			body.moisture *= 100;
-			body = dataformatter.kelvinToCelsius(body, 'Soil');
+	if(true_date != cur_date) {
+		var temp_date = dataformatter.processChangedDate(req.session.cur_date, req.session.cur_date);
+		var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
 
-        	res.send(body);
-        }
-    });
+		var url = 'http://api.agromonitoring.com/agro/1.0/soil/history?start='+start_date+'&end='+end_date+'&polyid='+polygon_id+'&appid='+key;
+
+	    request(url, { json: true }, function(err, response, body) {
+	        if (err)
+	        	throw err;
+	        else {
+	        	//
+	        	body = JSON.parse(JSON.stringify(body));
+	        	body = body[body.length - 1];
+
+				// for (var i = 0; i < body.length; i++) {
+	   //      		body[i].dt = dataformatter.formatDate(dataformatter.unixtoDate(body[i].dt), 'YYYY-MM-DD');
+	   //      		body[i]['date'] = dataformatter.unixtoDate(body[i].dt);
+	   //      	}
+	  			body.dt = dataformatter.unixtoDate(body.dt);
+				body.moisture *= 100;
+				body = dataformatter.kelvinToCelsius(body, 'Soil');
+
+	        	res.send(body);
+	        }
+	    });
+	}
+	else {
+		var url = 'http://api.agromonitoring.com/agro/1.0/soil?polyid='+polygon_id+'&appid='+key;
+	    request(url, { json: true }, function(err, response, body) {
+	        if (err)
+	        	throw err;
+	        else {
+	        	//
+				body.dt = dataformatter.unixtoDate(body.dt);
+				body.moisture *= 100;
+				body = dataformatter.kelvinToCelsius(body, 'Soil');
+
+	        	res.send(body);
+	        }
+	    });
+	}
 }
 
 //!!!!! havent tested yet because of this is a premium feature !!!!!//
 exports.getHistoricalSoilData = function(req, res){
 	var polygon_id = req.query.polyid;
-	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
+
 	var url = 'http://api.agromonitoring.com/agro/1.0/soil/history?start='+start_date+'&end='+end_date+'&polyid='+polygon_id+'&appid='+key;
 
     request(url, { json: true }, function(err, response, body) {
@@ -1207,7 +1215,9 @@ exports.getHistoricalSoilData = function(req, res){
 //**** Temperature and Precipitation ****//
 exports.getAccumulatedTemperature = function(req, res){
 	var polygon_id = req.query.polyid;
-	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
+
 	var lat = req.query.lat, lon = req.query.lon, threshold = req.query.threshold;
 
 	lat = temp_lat;
@@ -1233,7 +1243,9 @@ exports.getAccumulatedTemperature = function(req, res){
 
 exports.getAccumulatedPrecipitation = function(req, res){
 	var polygon_id = req.query.polyid;
-	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
+
 	var lat = req.query.lat, lon = req.query.lon, threshold = req.query.threshold;
 
 	lat = temp_lat;
@@ -1276,7 +1288,9 @@ exports.getCurrentUVI = function(req, res){
 
 exports.getHistoricalUVI = function(req, res){
 	var polygon_id = req.query.polyid;
-	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
+
 	var url = 'http://api.agromonitoring.com/agro/1.0/uvi/history?polyid='+polygon_id+'&appid='+key+'&start='+start_date+'&end='+end_date;
 
     request(url, { json: true }, function(err, response, body) {
@@ -1318,7 +1332,8 @@ exports.getCurrentWeather = function(req, res){
 }
 
 exports.getHistoricalWeather = function(req, res){
-	var start_date = dataformatter.dateToUnix(req.query.start), end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
 	var lat = req.query.lat, lon = req.query.lon;
 	
 	lat = temp_lat;
@@ -1344,8 +1359,8 @@ exports.getHistoricalWeather = function(req, res){
 
 // 
 exports.getForecastWeather = function(req, res) {
-	var start_date = dataformatter.dateToUnix(req.query.start), 
-	end_date = dataformatter.dateToUnix(req.query.end);
+	var temp_date = dataformatter.processChangedDate(req.query.start, req.query.end);
+	var start_date = dataformatter.dateToUnix(temp_date.start), end_date = dataformatter.dateToUnix(temp_date.end);
 	
 	var lat = req.query.lat, lon = req.query.lon;
 	lat = temp_lat;
@@ -1365,7 +1380,7 @@ exports.getForecastWeather = function(req, res) {
         	//***** Call Agro API for succeeding 5 day forecast
 
         	var forecast_url = 'https://api.agromonitoring.com/agro/1.0/weather/forecast?lat='+lat+'&lon='+lon+'&appid='+key;
-        	// //console.log(forecast_url);
+        	// //
 		    request(forecast_url, { json: true }, function(err, forecast_response, forecast_body) {
 		        if (err)
 		        	throw err;
@@ -1376,8 +1391,8 @@ exports.getForecastWeather = function(req, res) {
 		        		forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 		        		hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 		        	}
-		        		// //console.log(url);
-        				////console.log(forecast_url);
+		        		// //
+        				////
 		        	//***** Get unique hour timestamps from forecast and filter data
 		        	hour_arr = [...new Map(hour_arr.map(item =>
 	  					[item, item])).values()];
@@ -1385,7 +1400,7 @@ exports.getForecastWeather = function(req, res) {
 		        	body = dataformatter.smoothHourlyData(body, hour_arr);
 		        	forecast_body = dataformatter.smoothHourlyData(forecast_body, hour_arr);
 
-		        	////console.log(forecast_body);
+		        	////
 		        	//***** Build on Agro API and use ANN to forecast remaining 9 days
 		        	var result = analyzer.weatherForecast14D
 		        	(dataformatter.prepareData(body, 1), dataformatter.prepareData(forecast_body, 1), hour_arr.length+1);
@@ -1449,7 +1464,7 @@ exports.getPolygonInfo = function(req, res){
         if (err)
         	throw err;
         else {
-        	//console.log(body);
+        	//
 
         	html_data["notifs"] = req.notifs;
 			res.render('home', {});
@@ -1463,7 +1478,7 @@ exports.getAllPolygons = function(req, res){
         if (err)
         	throw err;
         else {
-        	////console.log(body);
+        	////
 
         	res.send(body);
         }
@@ -1493,7 +1508,7 @@ exports.updatePolygonName = function(req, res){
         if (err)
         	throw err;
         else {
-        	//console.log(body);
+        	//
 
         	html_data["notifs"] = req.notifs;
 			res.render('home', {});

@@ -30,7 +30,7 @@ function addDays(date, days) {
 }
 
 function processAmountEquation(arr, variables) {
-	//console.log(arr);
+	//
 	var order = [];
 	var inner_most_opening, inner_most_closing;
 	var i = 0, x = 0;
@@ -74,7 +74,7 @@ function processAmountEquation(arr, variables) {
 	});
 
 	var str = arr.join('');
-	//console.log(str);
+	//
 	return Math.ceil(Function("return " + str)());
 }
 
@@ -144,135 +144,135 @@ exports.getSummarizedFarmMonitoring = function(req, res) {
 	var html_data = {};
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'monitor_farms', req.session);
 
-	cropCalendarModel.getCropCalendars({ status: ['In-Progress', 'Active'] }, function(err, list) {
+	cropCalendarModel.getCropCalendars({ status: ['In-Progress', 'Active'], date: html_data.cur_date }, function(err, list) {
 		if (err)
 			throw err;
 		else {
 			var nutrient_query = list.map(e => ({ farm_id: e.farm_id, calendar_id: e.calendar_id }));
-			nutrientModel.getUpcomingImportantNutrients(nutrient_query, 'summary', function(err, nutrient_reco) {
+
+			if (nutrient_query.length != 0) {
+				nutrientModel.getUpcomingImportantNutrients(nutrient_query, 'summary', function(err, nutrient_reco) {
+					if (err)
+						throw err;
+					else {
+						for (var i = 0; i < nutrient_reco.length; i++) {
+							nutrient_reco[i].target_application_date = dataformatter.formatDate(nutrient_reco[i].target_application_date, 'mm DD, YYYY');
+						}
+
+
+						var nutrient_reco_arr = [];
+						const unique = [...new Map(nutrient_reco.map(item =>
+		  					[item.fr_plan_id, item])).values()];
+						for (var i = 0; i < unique.length; i++) {
+							for (var x = 0; x < list.length; x++) {
+								if (list[x].farm_id == unique[i].farm_id) {
+									list[x]['nutrients'] = nutrient_reco_arr.concat((nutrient_reco.filter(e => e.fr_plan_id == unique[i].fr_plan_id)).slice(0, 3));
+								}
+							}
+						}
+					}
+				});
+			}
+			
+			farmModel.getAllFarmswCalendar(function(err, calendars) {
 				if (err)
 					throw err;
 				else {
-					farmModel.getAllFarmswCalendar(function(err, calendars) {
-						if (err)
+
+					farmModel.getForecastedYieldRecord1({ calendar_id : list.map(({ calendar_id }) => calendar_id) } , function(err, forecast_record) {
+						if(err)
 							throw err;
 						else {
-							farmModel.getForecastedYieldRecord1({ calendar_id : list.map(({ calendar_id }) => calendar_id) } , function(err, forecast_record) {
-								if(err)
+							calendars = calendars.filter(function(cv) {
+								return !list.find(function(e) {
+									return e.farm_id == cv.farm_id;
+								});
+							});
+
+							for (var i = 0; i < calendars.length; i++) {
+								if (calendars[i].calendar_id != null) {
+									calendars[i].land_prep_date = dataformatter.formatDate(new Date(calendars[i].land_prep_date), 'mm DD, YYYY');
+									calendars[i].sowing_date = dataformatter.formatDate(new Date(calendars[i].sowing_date), 'mm DD, YYYY');
+									calendars[i].harvest_date = dataformatter.formatDate(new Date(calendars[i].harvest_date), 'mm DD, YYYY');
+								}
+							}
+
+							if (list.length != 0) {
+								for (var i = 0; i < list.length; i++) {
+									var forecast = forecast_record.filter(e => e.calendar_id == list[i].calendar_id);
+
+										if (forecast.length == 0) {
+											forecast = 'Forecasted Yield: N/A';
+										}
+										else {
+											forecast = 'Forecasted Yield: '+forecast[0].forecast+' cavans/ha';
+										}
+
+									list[i]['forecast'] = forecast; 
+								}
+							}
+							
+							//var filtered_list = list.filter(e => e.stage != 'Land Preparation' && e.stage != 'Sow Seed');
+							var url = 'http://api.agromonitoring.com/agro/1.0/polygons?appid='+key;
+							request(url, { json: true }, function(err, response, body) {
+								if (err)
 									throw err;
 								else {
-									console.log(forecast_record);
-									calendars = calendars.filter(function(cv) {
-										return !list.find(function(e) {
-											return e.farm_id == cv.farm_id;
-										});
-									});
+									var farm_list = [];
+									
+									for (var i = 0; i < list.length; i++) {
+										farm_list.push({ id: body.filter(e => e.name == list[i].farm_name)[0].id, name: list[i].farm_name });
 
-									if (list.length != 0) {
-										for (var i = 0; i < list.length; i++) {
-											var forecast = forecast_record.filter(e => e.calendar_id == list[i].calendar_id);
+										// if (list[i].sow_date_completed != null) {
+										// 	list[i].sow_date_completed = new Date(list[i].sow_date_completed);
+										// 	if (list[i].method == 'Transplanting') {
+										// 		list[i].sow_date_completed.setDate((list[i].sow_date_completed).getDate() - 15);											
+										// 	}
 
-												if (forecast.length == 0) {
-													forecast = 'Forecasted Yield: N/A';
-												}
-												else {
-													forecast = 'Forecasted Yield: '+forecast[0].forecast+' cavans/ha';
-												}
-
-											list[i]['forecast'] = forecast; 
-										}
-									}
+										// }
 										
-
-									for (var i = 0; i < calendars.length; i++) {
-										if (calendars[i].calendar_id != null) {
-											calendars[i].land_prep_date = dataformatter.formatDate(new Date(calendars[i].land_prep_date), 'mm DD, YYYY');
-											calendars[i].sowing_date = dataformatter.formatDate(new Date(calendars[i].sowing_date), 'mm DD, YYYY');
-											calendars[i].harvest_date = dataformatter.formatDate(new Date(calendars[i].harvest_date), 'mm DD, YYYY');
-										}
+										list[i]['days_till_harvest'] = list[i].sow_date_completed == null ? 'N/A' : dateDiffInDays((list[i].sow_date_completed), new Date(html_data.cur_date));
 									}
-
-									//console.log(calendars);
-									for (var i = 0; i < nutrient_reco.length; i++) {
-										nutrient_reco[i].target_application_date = dataformatter.formatDate(nutrient_reco[i].target_application_date, 'mm DD, YYYY');
-									}
-
-
-									var nutrient_reco_arr = [];
-									const unique = [...new Map(nutrient_reco.map(item =>
-					  					[item.fr_plan_id, item])).values()];
-									for (var i = 0; i < unique.length; i++) {
-										for (var x = 0; x < list.length; x++) {
-											if (list[x].farm_id == unique[i].farm_id) {
-												list[x]['nutrients'] = nutrient_reco_arr.concat((nutrient_reco.filter(e => e.fr_plan_id == unique[i].fr_plan_id)).slice(0, 3));
-											}
-										}
-									}
-									//console.log(nutrient_reco);
-									//var filtered_list = list.filter(e => e.stage != 'Land Preparation' && e.stage != 'Sow Seed');
-									var url = 'http://api.agromonitoring.com/agro/1.0/polygons?appid='+key;
-									request(url, { json: true }, function(err, response, body) {
-										if (err)
+									
+									pestDiseaseModel.getDiagnosisSymptomsSummarized(null, function(err, symptoms){
+										if(err)
 											throw err;
-										else {
-											var farm_list = [];
-											//console.log(body);
-											for (var i = 0; i < list.length; i++) {
-												farm_list.push({ id: body.filter(e => e.name == list[i].farm_name)[0].id, name: list[i].farm_name });
-
-												// if (list[i].sow_date_completed != null) {
-												// 	list[i].sow_date_completed = new Date(list[i].sow_date_completed);
-												// 	if (list[i].method == 'Transplanting') {
-												// 		list[i].sow_date_completed.setDate((list[i].sow_date_completed).getDate() - 15);											
-												// 	}
-
-												// }
-												
-												list[i]['days_till_harvest'] = list[i].sow_date_completed == null ? 'N/A' : dateDiffInDays((list[i].sow_date_completed), new Date());
-											}
-											// console.log(list);
-											pestDiseaseModel.getDiagnosisSymptomsSummarized(null, function(err, symptoms){
-												if(err)
-													throw err;
-												else{
-													for(i = 0; i < list.length; i++){
-														list[i]["symptoms"] = [];
-														list[i]["empty_symptoms"] = true;
-														for(x = 0; x < symptoms.length; x++){
-															if(symptoms[x].farm_id == list[i].farm_id){
-																list[i].symptoms.push(symptoms[x]);
-																list[i].empty_symptoms = false;
-															}
-														}
-
+										else{
+											for(i = 0; i < list.length; i++){
+												list[i]["symptoms"] = [];
+												list[i]["empty_symptoms"] = true;
+												for(x = 0; x < symptoms.length; x++){
+													if(symptoms[x].farm_id == list[i].farm_id){
+														list[i].symptoms.push(symptoms[x]);
+														list[i].empty_symptoms = false;
 													}
 												}
 
-												//Append stage to list
-												var filtered;
-												for (var i = 0; i < farm_list.length; i++) {
-													filtered = list.filter(e => e.farm_name == farm_list[i].name)[0];
-
-													farm_list[i]['data'] = { dat: filtered.days_till_harvest, stage: filtered.stage };
-												}
-
-												html_data["notifs"] = req.notifs;
-
-												html_data['data'] = { calendars: list, farms: farm_list, inactive: calendars };
-												html_data['JSON_data'] = { calendars: JSON.stringify(list), farms: JSON.stringify(farm_list) };
-												
-												res.render('summary_farm_monitoring', html_data);
-											});
+											}
 										}
-									});
+
+										//Append stage to list
+										var filtered;
+										for (var i = 0; i < farm_list.length; i++) {
+											filtered = list.filter(e => e.farm_name == farm_list[i].name)[0];
+
+											farm_list[i]['data'] = { dat: filtered.days_till_harvest, stage: filtered.stage };
+										}
+
+										html_data["notifs"] = req.notifs;
+
+										html_data['data'] = { calendars: list, farms: farm_list, inactive: calendars };
+										html_data['JSON_data'] = { calendars: JSON.stringify(list), farms: JSON.stringify(farm_list) };
+										
+										res.render('summary_farm_monitoring', html_data);
+									});	
 								}
 							});
-									
 						}
 					});
 				}
 			});
-					
+						
 		}
 	});
 }
@@ -280,7 +280,8 @@ exports.getSummarizedFarmMonitoring = function(req, res) {
 exports.getCropCalendarTab = function(req, res) {
 	var html_data = {};
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'crop_calendar', req.session);
-	cropCalendarModel.getCropCalendars({ status: ['In-Progress', 'Active'] }, function(err, list) {
+
+	cropCalendarModel.getCropCalendars({ status: ['In-Progress', 'Active'], date: html_data.cur_date }, function(err, list) {
 		if (err)
 			throw err;
 		else {
@@ -296,7 +297,7 @@ exports.getCropCalendarTab = function(req, res) {
 			};
 
 			list_obj.land_prep = list.filter(ele => ele.stage2 == 'Land Preparation');
-			//console.log(list_obj.land_prep);
+			//
 			list_obj.sowing = list.filter(ele => ele.stage2 == 'Sowing');
 			list_obj.vegetation = list.filter(ele => ele.stage2 == 'Vegetation');
 			list_obj.reproductive = list.filter(ele => ele.stage2 == 'Reproductive');
@@ -336,7 +337,7 @@ exports.getCropCalendarTab = function(req, res) {
 						}
 					}
 
-					cropCalendarModel.getCropCalendars({ status: ['Completed'] }, function(err, past_calendars){
+					cropCalendarModel.getCropCalendars({ status: ['Completed'], date: html_data.cur_date }, function(err, past_calendars){
 						if(err)
 							throw err;
 						else{
@@ -345,58 +346,62 @@ exports.getCropCalendarTab = function(req, res) {
 									past_calendars[i].sowing_date = dataformatter.formatDate(new Date(past_calendars[i].sowing_date), "YYYY-MM-DD")
 							}
 							html_data["past_calendars"] = past_calendars;
-							cropCalendarModel.getRequiredMaterials({ calendar_id: list.map(e => e.calendar_id) }, function(err, material_list) {
-								if (err)
-									throw err;
-								else {
-									var unique;
-									var material_obj = {
-										seed: { data: material_list.filter(e => e.type == 'Seed'), rows: [] },
-										fertilizer:  { data: material_list.filter(e => e.type == 'Fertilizer'), rows: [] },
-										pesticide:  { data: material_list.filter(e => e.type == 'Pesticide'), rows: [] }
-									}
-
-									var material_obj_cont;
-
-									var obj_keys = ['seed', 'fertilizer', 'pesticide'];
-
-									for (var i = 0; i < obj_keys.length; i++) {
-										var unique_mats = [...new Map(material_obj[obj_keys[i]].data.map(item =>
-	  									[item.item_name, item])).values()];
-										unique = [...new Map(material_obj[obj_keys[i]].data.map(item =>
-	  									[item.farm_id, item])).values()];
-										
-										for (var y = 0; y < unique_mats.length; y++) {
-											material_obj[obj_keys[i]].rows.push({
-												item_name: unique_mats[y].item_name,
-												total_req: material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name).map(e => (e.qty)).reduce(function (acc, obj) { return acc + obj; }, 0),
-												list: [],
-												total_deficient: material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name && e.deficient_qty != 'N/A').map(e => (e.deficient_qty)).reduce(function (acc, obj) { return parseInt(acc) + parseInt(obj); }, 0)
-											});
-											for (var x = 0; x < unique.length; x++) {
-		  										var unique_farm_mats = material_obj[obj_keys[i]].data.filter(e => e.farm_id == unique[x].farm_id && e.item_id == unique_mats[y].item_id);
-
-	  											material_obj[obj_keys[i]].rows[material_obj[obj_keys[i]].rows.length-1].list = material_obj[obj_keys[i]].rows[material_obj[obj_keys[i]].rows.length-1].list.concat(
-	  												unique_farm_mats.map(item => (
-		  												{ 
-		  													farm: item.farm_name,
-		  													item: item.item_name, 
-		  													inventory: item.inventory,
-		  													requirement: item.qty,
-		  													deficient: item.deficient_qty
-		  												}) 
-		  											)
-	  											);
-	  										}
+							if (list.length != 0) {
+								cropCalendarModel.getRequiredMaterials({ calendar_id: list.map(e => e.calendar_id) }, function(err, material_list) {
+									if (err)
+										throw err;
+									else {
+										var unique;
+										var material_obj = {
+											seed: { data: material_list.filter(e => e.type == 'Seed'), rows: [] },
+											fertilizer:  { data: material_list.filter(e => e.type == 'Fertilizer'), rows: [] },
+											pesticide:  { data: material_list.filter(e => e.type == 'Pesticide'), rows: [] }
 										}
-		  									
+
+										var material_obj_cont;
+
+										var obj_keys = ['seed', 'fertilizer', 'pesticide'];
+
+										for (var i = 0; i < obj_keys.length; i++) {
+											var unique_mats = [...new Map(material_obj[obj_keys[i]].data.map(item =>
+		  									[item.item_name, item])).values()];
+											unique = [...new Map(material_obj[obj_keys[i]].data.map(item =>
+		  									[item.farm_id, item])).values()];
+											
+											for (var y = 0; y < unique_mats.length; y++) {
+												material_obj[obj_keys[i]].rows.push({
+													item_name: unique_mats[y].item_name,
+													total_req: material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name).map(e => (e.qty)).reduce(function (acc, obj) { return acc + obj; }, 0),
+													list: [],
+													total_deficient: material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name && e.deficient_qty != 'N/A').map(e => (e.deficient_qty)).reduce(function (acc, obj) { return parseInt(acc) + parseInt(obj); }, 0)
+												});
+												for (var x = 0; x < unique.length; x++) {
+			  										var unique_farm_mats = material_obj[obj_keys[i]].data.filter(e => e.farm_id == unique[x].farm_id && e.item_id == unique_mats[y].item_id);
+
+		  											material_obj[obj_keys[i]].rows[material_obj[obj_keys[i]].rows.length-1].list = material_obj[obj_keys[i]].rows[material_obj[obj_keys[i]].rows.length-1].list.concat(
+		  												unique_farm_mats.map(item => (
+			  												{ 
+			  													farm: item.farm_name,
+			  													item: item.item_name, 
+			  													inventory: item.inventory,
+			  													requirement: item.qty,
+			  													deficient: item.deficient_qty
+			  												}) 
+			  											)
+		  											);
+		  										}
+											}
+			  									
+										}
+										
+										html_data['materials'] = material_obj;
 									}
-									
-									html_data['materials'] = material_obj;
-									html_data["notifs"] = req.notifs;
-									res.render('crop_calendar_tab', html_data);
-								}
-							});
+								});
+							}
+							
+							html_data["notifs"] = req.notifs;
+
+							res.render('crop_calendar_tab', html_data);	
 						}
 					});
 				}
@@ -417,7 +422,7 @@ exports.ajaxGetCurrentCropCalendar = function(req, res) {
 };
 
 exports.ajaxCreateCropPlan = function(req, res) {
-	//console.log(req.body);
+	//
 	var query = {
 		farm_id: req.body.farm_id,
 		land_prep_date: req.body.land_prep_date_end,
@@ -483,7 +488,7 @@ exports.ajaxCreateCropPlan = function(req, res) {
 }
 
 exports.ajaxGetCropPlans = function(req, res) {
-
+	req.query['date'] = req.session.cur_date;
 	cropCalendarModel.getCropCalendars(req.query, function(err, plans) {
 		if (err)
 			throw err;
@@ -493,7 +498,7 @@ exports.ajaxGetCropPlans = function(req, res) {
 	  							[plan.crop_plan, plan])).values()];
 			}
 			
-			// console.log(plans);
+			//
 			res.send(plans);
 		}
 	});
@@ -536,11 +541,11 @@ exports.getDetailedCropCalendar = function(req, res) {
 		}
 
 		for (const [key, value] of Object.entries(crop_calendar[0])){
-			// console.log(key, value);
+			//
 			if(value == null)
 				crop_calendar[0][key] = "N/A";
 		}
-		// console.log(crop_calendar);
+		//
 
 		var wo_query = {
 			where : { key : ["calendar_id"], value : [req.query.id]}
@@ -588,8 +593,8 @@ exports.getDetailedCropCalendar = function(req, res) {
 							if (err)
 								throw err;
 							else {
-								//console.log(material_list);
-								//console.log(soil_record);
+								//
+								//
 								if(soil_record[0].pH_lvl == null)
 									soil_record[0].pH_lvl = "N/A";
 								if(soil_record[0].p_lvl == null)
@@ -605,7 +610,6 @@ exports.getDetailedCropCalendar = function(req, res) {
 									fertilizer: material_list.filter(e => e.type == 'Fertilizer'), 
 									pesticide: material_list.filter(e => e.type == 'Pesticide')
 								};
-								console.log(material_obj);
 								html_data['materials'] = material_obj;
 								html_data["workorders"] = wos;
 								html_data["soil_record"] = soil_record[0];

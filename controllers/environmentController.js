@@ -21,8 +21,7 @@ var key = '2ae628c919fc214a28144f699e998c0f';
 
 exports.getPestDiseaseManagement = function(req, res) {
 	var html_data = {};
-	console.log(similarity.similarity("test","this is a Test"));
-	console.log(similarity.levenshtein("test","test0"));
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'pest_and_disease', req.session);
 	pestdiseaseModel.getAllPests(function(err,pests){
 		if(err){
 			throw err;
@@ -38,26 +37,25 @@ exports.getPestDiseaseManagement = function(req, res) {
 							throw err;
 						}
 						else{
-							// console.log(symptoms.length);
+							//
 							if(symptoms.length == 0){
-								// console.log("sdkljahdsf");
+								//
 							}
 							else{
 								
 								var lat = 13.073091;
 								var lon = 121.388563;
-								new Date(Date.now());
+								new Date(req.session.cur_date);
 
-								var d1 = new Date(Date.now());
-								var d2 = new Date(Date.now());
+								var d1 = new Date(req.session.cur_date);
+								var d2 = new Date(req.session.cur_date);
 								d2.setDate(d2.getDate() - 2);
 								d1.setDate(d1.getDate() - 1);
 
 								var start_date = dataformatter.dateToUnix(d2);
 								var end_date = dataformatter.dateToUnix(d1);
 								
-								var x = new Date();
-								console.log(x);
+								var x = new Date(req.session.cur_date);
 							
 							
 								var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
@@ -66,7 +64,7 @@ exports.getPestDiseaseManagement = function(req, res) {
 									if (err)
 										throw err;
 									else {
-										// console.log(body);
+										//
 										for (var i = 0; i < body.length; i++) {
 											body[i].dt = dataformatter.unixtoDate(body[i].dt);
 										}
@@ -85,7 +83,7 @@ exports.getPestDiseaseManagement = function(req, res) {
 													forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 													hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 												}
-												// console.log(forecast_body);
+												//
 												
 												//***** Get unique hour timestamps from forecast and filter data
 												hour_arr = [...new Map(hour_arr.map(item =>
@@ -102,11 +100,10 @@ exports.getPestDiseaseManagement = function(req, res) {
 							
 												forecast = dataformatter.mapAndFormatForecastResult(result, hour_arr);
 												
-												// console.log(forecast[0]);
+												//
 												var daily_ctr = 0;
 												var dmin_temp = 0, dmax_temp = 0, dhumidity = 0, dpressure = 0, drainfall = 0;
 												for(var i = 0; i < forecast.length; i++){
-													console.log(forecast[i]);
 
 													var ctr = 0;
 													var min_temp = 0, max_temp = 0, humidity = 0, pressure = 0, rainfall = 0;
@@ -140,8 +137,6 @@ exports.getPestDiseaseManagement = function(req, res) {
 													humidity : dhumidity / ctr,
 													precipitation : drainfall / ctr
 												}
-												
-												console.log(weather);
 
 
 												var season = {
@@ -156,7 +151,6 @@ exports.getPestDiseaseManagement = function(req, res) {
 
 												pestdiseaseModel.getPestPossibilities(weather, season, null, stage,function(err, possible_pests){
 													if(err){
-														console.log(err);
 														throw err;
 													}else{
 														var statements = new Array();
@@ -171,12 +165,8 @@ exports.getPestDiseaseManagement = function(req, res) {
 															statements.push({ statement : stmt});
 
 														}
-														console.log("--------------------------------");
-														console.log(statements);
 														
 														request("http://api.agromonitoring.com/agro/1.0/image/search?start=1500336000&end=1508976000&polyid=61765325a81b7645c5687533&appid=f7ba528791357b8aad084ea3fcb33b03", { json: true }, function(err, response, body2) {
-															
-															console.log(body2[0].image.truecolor);
 															
 														});
 
@@ -188,7 +178,6 @@ exports.getPestDiseaseManagement = function(req, res) {
 														}
 
 														pestdiseaseModel.getDiseaseProbability(weather, season, null, stage, function(err, probability){
-															console.log(probability);
 														});
 
 														// html_data["img"] = body2[0].image.truecolor;
@@ -199,7 +188,7 @@ exports.getPestDiseaseManagement = function(req, res) {
 														html_data["pests"] = pests;
 														html_data["diseases"] = diseases;
 														html_data["symptoms"] = symptoms;
-														html_data = js.init_session(html_data, 'role', 'name', 'username', 'pest_and_disease', req.session);
+														
 														html_data["notifs"] = req.notifs;
 														res.render('pest_disease', html_data);
 														
@@ -224,18 +213,17 @@ exports.getProbability = function(req, res){
 	var html_data = {};
 	var lat = 13.073091;
 	var lon = 121.388563;
-	new Date(Date.now());
+	new Date(req.session.cur_date);
 
-	var d1 = new Date(Date.now());
-	var d2 = new Date(Date.now());
+	var d1 = new Date(req.session.cur_date);
+	var d2 = new Date(req.session.cur_date);
 	d2.setDate(d2.getDate() - 2);
 	d1.setDate(d1.getDate() - 1);
 
 	var start_date = dataformatter.dateToUnix(d2);
 	var end_date = dataformatter.dateToUnix(d1);
 	
-	var x = new Date();
-	console.log(x);
+	var x = new Date(req.session.cur_date);
 
 
 	var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
@@ -244,7 +232,7 @@ exports.getProbability = function(req, res){
 		if (err)
 			throw err;
 		else {
-			// console.log(body);
+			//
 			for (var i = 0; i < body.length; i++) {
 				body[i].dt = dataformatter.unixtoDate(body[i].dt);
 			}
@@ -263,7 +251,7 @@ exports.getProbability = function(req, res){
 						forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 						hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 					}
-					// console.log(forecast_body);
+					//
 					
 					//***** Get unique hour timestamps from forecast and filter data
 					hour_arr = [...new Map(hour_arr.map(item =>
@@ -280,11 +268,11 @@ exports.getProbability = function(req, res){
 
 					forecast = dataformatter.mapAndFormatForecastResult(result, hour_arr);
 					
-					// console.log(forecast[0]);
+					//
 					var daily_ctr = 0;
 					var dmin_temp = 0, dmax_temp = 0, dhumidity = 0, dpressure = 0, drainfall = 0;
 					for(var i = 0; i < forecast.length; i++){
-						// console.log(forecast[i]);
+						//
 
 						var ctr = 0;
 						var min_temp = 0, max_temp = 0, humidity = 0, pressure = 0, rainfall = 0;
@@ -318,8 +306,6 @@ exports.getProbability = function(req, res){
 						humidity : dhumidity / ctr,
 						precipitation : drainfall / ctr
 					}
-					
-					console.log(weather);
 
 
 					var season = {
@@ -334,7 +320,6 @@ exports.getProbability = function(req, res){
 
 					pestdiseaseModel.getPestPossibilities(weather, season, null, stage,function(err, possible_pests){
 						if(err){
-							console.log(err);
 							throw err;
 						}else{
 							var statements = new Array();
@@ -349,7 +334,6 @@ exports.getProbability = function(req, res){
 								statements.push({ statement : stmt});
 
 							}
-							console.log("--------------------------------");
 
 							weather = {
 								min_temp : 29,
@@ -373,6 +357,7 @@ exports.getProbability = function(req, res){
 
 exports.getPestFactors = function(req,res){
 	var html_data = {};
+	js.init_session(html_data, 'role', 'name', 'username', 'pest_and_disease', req.session);
 
 	var type = req.params.type;
 	var id = req.params.name;
@@ -401,12 +386,12 @@ exports.getPestFactors = function(req,res){
 				
 									}
 									else{
-										// console.log(details[0].pest_name);
-										// console.log(factors);
+										//
+										//
 										html_data['pest_name'] =  details[0].pest_name;
 										html_data["symptoms"] = symptoms;
 										html_data["factors"] = factors;
-										js.init_session(html_data, 'role', 'name', 'username', 'pest_and_disease', req.session);
+										
 										html_data["notifs"] = req.notifs;
 										res.render('pest_disease2', html_data);
 									}
@@ -433,11 +418,9 @@ exports.getPestFactors = function(req,res){
 	
 						}
 						else{
-							console.log(details[0].disease_name);
-							console.log(factors);
 							html_data['pest_name'] =  details[0].disease_name;
 							html_data["factors"] = factors;
-							js.init_session(html_data, 'role', 'name', 'username', 'pest_and_disease', req.session);
+							
 							html_data["notifs"] = req.notifs;
 							res.render('pest_disease2', html_data);
 						}
@@ -459,7 +442,6 @@ exports.addPest = function(req,res){
 		symptom_name : req.body.symptom_name,
 		symptom_desc : req.body.symptom_desc
 	}
-	console.log(req.body);
 	var pest_name = req.body.pest_name;
 	var symptoms = req.body.symptom;
 	symptoms.shift();
@@ -478,11 +460,8 @@ exports.addPest = function(req,res){
 				var highest_match = 0;
 				for(var i = 0; i < pests.length; i++){
 					if(similarity.similarity(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()) && similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()) > 0.5){
-						console.log(similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()));
-						console.log("already exists");
 					}
 					else if(similarity.similarity(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()) && similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()) > 0.15 || similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()) > 0.5){
-						console.log(similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()));
 						//Ask user for similarity
 						if(similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase()) > highest_match){
 							highest_match = similarity.levenshtein(pest_name.toLowerCase(),pests[i].pest_name.toLowerCase());
@@ -492,7 +471,6 @@ exports.addPest = function(req,res){
 				}
 				if(possible_match != null){
 					//asks if same
-					console.log("Is it " + pests[possible_match].pest_name + "?");
 				}
 				else{
 					pestdiseaseModel.addPest(pest_data, function(err, result){
@@ -532,8 +510,6 @@ exports.addDisease = function(req,res){
 		symptom_name : req.body.symptom_name,
 		symptom_desc : req.body.symptom_desc
 	}
-
-	console.log(req.body);
 	var disease_name = req.body.disease_name;
 	var symptoms = req.body.symptom;
 	symptoms.shift();
@@ -551,12 +527,9 @@ exports.addDisease = function(req,res){
 				var highest_match = 0;
 				for(var i = 0; i < diseases.length; i++){
 					if(similarity.similarity(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()) && similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()) > 0.75){
-						console.log(similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()));
-						console.log("already exists");
 						break;
 					}
 					else if(similarity.similarity(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()) && similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()) > 0.15 || similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()) > 0.5){
-						console.log(similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()));
 						//Ask user for similarity
 						if(similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase()) > highest_match){
 							highest_match = similarity.levenshtein(disease_name.toLowerCase(),diseases[i].disease_name.toLowerCase());
@@ -566,7 +539,6 @@ exports.addDisease = function(req,res){
 				}
 				if(possible_match != null){
 					//asks if same
-					console.log("Is it " + diseases[possible_match].disease_name + "?");
 				}
 				else{
 					pestdiseaseModel.addDisease(disease_data, function(err, result){
@@ -575,7 +547,6 @@ exports.addDisease = function(req,res){
 						var last = last[0].last;
 						//Add symptoms
 						for(var i = 0; i < symptoms.length; i++){
-							console.log("added symptom");
 							pestdiseaseModel.addPestDiseaseSymptom("Disease", last, symptoms[i], function(err, next){});
 						}
 						//Add new symptom
@@ -635,7 +606,7 @@ function recommendFertilizerPlan(obj, materials) {
 		P: { min: obj.p_lvl, max: obj.p_lvl*1.1 },
 		K: { min: obj.k_lvl },
 	};
-	//console.log(obj);
+	//
 	var temp_obj = {};
 	var variables = {};
 	for (var i = 0; i < materials.length; i++) {
@@ -668,6 +639,7 @@ function recommendFertilizerPlan(obj, materials) {
 exports.ajaxUpdateNutrientPlan = function(req, res) {
 	var update = req.body.update;
 	var filter = req.body.filter;
+
 	nutrientModel.updateNutrientPlan(update, filter, function(err, plan_record) {
 		if (err)
 			throw err;
@@ -783,7 +755,7 @@ exports.prepareFRPlan = function(req, res) {
 			else {
 				var create_plan = {
 					calendar_id: null,
-					last_updated: dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
+					last_updated: dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
 					farm_id: req.body.farm_id
 				}
 				nutrientModel.createNutrientPlan(create_plan, function(new_fr_plan) {
@@ -834,7 +806,7 @@ exports.ajaxGetDetailedNutrientMgt = function(req, res) {
 		        					throw err;
 		        				else {
 		        					if (result.length != 0)
-		        						var result_date_diff = dataformatter.dateDiff(new Date(result[0].date_taken), new Date())
+		        						var result_date_diff = dataformatter.dateDiff(new Date(result[0].date_taken), new Date(req.session.cur_date))
 		        					
 		        					if (result.length == 0 || result[0].soil_quality_id == null || result_date_diff > 364) {
 				        				//Serves as default soil data if soil test has never been done
@@ -845,8 +817,8 @@ exports.ajaxGetDetailedNutrientMgt = function(req, res) {
 				        				result[0].k_lvl = k_lvl;
 				        				result[0]['default_soil'] = true;
 									}
-									//console.log(result);
-									// console.log(result, applied);
+									//
+									//
 		        					result = dataformatter.processNPKValues(result, result[0].farm_area, applied, '', applied);
 						            result['recommendation'] = recommendFertilizerPlan(result, materials);
 						            result['calendar_id'] = crop_calendar.calendar_id;
@@ -867,10 +839,8 @@ function processInventory(arr, recommendation, applied) {
 	var temp_obj = {};
 	var qty, recommendation_amt, applied_fertilizer, deficiency;
 	var mat;
-	//console.log(arr);
-	//console.log(recommendation);
-	console.log('1');
-	console.log(applied);
+	//
+	//
 	//Fertilizer - Current Stock - Recommendation - Applied - Deficiency
 	for (var i = 0; i < arr.length; i++) {
 		mat = applied.filter(ele => ele.fertilizer_name == arr[i].fertilizer_name)[0];
@@ -911,6 +881,8 @@ function processInventory(arr, recommendation, applied) {
 exports.detailedNutrientManagement = function(req, res) {
 	var query = { farm_name: req.params.farm_name };
 	var html_data = {};
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'monitor_farms', req.session);
+
 	var summary = '';
 	cropCalendarModel.readCropCalendar({ calendar_id: req.params.calendar_id }, function(err, calendar_details) {
 		if (err)
@@ -958,7 +930,7 @@ exports.detailedNutrientManagement = function(req, res) {
 												if (err)
 													throw err;
 												else {
-													//console.log(frp);
+													//
 													nutrientModel.getNutrientPlanItems({ fr_plan_id: frp[0].fr_plan_id }, function(err, fr_items) {
 														if (err)
 															throw err;
@@ -986,15 +958,15 @@ exports.detailedNutrientManagement = function(req, res) {
 																			}
 																			
 																			if (result)
-																			// console.log(fr_items);
-																			// console.log(result);
-																			html_data = js.init_session(html_data, 'role', 'name', 'username', 'monitor_farms', req.session);
+																			//
+																			//
+																			
 																			html_data['detailed_data'] = dataformatter.processNPKValues(result, result[0].farm_area, applied, summary, wo_list);
 																			if (forecast != 0) {
 																				html_data['yield_forecast'] = forecast[0].forecast;
 																			}
 																			fr_items = fr_items.filter(e => e.isCreated == 0);
-																			//console.log(fr_items);
+																			//
 																			html_data['recommendation'] = recommendFertilizerPlan(result[0], material_list);
 																			html_data['detailed_data']['calendar_id'] = req.params.calendar_id;
 																			html_data['fr_items'] = fr_items;
@@ -1002,7 +974,7 @@ exports.detailedNutrientManagement = function(req, res) {
 																			html_data['inventory'] = processInventory(material_list, html_data.recommendation, applied);
 																			html_data['calendar_details'] = calendar_details[0];
 																			html_data['farm_id'] = farm_id;
-																			//console.log(html_data);
+																			//
 																			html_data["notifs"] = req.notifs;
 																			res.render('nutrient_mgt_detailed', html_data);
 																		}
@@ -1030,7 +1002,6 @@ exports.detailedNutrientManagement = function(req, res) {
 
 exports.uploadForecastResult = function(req, res) {
 	var query = req.body.data;
-
 	weatherForecastModel.saveForecastResults(query, function(err, result) {
 		if (err)
 			throw err;
@@ -1064,6 +1035,7 @@ exports.clearWeatherForecastRecords = function(req, res) {
 
 exports.getFarmResources = function(req, res){
 	var html_data = {};
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'farms', req.session);
 
 	var farm_id = req.query.farm_id;
 	var type = "Seed";
@@ -1085,7 +1057,6 @@ exports.getFarmResources = function(req, res){
 					seeds.push({blank : true});
 					ctr++;
 				};
-				console.log(seeds);
 				html_data["seed"] = seeds;
 			}
 
@@ -1102,7 +1073,7 @@ exports.getFarmResources = function(req, res){
 					else{
 						html_data["processing"] = processing;
 					}
-					html_data = js.init_session(html_data, 'role', 'name', 'username', 'farms', req.session);
+					
 					materialModel.getPurchasesPerFarm(type, {farm_id : farm_id}, null, function(err, orders){
 						if(err)
 							throw err;
@@ -1114,7 +1085,6 @@ exports.getFarmResources = function(req, res){
 								orders.push({blank : true});
 								ctr2++;
 							};
-							console.log(orders);
 							html_data["orders"] = orders;
 						}
 						html_data["farm_id"] = farm_id;
@@ -1132,8 +1102,8 @@ exports.ajaxGetResources = function(req,res){
 	var farm_id = req.query.farm_id;
 	var type = req.query.type;
 
-	// console.log(farm_id);
-	// console.log(type);
+	//
+	//
 	var blanks = [];
 	materialModel.getFarmMaterialsSpecific({farm_id : farm_id}, {item_type : type}, function(err, materials){
 		if(err)
@@ -1189,7 +1159,6 @@ exports.getFarmPestDiseases = function(req, res){
 				if (err)
 					throw err;
 				else {
-					console.log(farm_id);
 					var i;
 					var lat = 13.073091;
 					var lon = 121.388563;
@@ -1203,9 +1172,9 @@ exports.getFarmPestDiseases = function(req, res){
 						}
 					}
 				
-					new Date(Date.now());
-					var d1 = new Date(Date.now());
-					var d2 = new Date(Date.now());
+					new Date(req.session.cur_date);
+					var d1 = new Date(req.session.cur_date);
+					var d2 = new Date(req.session.cur_date);
 					d2.setDate(d2.getDate() - 100);
 					d1.setDate(d1.getDate() - 1);
 
@@ -1218,7 +1187,7 @@ exports.getFarmPestDiseases = function(req, res){
 						if (err)
 							throw err;
 						else {
-							// console.log(body);
+							//
 							for (var i = 0; i < body.length; i++) {
 								body[i].dt = dataformatter.unixtoDate(body[i].dt);
 							}
@@ -1236,7 +1205,7 @@ exports.getFarmPestDiseases = function(req, res){
 										forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 										hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 									}
-									// console.log(forecast_body);
+									//
 									
 									//***** Get unique hour timestamps from forecast and filter data
 									hour_arr = [...new Map(hour_arr.map(item =>
@@ -1262,7 +1231,6 @@ exports.getFarmPestDiseases = function(req, res){
 										var min_temp = 0, max_temp = 0, humidity = 0, pressure = 0, rainfall = 0;
 										for(var y = 0;y < forecast[i].data.length; y++){
 											if(forecast[i].data[y].rainfall > 0)
-												console.log(forecast[i].data[y]);
 											min_temp = min_temp + forecast[i].data[y].min_temp;
 											max_temp = max_temp + forecast[i].data[y].max_temp;
 											humidity = humidity + forecast[i].data[y].humidity;
@@ -1285,9 +1253,9 @@ exports.getFarmPestDiseases = function(req, res){
 
 										daily_ctr++;
 									}
-									// console.log(forecast[0].data[0]);
-									// console.log(dmin_temp/daily_ctr);
-									// console.log(dmax_temp/daily_ctr);
+									//
+									//
+									//
 									// var weather = {
 									// 	min_temp : ((dmin_temp / ctr) - 32) / 1.8,
 									// 	max_temp : ((dmax_temp / ctr) - 32) / 1.8,
@@ -1300,7 +1268,7 @@ exports.getFarmPestDiseases = function(req, res){
 										humidity : dhumidity / daily_ctr,
 										precipitation : drainfall / daily_ctr
 									}
-									// console.log(weather);
+									//
 
 
 									var season = {
@@ -1308,7 +1276,7 @@ exports.getFarmPestDiseases = function(req, res){
 										season_humidity : 65
 									}
 									var cc_query = {
-										status: ['In-Progress', 'Active', "Completed"]
+										status: ['In-Progress', 'Active', "Completed"], date: req.session.cur_date
 									}
 									cropCalendarModel.getCropCalendars(cc_query, function(err, crop_calendars){
 										if(err)
@@ -1337,10 +1305,9 @@ exports.getFarmPestDiseases = function(req, res){
 											var fertilizer = null;
 											pestdiseaseModel.getPestProbabilityPercentage(weather, season, farmtypes, cur_stage,function(err, possible_pests){
 												if(err){
-													console.log(err);
 													throw err;
 												}else{
-													// console.log(possible_pests);
+													//
 													var statements = new Array();
 		
 													var ctr = possible_pests.length;
@@ -1361,7 +1328,7 @@ exports.getFarmPestDiseases = function(req, res){
 													// }
 		
 													// pestdiseaseModel.getDiseaseProbability(weather, season, null, stage, function(err, probability){
-													// 	console.log(probability);
+													//
 													// });
 		
 													// html_data["img"] = body2[0].image.truecolor;
@@ -1441,7 +1408,6 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 			farm_id : 54
 		};
 	}
-	console.log(farm_id);
 	farmModel.filteredFarmDetails(farm_id, function(err, farm_details){
 		if(err)
 			throw err;
@@ -1459,10 +1425,10 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 				var lon = center[0];
 			}
 
-			new Date(Date.now());
+			new Date(req.session.cur_date);
 
-			var d1 = new Date(Date.now());
-			var d2 = new Date(Date.now());
+			var d1 = new Date(req.session.cur_date);
+			var d2 = new Date(req.session.cur_date);
 			d2.setDate(d2.getDate() - 2);
 			d1.setDate(d1.getDate() - 1);
 
@@ -1470,7 +1436,6 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 			var end_date = dataformatter.dateToUnix(d1);
 			
 			var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
-
 			request(url, { json: true }, function(err, response, body) {
 				if (err)
 					throw err;
@@ -1492,7 +1457,7 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 								forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 								hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 							}
-							// console.log(forecast_body);
+							//
 							
 							//***** Get unique hour timestamps from forecast and filter data
 							hour_arr = [...new Map(hour_arr.map(item =>
@@ -1555,7 +1520,7 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 							}
 
 							var cc_query = {
-								status: ['In-Progress', 'Active', "Completed"]
+								status: ['In-Progress', 'Active', "Completed"], date: req.session.cur_date
 							}
 							cropCalendarModel.getCropCalendars(cc_query, function(err, crop_calendars){
 								if(err)
@@ -1587,7 +1552,6 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 											if(err){
 												throw err;
 											}else{
-												console.log(possible_pests);
 												var statements = new Array();
 					
 												var ctr = possible_pests.length;
@@ -1639,10 +1603,8 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 									else if(type == "Disease"){
 										pestdiseaseModel.getDiseaseProbabilityPercentage(weather, season, farmtypes, cur_stage,function(err, possible_pests){
 											if(err){
-												console.log(err);
 												throw err;
 											}else{
-												console.log(possible_pests);
 												var statements = new Array();
 					
 												// var ctr = possible_pests.length;
@@ -1702,6 +1664,7 @@ exports.ajaxGetFarmPestDiseaseProbability = function(req, res){
 
 exports.getPestDiseaseDetails = function(req, res){
 	var html_data = {};
+
 	var type = req.query.type;
 	var id = req.query.id;
 	var tab = req.query.tab;
@@ -1711,7 +1674,7 @@ exports.getPestDiseaseDetails = function(req, res){
 	else if(tab == "PestandDisease")
 		tab_name = "pest_and_disease_discover";
 
-
+	js.init_session(html_data, 'role', 'name', 'username', tab_name, req.session);
 	if(type == "Pest"){
 		pestdiseaseModel.getPestFactors(id, function(err, factors){
 			if(err){
@@ -1736,13 +1699,13 @@ exports.getPestDiseaseDetails = function(req, res){
 				
 									}
 									else{
-										// console.log(details);
-										// console.log(details[0].pest_name);
+										//
+										//
 										html_data['pd'] =  details[0];
 										html_data["symptoms"] = symptoms;
 										html_data['type'] = "Pest";
 										// html_data["factors"] = factors;
-										js.init_session(html_data, 'role', 'name', 'username', tab_name, req.session);
+										
 										html_data["notifs"] = req.notifs;
 										res.render('pest_disease_details', html_data);
 									}
@@ -1769,11 +1732,10 @@ exports.getPestDiseaseDetails = function(req, res){
 	
 						}
 						else{
-							console.log(details[0]);
 							html_data['pd'] =  details[0];
 							html_data['type'] = "Disease";
 							html_data["symptoms"] = symptoms;
-							js.init_session(html_data, 'role', 'name', 'username', 'monitor_farms', req.session);
+							
 							html_data["notifs"] = req.notifs;
 							res.render('pest_disease_details', html_data);
 						}
@@ -1787,7 +1749,6 @@ exports.getPestDiseaseDetails = function(req, res){
 
 //AJAX Soil Data
 exports.getFarmSoilData = function(req,res){
-	console.log("AJAX GET SOIL DETIALS");
 
 	var query = { farm_name: req.query.farm_name };
 
@@ -1822,9 +1783,7 @@ exports.updatePDDetails = function(req,res){
 	var type = req.params.type;
 	var pd_id = req.params.id;
 	var detail_type = req.params.detail_type;
-	console.log(req.params);
 	pestdiseaseModel.getPDDetails(type, pd_id, detail_type, function(err, result){
-		console.log(result);
 		res.send(result);
 	});
 }
@@ -1883,9 +1842,9 @@ exports.getDiagnoses = function(req, res) {
 										if(err)
 											throw err;
 										else{
-											// console.log(symptoms);
+											//
 										}
-										// console.log(pest_diagnoses);
+										//
 										pestdiseaseModel.getPossibilitiesBasedOnSymptoms([], function(err, possibilities){
 											if(err)
 												throw err;
@@ -1893,7 +1852,6 @@ exports.getDiagnoses = function(req, res) {
 												//INSERT PERCENTAGE HERE
 												pestdiseaseModel.getDBProbabilities(farms[0].farm_id, function(err, percentage){
 													if(err){
-														console.log(err);
 													}
 													else{
 														if(percentage.length > 0){
@@ -1945,7 +1903,7 @@ exports.getDiagnosisDetails = function(req, res){
 		if(err)
 			throw err;
 		else{
-			// console.log(diagnosis_details);
+			//
 			if(diagnosis_details[0].date_solved == null){
 				diagnosis_details[0].date_solved = "Not yet resolved";
 				diagnosis_details[0]["solved"] = true;
@@ -1957,7 +1915,7 @@ exports.getDiagnosisDetails = function(req, res){
 			html_data["details"] = diagnosis_details[0];
 			
 		}
-		// console.log(diagnosis_details[0]);
+		//
 		//Get Symptoms
 		pestdiseaseModel.getDiagnosisSymptoms(html_data.details.diagnosis_id, function(err, symptoms){
 			if(err)
@@ -2006,7 +1964,7 @@ exports.getDiagnosisDetails = function(req, res){
 							}
 						}
 						html_data["wos"] = solutions_made;
-						html_data["cur_date"] = dataformatter.formatDate(new Date(),'YYYY-MM-DD');
+						html_data["cur_date"] = dataformatter.formatDate(new Date(req.session.cur_date),'YYYY-MM-DD');
 						html_data["notifs"] = req.notifs;
 						res.render('pest_disease_diagnose_details', html_data);
 					});
@@ -2029,7 +1987,7 @@ exports.getDiagnosisDetails = function(req, res){
 							}
 						}
 						html_data["wos"] = solutions_made;
-						html_data["cur_date"] = dataformatter.formatDate(new Date(),'YYYY-MM-DD');
+						html_data["cur_date"] = dataformatter.formatDate(new Date(req.session.cur_date),'YYYY-MM-DD');
 						html_data["notifs"] = req.notifs;
 						res.render('pest_disease_diagnose_details', html_data);
 					});
@@ -2051,7 +2009,6 @@ exports.updateDiagnosis = function(req,res){
 		if(err)
 			throw err;
 		else{
-			console.log("Update success!");
 		}
 	});
 
@@ -2172,7 +2129,6 @@ exports.getPestandDiseaseDiscover = function(req,res){
 
 
 exports.addNewPD = function(req, res){
-	console.log(req.body);
 	var type = req.body.pd_type;
 
 	var symptoms = [];
@@ -2310,7 +2266,7 @@ exports.addDiagnosis = function(req,res){
 		else{
 			var farm_name = farm_data[0].farm_name;
 		}
-		var crop_calendar_query = { status: ['In-Progress', 'Active',"Completed"] , where : {key : "farm_name", val : farm_name}}
+		var crop_calendar_query = { status: ['In-Progress', 'Active',"Completed"] , where : {key : "farm_name", val : farm_name}, date: req.session.cur_date }
 		cropCalendarModel.getCropCalendars(crop_calendar_query, function(err, crop_calendar){
 			if(err)
 				throw err;
@@ -2318,10 +2274,8 @@ exports.addDiagnosis = function(req,res){
 				var i, lastest, crop_plan;
 				latest = 0;
 				crop_plan = -1;
-				// console.log(crop_calendar);  //FIX HERE
+				//  //FIX HERE
 				for(i =0; i < crop_calendar.length; i++){
-					console.log(crop_calendar[i].farm_name + " - " + farm_name);
-					console.log(crop_calendar[i].last_prep_date + " - " + crop_calendar[latest].last_prep_date);
 					if(crop_calendar[i].farm_name == farm_name){
 
 						// latest  = i;
@@ -2330,9 +2284,9 @@ exports.addDiagnosis = function(req,res){
 						var index_date = new Date(crop_calendar[latest].land_prep_date);
 						var diagnose_date = new Date(diagnosis.date_diagnosed);
 						
-						// console.log(diagnose_date.getTime() - i_date.getTime());
-						// console.log(diagnose_date.getTime() - temp_harvest.getTime() );
-						// console.log("000000000000000");
+						//
+						//
+						//
 
 
 						if(diagnose_date.getTime() - i_date.getTime() >= 0){
@@ -2352,8 +2306,8 @@ exports.addDiagnosis = function(req,res){
 					// if(crop_calendar[i].farm_name == farm_name)
 					// 	diagnosis["calendar_id"] = crop_calendar[i].calendar_id;
 				}
-				// console.log(crop_plan);
-				// console.log(crop_calendar[crop_plan].calendar_id);
+				//
+				//
 				if(crop_plan == -1){
 					diagnosis["calendar_id"] = crop_calendar[latest].calendar_id;
 					diagnosis["stage_diagnosed"] = crop_calendar[latest].stage;
@@ -2363,21 +2317,21 @@ exports.addDiagnosis = function(req,res){
 					var maturity_days = crop_calendar[crop_plan].maturity_days;
 					var land_prep = new Date(crop_calendar[crop_plan].land_prep_date);
 					var sowing = new Date(crop_calendar[crop_plan].sowing_date);
-					var vegetation = new Date();
+					var vegetation = new Date(req.session.cur_date);
 					vegetation.setTime(sowing.getTime() + (7 * 24 * 60 * 60 * 1000));
-					var reproduction = new Date();
+					var reproduction = new Date(req.session.cur_date);
 					reproduction.setTime(vegetation.getTime() + (maturity_days * 24 * 60 * 60 * 1000));
-					var ripening = new Date();
+					var ripening = new Date(req.session.cur_date);
 					ripening.setTime(reproduction.getTime() + (35* 24 * 60 * 60 * 1000));
-					var harvesting = new Date();
+					var harvesting = new Date(req.session.cur_date);
 					harvesting.setTime(ripening.getTime() + (30 * 24 * 60 * 60 * 1000));
-					// console.log(diagnosis.date_diagnosed);
-					// console.log(land_prep);
-					// console.log(sowing);
-					// console.log(vegetation);
-					// console.log(reproduction);
-					// console.log(ripening);
-					// console.log(harvesting);
+					//
+					//
+					//
+					//
+					//
+					//
+					//
 
 					var diag_date = new Date(diagnosis.date_diagnosed);
 					if(diag_date > harvesting){
@@ -2401,7 +2355,7 @@ exports.addDiagnosis = function(req,res){
 					else{
 						stage = null;
 					}
-					// console.log(stage);
+					//
 					diagnosis["calendar_id"] = crop_calendar[crop_plan].calendar_id;
 					diagnosis["stage_diagnosed"] = stage;
 				}
@@ -2419,9 +2373,8 @@ exports.addDiagnosis = function(req,res){
 					for(i = 0; i < diagnoses.length; i++){
 						
 						if(diagnoses[i].status == "Present" && diagnosis.pd_id == diagnoses[i].pd_id){
-							console.log("DO NOT ADD. ALREADY PRESENT");
-							// console.log(diagnosis.pd_id);
-							// console.log(diagnoses[i].pd_id);
+							//
+							//
 							add = false;
 							break;
 						}
@@ -2432,7 +2385,6 @@ exports.addDiagnosis = function(req,res){
 							if(err)
 								throw err;
 							else{
-								console.log("ADDED");
 							}
 							//GET LAST INSERTED
 							pestdiseaseModel.getLastInserted("Diagnosis", function(err, last){
@@ -2448,20 +2400,19 @@ exports.addDiagnosis = function(req,res){
 								}
 								
 								//Create new WorkOrders
-								var today = new Date(); 
+								var today = new Date(req.session.cur_date); 
 								today.setDate(today.getDate() + 7);	
-								// console.log(workorders[0][1]);
+								//
 								for(i = 0;i < workorders.length; i++){
 
 									var temp_wo = {
 										type : workorders[i][1],
 										notes : workorders[i][2],
-										date_created : new Date(),
-										date_start : new Date(),
+										date_created : new Date(req.session.cur_date),
+										date_start : new Date(req.session.cur_date),
 										date_due : today,
 										crop_calendar_id : diagnosis.calendar_id
 									}
-									console.log("Create work order from diagnosis");
 									workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 								}
 								
@@ -2472,12 +2423,12 @@ exports.addDiagnosis = function(req,res){
 									pestdiseaseModel.getPestSolutions(pd[0], function(err, solutions){
 										var i;
 										for(i = 0; i < solutions.length; i++){
-											// console.log("-----------------" + solutions[i].detail_name);
+											//
 											var x;
 											var create = true;
 
 											for(x = 0;x < workorders.length; x++){
-												// console.log(solutions[i].detail_name + " --------- " + workorders[x][1]);
+												//
 												if(solutions[i].detail_name == workorders[x][1] && solutions[i].detail_desc == workorders[x][2]){
 													//Do not create
 													create = false;
@@ -2488,14 +2439,13 @@ exports.addDiagnosis = function(req,res){
 												var temp_wo = {
 													type : solutions[i].detail_name,
 													notes : "Recommendation Not Followed",
-													date_created : dataformatter.formatDate(new Date(), 'MM-DD-YYYY'),
-													date_start : dataformatter.formatDate(new Date(), 'MM-DD-YYYY'),
+													date_created : dataformatter.formatDate(new Date(req.session.cur_date), 'MM-DD-YYYY'),
+													date_start : dataformatter.formatDate(new Date(req.session.cur_date), 'MM-DD-YYYY'),
 													date_due : today,
 													crop_calendar_id : diagnosis.calendar_id,
 													status : "Cancelled"
 												}
 												//Add cancelled work order
-												console.log("Add cancelled wo");
 												workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 											}
 										}
@@ -2509,7 +2459,7 @@ exports.addDiagnosis = function(req,res){
 											var x;
 											for(x = 0;x < workorders.length; x++){
 												
-												// console.log(solutions[i].detail_name + " --------- " + workorders[x][1]);
+												//
 												if(solutions[i].detail_name == workorders[x][1] && solutions[i].detail_desc == workorders[x][2]){
 													//Do not create
 													create = false;
@@ -2520,14 +2470,13 @@ exports.addDiagnosis = function(req,res){
 												var temp_wo = {
 													type : solutions[i].detail_name,
 													notes : "Recommendation Not Followed",
-													date_created : dataformatter.formatDate(new Date(), 'MM-DD-YYYY'),
-													date_start : dataformatter.formatDate(new Date(), 'MM-DD-YYYY'),
+													date_created : dataformatter.formatDate(new Date(req.session.cur_date), 'MM-DD-YYYY'),
+													date_start : dataformatter.formatDate(new Date(req.session.cur_date), 'MM-DD-YYYY'),
 													date_due : today,
 													crop_calendar_id : diagnosis.calendar_id,
 													status : "Cancelled"
 												}
 												//Add cancelled work order
-												console.log("Add cancelled wo");
 												workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 											}
 										}
@@ -2543,7 +2492,7 @@ exports.addDiagnosis = function(req,res){
 
 								//Create Notification
 								var notif = {
-									date : new Date(),
+									date : new Date(req.session.cur_date),
 									farm_id : diagnosis.farm_id,
 									notification_title : "New Pest/Disease diagnosed",
 									url : "/pest_and_disease/diagnose_details?id=" + last[0].last,
@@ -2572,30 +2521,24 @@ exports.addDiagnosis = function(req,res){
 
 
 exports.ajaxGetPossibilitiesBasedOnSymptoms = function(req,res){
-	console.log(req.query);
 	var farm_id = req.query.farm_id;
 	var symptoms = req.query.symptoms;
 	if(symptoms != null){
 		var symptoms_count = symptoms.length;
 	}
 	else{
-		console.log("null");
 		var symptoms_count = 0;
 		symptoms = [];
 	}
-	console.log(symptoms);
-	console.log(symptoms_count);
 	
 	pestdiseaseModel.getPossibilitiesBasedOnSymptoms(symptoms, function(err, possibilities){
 		if(err)
 			throw err;
 		else{
-			console.log(possibilities);
 			//filter
 
 			pestdiseaseModel.getDBProbabilities(farm_id, function(err, percentage){
 				if(err){
-					console.log(err);
 				}
 				else{
 					if(percentage.length > 0){
@@ -2620,7 +2563,7 @@ exports.ajaxGetPossibilitiesBasedOnSymptoms = function(req,res){
 
 
 exports.getRecommendationDiagnosis = function(req,res){
-	// console.log(req.query);
+	//
 	var farm_id = req.query.farm_id;
 	var type = req.query.type;
 	var id = req.query.pd_id;
@@ -2633,12 +2576,12 @@ exports.getRecommendationDiagnosis = function(req,res){
 			if(err)
 				throw err;
 			else{
-				// console.log(solutions);
+				//
 				var i;
 				for(i = 0; i < solutions.length; i++){
 					var solution = {
-						date_words : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
-						date : dataformatter.formatDate(new Date(), 'MM-DD-YYYY'),
+						date_words : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
+						date : dataformatter.formatDate(new Date(req.session.cur_date), 'MM-DD-YYYY'),
 						type : solutions[i].detail_name,
 						desc : solutions[i].detail_desc
 					}
@@ -2647,8 +2590,8 @@ exports.getRecommendationDiagnosis = function(req,res){
 					recommended_solutions.push(solution);
 				}
 				pestdiseaseModel.getPestSymptoms(id, function(err, symptoms){
-					// console.log(recommended_solutions);
-					// console.log(symptoms);
+					//
+					//
 
 					pestdiseaseModel.getPestPreventions(id, function(err, preventions){
 						
@@ -2666,8 +2609,8 @@ exports.getRecommendationDiagnosis = function(req,res){
 				var i;
 				for(i = 0; i < solutions.length; i++){
 					var solution = {
-						date_words : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
-						date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
+						date_words : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
+						date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
 						type : solutions[i].solution_name,
 						desc : solutions[i].solution_desc
 					}
@@ -2675,8 +2618,8 @@ exports.getRecommendationDiagnosis = function(req,res){
 				}
 				
 				pestdiseaseModel.getDiseaseSymptoms(id, function(err, symptoms){
-					// console.log(recommended_solutions);
-					// console.log(symptoms);
+					//
+					//
 
 					pestdiseaseModel.getDiseasePreventions(id, function(err, preventions){
 						res.send({recommended_solutions: recommended_solutions, symptoms : symptoms, preventions: preventions});
@@ -2707,26 +2650,26 @@ exports.getPDProbability = function(req, res){
 		if (err)
 			throw err;
 		else {
-			// console.log(details);
+			//
 			farmtypes.push(details[0].land_type);
 		}
 
-		var d1 = new Date(Date.now());
-		var d2 = new Date(Date.now());
+		var d1 = new Date(req.session.cur_date);
+		var d2 = new Date(req.session.cur_date);
 		d2.setDate(d2.getDate() - 2);
 		d1.setDate(d1.getDate() - 1);
 
 		var start_date = dataformatter.dateToUnix(d2);
 		var end_date = dataformatter.dateToUnix(d1);
 		
-		var x = new Date();
+		var x = new Date(req.session.cur_date);
 		var url = 'http://api.agromonitoring.com/agro/1.0/weather/history?lat='+lat+'&lon='+lon+'&start='+start_date+'&end='+end_date+'&appid='+key;
 
 		request(url, { json: true }, function(err, response, body) {
 			if (err)
 				throw err;
 			else {
-				// //console.log(body);
+				// //
 				for (var i = 0; i < body.length; i++) {
 					body[i].dt = dataformatter.unixtoDate(body[i].dt);
 				}
@@ -2744,7 +2687,7 @@ exports.getPDProbability = function(req, res){
 							forecast_body[i].dt = dataformatter.unixtoDate((forecast_body[i].dt));
 							hour_arr.push(dataformatter.formatDate(forecast_body[i].dt, 'HH:m'))
 						}
-						// //console.log(forecast_body);
+						// //
 						
 						//***** Get unique hour timestamps from forecast and filter data
 						hour_arr = [...new Map(hour_arr.map(item =>
@@ -2761,11 +2704,11 @@ exports.getPDProbability = function(req, res){
 
 						forecast = dataformatter.mapAndFormatForecastResult(result, hour_arr);
 						
-						// //console.log(forecast[0]);
+						// //
 						var daily_ctr = 0;
 						var dmin_temp = 0, dmax_temp = 0, dhumidity = 0, dpressure = 0, drainfall = 0;
 						for(var i = 0; i < forecast.length; i++){
-							// //console.log(forecast[i]);
+							// //
 
 							var ctr = 0;
 							var min_temp = 0, max_temp = 0, humidity = 0, pressure = 0, rainfall = 0;
@@ -2806,7 +2749,7 @@ exports.getPDProbability = function(req, res){
 							precipitation : drainfall / daily_ctr
 						}
 						
-						// //console.log(weather);
+						// //
 
 
 						var season = {
@@ -2814,7 +2757,7 @@ exports.getPDProbability = function(req, res){
 							season_humidity : 65
 						}
 						var cc_query = {
-							status: ['In-Progress', 'Active', "Completed"]
+							status: ['In-Progress', 'Active', "Completed"], date: req.session.cur_date
 						}
 
 						cropCalendarModel.getCropCalendars(cc_query, function(err, stage){
@@ -2827,13 +2770,13 @@ exports.getPDProbability = function(req, res){
 										index = i;
 										break;
 									}
-								// console.log(stage[index]);
+								//
 								var cur_stage = {
 									stage_name : stage[0].stage
 								}	
 							}
 							// res.send({});
-							// console.log(stage);
+							//
 							if(index == null){
 								var cur_stage = {
 									stage_name : null
@@ -2861,8 +2804,8 @@ exports.getPDProbability = function(req, res){
 										statements.push({ statement : stmt});
 									}
 								}
-								// console.log(possible_pests);
-								// console.log(req.query.calendar_id);
+								//
+								//
 								res.send(possible_pests);
 							});
 						});
@@ -2875,12 +2818,12 @@ exports.getPDProbability = function(req, res){
 
 
 exports.storePDRecommendation = function(req, res){
-	// console.log(req.query);
-	// console.log(req.query.possibilities);
+	//
+	//
 	
 	var possibility = req.query.possibilities;
 	var i;
-	date = new Date();
+	date = new Date(req.session.cur_date);
 	date = dataformatter.formatDate(date, 'YYYY-MM-DD');
 	
 	pestdiseaseModel.getPDProbability({date : date},possibility.type, possibility.pd_id, req.query.farm_id, function(err, recommendations){
@@ -2889,7 +2832,6 @@ exports.storePDRecommendation = function(req, res){
 		else{
 			if(recommendations.length == 0){
 				//create recommendation
-				console.log("create probability");
 				var data = {
 					pd_type : possibility.type,
 					pd_id : possibility.pd_id,
@@ -2903,7 +2845,7 @@ exports.storePDRecommendation = function(req, res){
 				});
 			}
 			else{
-				// console.log("update probability");
+				//
 				recommendations[0].probability = recommendations[0].probability + parseInt(possibility.probability);
 				recommendations[0].probability = recommendations[0].probability / 2;
 				//update
@@ -2919,15 +2861,15 @@ exports.storePDRecommendation = function(req, res){
 //ajax
 exports.getDiagnosisList = function(req,res){
 	var farm_id = req.query.farm_id;
-	// console.log(farm_id);
+	//
 
 	if(farm_id == "" || farm_id == null){
 		farm_id = null;
 	}
-	// console.log(req.query);
+	//
 	pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnoses){
-		// console.log("diagnoses");
-		// console.log(diagnoses);
+		//
+		//
 		res.send(diagnoses);
 	});
 
@@ -2935,7 +2877,6 @@ exports.getDiagnosisList = function(req,res){
 
 exports.getProbabilities = function(req,res){
 	var farm_id = req.query.farm_id;
-	console.log(farm_id);
 
 	if(farm_id == "" || farm_id == null){
 		farm_id = null;
@@ -2950,7 +2891,7 @@ exports.getProbabilities = function(req,res){
 
 exports.ajaxGetDiagnosisStageFrequency = function(req,res){
 	var farm_id = req.query.farm_id;
-	// console.log(farm_id);
+	//
 
 	if(farm_id == "" || farm_id == null){
 		farm_id = null;
@@ -2960,21 +2901,18 @@ exports.ajaxGetDiagnosisStageFrequency = function(req,res){
 		if(err)
 			throw err;
 		else{
-			// console.log("frequency");
-			// console.log(frequency);
+			//
+			//
 			res.send(frequency);
 		}
 	});
 }
 
 exports.getPreventions = function(req, res){
-	console.log("entered prevention");
 	var type = req.query.type;
 	var id = req.query.id;
 	
 	var seed_id = req.query.seed_id;
-	console.log(req.query.land_prep_date);
-	console.log(req.query.seed_id);
 	var possibilities = req.query.possibilities;
 
 	//Get seed dmaturity days
@@ -2982,25 +2920,25 @@ exports.getPreventions = function(req, res){
 		if(err)
 			throw err;
 		else{
-			// console.log(seed);
+			//
 
 			var maturity_days = seed[0].maturity_days;
 			var land_prep = new Date(req.query.land_prep_date);
 			var sowing = new Date(req.query.sowing_date);
 			var vegetation = new Date(req.query.vegetation_date);
-			var reproduction = new Date();
+			var reproduction = new Date(req.session.cur_date);
 			reproduction.setTime(vegetation.getTime() + (maturity_days * 24 * 60 * 60 * 1000));
-			var ripening = new Date();
+			var ripening = new Date(req.session.cur_date);
 			ripening.setTime(reproduction.getTime() + (35* 24 * 60 * 60 * 1000));
-			var harvesting = new Date();
+			var harvesting = new Date(req.session.cur_date);
 			harvesting.setTime(ripening.getTime() + (30 * 24 * 60 * 60 * 1000));
 
-			// console.log(land_prep);
-			// console.log(sowing);
-			// console.log(vegetation);
-			// console.log(reproduction);
-			// console.log(ripening);
-			// console.log(harvesting);
+			//
+			//
+			//
+			//
+			//
+			//
 			//Get 
 			if(type == "Pest"){
 				pestdiseaseModel.getPestPreventions(id, function(err, preventions){
@@ -3086,7 +3024,6 @@ exports.getPDFrequency = function(req, res){
 			if(err)
 				throw err;
 			else{
-				// console.log(temp_total);
 				for(x = 0; x < temp_total.length; x++){
 					var freq_stage = "N/A", stage_count = 0;
 					for(i = 0; i < frequency.length; i++){
@@ -3100,7 +3037,6 @@ exports.getPDFrequency = function(req, res){
 					temp_total[x]["frequent_stage"] = freq_stage;
 				}
 
-
 				for(x = 0; x < temp_total.length; x++){
 					if(temp_total[x].type == "Pest")
 						pest[x] = temp_total[x];
@@ -3108,14 +3044,14 @@ exports.getPDFrequency = function(req, res){
 						disease[x] = temp_total[x];
 				}
 				var new_total = [];
-				for(i = 0; i < 5; i++){
+
+				var max_index = temp_total.length >= 5 ? 5 : temp_total.length;
+				for(i = 0; i < max_index; i++){
 					new_total.push(temp_total[i]);
 				}
 				
-				new_total[0]["selected"] = true;
-
-				// console.log(new_total);
-
+				if (new_total.length != 0)
+					new_total[0]["selected"] = true;
 			}
 
 			farmModel.getAllFarms(function(err, farms){
@@ -3139,7 +3075,7 @@ exports.getPDFrequency = function(req, res){
 						for(i = 0; i < month_frequency.length; i++){
 							//update array for chart
 							month_frequency[i]["percent"] = (month_frequency[i].frequency * 1.0) / (highest * 1.0) * 100;
-							// console.log(month_frequency[i].percent);
+							//
 							// if(month_frequency[i]["month"] == "")
 							// if(month_frequency[i]["month"] == "")
 							// if(month_frequency[i]["month"] == "")
@@ -3174,7 +3110,7 @@ exports.getPDFrequency = function(req, res){
 							throw err;
 						else{
 							var i;
-							// console.log(pests);
+							//
 							for(i = 0; i < pests.length; i++){
 								pests[i]["pd_type"] = "Pest";
 								if(pests[i].last_diagnosed != null)
@@ -3200,7 +3136,7 @@ exports.ajaxUpdateChart = function(req, res){
 	var pd_id = req.query.pd_id;
 	var farm_id = req.query.farm_id;
 	var year = req.query.year;
-	// console.log(req.query);
+	//
 	if(farm_id == "all"){
 		farm_id = null;
 	}
@@ -3290,7 +3226,7 @@ exports.ajaxDiagnosisPDFrequency = function(req, res){
 			if(err)
 				throw err;
 			else{
-				// console.log(temp_total);
+				//
 				if(frequency.length != 0 && total.length != 0){
 					for(x = 0; x < temp_total.length; x++){
 						var freq_stage = "N/A", stage_count = 0;
@@ -3323,10 +3259,9 @@ exports.ajaxDiagnosisPDFrequency = function(req, res){
 					
 					new_total[0]["selected"] = true;
 	
-					// console.log(new_total);
+					//
 				}
 			}
-			console.log(type);
 			if(type == "Pest"){
 				res.send(new_pest);
 			}
@@ -3375,8 +3310,8 @@ exports.ajaxDiagnosisListPerPD = function(req,res){
 					throw err;
 				else{
 					if(frequency.length != 0){
-						// console.log(frequency[0].stage_diagnosed);
-						// console.log(frequency[0].count);
+						//
+						//
 						diagnosis_list[0]["count"] = frequency[0].count;
 						diagnosis_list[0]["common_stage"] = frequency[0].stage_diagnosed;
 					}
@@ -3399,8 +3334,6 @@ exports.getSinglePDProbabilitity = function(req,res){
 	var pd_id = req.query.pd_id;
 	var type = req.query.type;
 	var farm_id = req.query.farm_id;
-	console.log("GET PROBABILITIY OF SINGLE");
-	console.log(farm_id);
 	if(farm_id == null || farm_id == "all" || farm_id == ""){
 		farm_id = null;
 	}
@@ -3414,9 +3347,8 @@ exports.getSinglePDProbabilitity = function(req,res){
 					var date = dataformatter.formatDate(new Date(probability[0].date), 'YYYY-MM-DD');
 					var i, ctr = 0, sum = 0; 
 					for(i =0; i < probability.length; i++){
-						// console.log(date + " = " + probability[i].date);
+						//
 						if(date == dataformatter.formatDate(new Date(probability[i].date), 'YYYY-MM-DD')){
-							console.log("same");
 							ctr++;
 							sum = sum + probability[i].probability;
 						}
@@ -3456,7 +3388,6 @@ exports.checkExistingPreventionWo = function(req, res){
 						}
 					}
 				}
-				console.log(preventions);
 				res.send({preventions : preventions, calendar_id : crop_calendar[0].calendar_id});
 			});
 		}
@@ -3468,7 +3399,6 @@ exports.checkExistingPreventionWo = function(req, res){
 
 
 exports.createPreventionWo = function(req, res){
-	console.log(req.body);
 	var calendar_id = req.body.calendar_id;
 	var workorders = [];
 	var preventions = req.body.preventions;
@@ -3477,21 +3407,19 @@ exports.createPreventionWo = function(req, res){
 		workorders.push(preventions[i].split('|'));
 	
 	//Create new WorkOrders
-	var today = new Date(); 
+	var today = new Date(req.session.cur_date); 
 	today.setDate(today.getDate() + 7);	
-	// console.log(workorders[0][1]);
+	//
 	for(i = 0;i < workorders.length; i++){
 
 		var temp_wo = {
 			type : workorders[i][1],
 			notes : workorders[i][2],
-			date_created : new Date(),
-			date_start : new Date(),
+			date_created : new Date(req.session.cur_date),
+			date_start : new Date(req.session.cur_date),
 			date_due : today,
 			crop_calendar_id : calendar_id
 		}
-		console.log(temp_wo);
-		console.log("Create work order from diagnosis");
 		workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 	}
 

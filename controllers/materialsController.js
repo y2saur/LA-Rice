@@ -8,7 +8,7 @@ const { Solve } = require('javascript-lp-solver');
 
 exports.getMaterials = function(req,res){
     var html_data = {};
-    console.log("WEH");
+    html_data = js.init_session(html_data, 'role', 'name', 'username', 'farm', req.session);
     materialModel.getMaterials("Seed", null, function(err, seeds){
         if(err){
             throw err;
@@ -16,7 +16,7 @@ exports.getMaterials = function(req,res){
         else{
             if(seeds.length != 0){
                 html_data["seed"] = seeds;
-                html_data = js.init_session(html_data, 'role', 'name', 'username', 'farm', req.session);
+                
 				html_data["notifs"] = req.notifs;
                 res.render('materials', html_data);
             }
@@ -31,7 +31,6 @@ exports.getMaterials = function(req,res){
 exports.ajaxGetMaterials = function(req, res) {
     materialModel.getMaterials(req.query.type, null, function(err, materials) {
         if (err){
-            console.log(err);
             throw err;
         }
         else {
@@ -46,7 +45,7 @@ exports.ajaxGetAllMaterials = function(req, res) {
         if (err)
             throw err;
         else {
-            //console.log(materials);
+            //
             res.send(materials);
         }
     });
@@ -57,7 +56,7 @@ exports.getAllMaterials = function(req, res) {
         if (err)
             throw err;
         else {
-            //console.log(materials);
+            //
             res.send(materials);
         }
     });
@@ -145,7 +144,7 @@ exports.addMaterials = function(req,res){
 // 			throw err;
 //         else{
 //             for(var i = 0; i < result.length ; i++){
-//                 console.log(result[i]);
+//
 //             }
 
 //             res.send(result);
@@ -197,7 +196,6 @@ exports.addMaterials = function(req,res){
             //add current ammount
             var id = {farm_mat_id : result[0].farm_mat_id};
             var cur_amount = result[0].current_amount + parseInt(req.query.current_amount);
-            console.log(typeof req.query.current_amount);
             var data = {current_amount : cur_amount}
             materialModel.updateFarmMaterials(data, id, function(err, succ){
                 
@@ -213,9 +211,7 @@ exports.addMaterials = function(req,res){
 }
 
 //Purchase history
-exports.addPurchase3 = function(req,res){ 
-
-    console.log(req.body);
+exports.addPurchase3 = function(req,res){
     res.redirect("orders");
     // var purchase = {
     //     item_type : "Pesticide",
@@ -225,7 +221,7 @@ exports.addPurchase3 = function(req,res){
     //     amount : 45,
     //     units : "Kg",
     //     requested_by : 1,
-    //     request_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD')
+    //     request_date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')
     // }
     // materialModel.addPurchase(purchase, function(err, result){
     // });
@@ -257,7 +253,6 @@ exports.testAPI = function(req, res){
 }
 
 exports.getWeather = function(req, res){
-    console.log("Test");
     console.log(req)
     res.send({msg : "Weather"});
 }
@@ -316,10 +311,10 @@ exports.getOrders = function(req, res){
                             for(i = 0; i < pending.length; i++){
                                 if(pending[i].purchase_price == null)
                                     pending[i].purchase_price = "0.00";
-                                // console.log("TYPE: " + typeof(pending[i].request_date) + pending[i].request_date);
+                                //
                                 pending[i].request_date = dataformatter.formatDate(pending[i].request_date, 'YYYY-MM-DD');
                             }
-                            // console.log(pending);
+                            //
                             html_data["pending"] = pending;
                         }
                         materialModel.getAllPurchases(null, {status : "Processing"}, function(err, processing){
@@ -407,7 +402,6 @@ exports.getInventory = function(req, res){
                         }
                         html_data["farms"] = farms;
                         html_data["low_stocks"] = low_stocks;
-                        console.log(low_stocks);
                         html_data["notifs"] = req.notifs;
                         res.render("inventory", html_data);
                     });
@@ -423,7 +417,6 @@ exports.getInventory = function(req, res){
 exports.ajaxGetInventory = function(req, res){
     var html_data = {};
     var type = req.params.type;
-    console.log(type);
     if(type == "all_farms"){
         materialModel.getFarmMaterials(null, function(err, materials){
             if(err)
@@ -454,7 +447,6 @@ exports.ajaxGetInventory = function(req, res){
                 else{
                     html_data["materials"] = materials;
                 }
-                console.log(html_data.farms);
                 res.send(html_data);
             });
 
@@ -467,11 +459,8 @@ exports.newMaterial = function(req, res){
     var item_name = req.body.item_name;
     var item_desc = req.body.item_desc;
     var item_type = req.body.item_type;
-
-    console.log(req.body);
     materialModel.addMaterials(item_type, item_name, item_desc, function(err){
         if(err){
-            console.log(err);
             throw err;
         }
     });
@@ -480,11 +469,8 @@ exports.newMaterial = function(req, res){
 }
 
 
-exports.addPurchase = function(req,res){ 
-
-    console.log("------------------------------------------------------------------");
-    // console.log(req.body.item);
-    console.log("------------------------------------------------------------------");
+exports.addPurchase = function(req,res){
+    //
     var farm_id = req.body.farm;
 
     var i;
@@ -504,7 +490,7 @@ exports.addPurchase = function(req,res){
                     item_desc : req.body.item_desc,
                     item_id : req.body.item[i].item,
                     amount : req.body.item[i].amount,
-                    request_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD')
+                    request_date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')
                 }
 
                 var cont = true;
@@ -514,14 +500,13 @@ exports.addPurchase = function(req,res){
                 }
                 if(cont)
                     materialModel.addPurchase(purchase, function(err, add){
-                        if(err)
-                            console.log(err);
+                        if(err) {
+
+                        }
                         else{
-                            console.log("THIS");
-                            console.log(add);
                             //Create Notification
                             var notif = {
-                                date : new Date(),
+                                date : new Date(req.session.cur_date),
                                 farm_id : farm_id,
                                 notification_title : "New pending order",
                                 url : "/orders/details?id=" + add.insertId,
@@ -533,7 +518,6 @@ exports.addPurchase = function(req,res){
                             });
                         }
                     });
-                console.log("Add purchase");
             }
         }
         
@@ -549,7 +533,7 @@ exports.addPurchase = function(req,res){
     //     amount : 45,
     //     units : "Kg",
     //     requested_by : 1,
-    //     request_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD')
+    //     request_date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')
     // }
     // materialModel.addPurchase(purchase, function(err, result){
     // });
@@ -569,16 +553,14 @@ exports.getPurchaseDetails = function(req,res){
         if(err)
             throw err;
         else{
-            console.log(details[0]);
             details[0].request_date = dataformatter.formatDate(details[0].request_date, 'YYYY-MM-DD');
             if(details[0].date_purchased != null)
                 details[0].date_purchased = dataformatter.formatDate(details[0].date_purchased, 'YYYY-MM-DD');
             else
             details[0].date_purchased = "not yet purchased";
             html_data['details'] = details[0];
-            console.log(details[0]);
         }
-        html_data["cur_date"] = dataformatter.formatDate(new Date(),'YYYY-MM-DD');
+        html_data["cur_date"] = dataformatter.formatDate(new Date(req.session.cur_date),'YYYY-MM-DD');
         html_data["notifs"] = req.notifs;
         res.render("purchaseDetails", html_data);
     });
@@ -590,7 +572,6 @@ exports.updatePurchase = function(req, res){
     var amount = {amount : req.body.amount};
     var date_purchased = {date_purchased : req.body.date_purchased};
     var purchase_price = {purchase_price : req.body.purchase_price};
-    console.log(req.body);
 
     if(purchase_price.purchase_price == ""){
         materialModel.updatePurchase(id, {purchase_status : "Processing"}, function(err, result){
@@ -613,8 +594,9 @@ exports.updatePurchase = function(req, res){
             else{
                 
                 materialModel.getFarmMaterialsSpecific({farm_id : purchase_id[0].farm_id}, {item_type : purchase_id[0].item_type}, function(err, farm_materials){
-                    if(err)
+                    if(err) {
                         throw err;
+                    }
                     else{
                         var i, farm_mat_id = null;
                         for(i = 0; i < farm_materials.length; i++){
@@ -623,8 +605,6 @@ exports.updatePurchase = function(req, res){
                                 break;
                             }
                         }
-                        console.log("farm_mat_id");
-                        console.log(farm_mat_id);
                         if(farm_mat_id == null){
                             //create new farm_material
                             var material = {
@@ -634,14 +614,16 @@ exports.updatePurchase = function(req, res){
                                 current_amount : purchase_id[0].amount
                             }
                             materialModel.addNewFarmMaterial(material, function(err, resss){
-                                if(err)
-                                    console.log(err);
+                                if(err) {
+                                    throw err;
+                                }
                             });
                         }
                         else{
                             materialModel.addFarmMaterials(amount.amount, farm_mat_id, function(err, result){
-                                if(err)
-                                    console.log(err);
+                                if(err) {
+                                    throw err;
+                                }
                             });
                         }
                         
@@ -661,7 +643,7 @@ exports.updatePurchase = function(req, res){
     // var farm_mat_id = req.query.farm_mat_id;
     // if(status == "Purchased"){
     //     //should add to Materials
-    //     console.log("Add farm materials");
+    //
         // materialModel.addFarmMaterials(amount, farm_mat_id, function(err, result){
         // });
     // }

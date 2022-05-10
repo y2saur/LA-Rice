@@ -92,7 +92,7 @@ exports.getSoilRecord = function(data, next) {
 		temp_sql[1] = temp_sql[1].replace(',',' and ');
 		sql = temp_sql[0]+temp_sql[1];
 	} 
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 };
 
@@ -105,7 +105,7 @@ exports.getNutrientDetails = function(query, next) {
 		var sql = "SELECT t1.calendar_id, t1.harvest_yield, t1.N * 30.515 * t1.farm_area AS N, t1.P * 30.515 * t1.farm_area AS P, t1.K * 30.515 * t1.farm_area AS K, CASE WHEN MAX(t1.applied_N) IS NULL THEN 0 ELSE MAX(t1.applied_N) END AS applied_N, CASE WHEN MAX(t1.applied_P) IS NULL THEN 0 ELSE MAX(t1.applied_P) END AS applied_P, CASE WHEN MAX(t1.applied_K) IS NULL THEN 0 ELSE MAX(t1.applied_K) END AS applied_K, CASE WHEN t1.N * 30.515 * t1.farm_area - case when MAX(t1.applied_N) is null then 0 else MAX(t1.applied_N) end < 0 OR t1.N * 30.515 * t1.farm_area - case when MAX(t1.applied_N) is null then 0 else MAX(t1.applied_N) end IS NULL THEN 0 ELSE t1.N * 30.515 * t1.farm_area - case when MAX(t1.applied_N) is null then 0 else MAX(t1.applied_N) end END AS deficient_N, CASE WHEN t1.P * 30.515 * t1.farm_area - case when MAX(t1.applied_P) is null then 0 else MAX(t1.applied_P) end < 0 OR t1.P * 30.515 * t1.farm_area - case when MAX(t1.applied_P) is null then 0 else MAX(t1.applied_P) end IS NULL THEN 0 ELSE t1.P * 30.515 * t1.farm_area - case when MAX(t1.applied_P) is null then 0 else MAX(t1.applied_P) end END AS deficient_P, CASE WHEN t1.K * 30.515 * t1.farm_area - case when MAX(t1.applied_K) is null then 0 else MAX(t1.applied_K) end < 0 OR t1.K * 30.515 * t1.farm_area - case when MAX(t1.applied_K) is null then 0 else MAX(t1.applied_K) end IS NULL THEN 0 ELSE t1.K * 30.515 * t1.farm_area - case when MAX(t1.applied_K) is null then 0 else MAX(t1.applied_K) end END AS deficient_K FROM (SELECT ft.farm_area, cct.calendar_id, cct.harvest_yield, CASE WHEN (SELECT n_lvl FROM soil_quality_table WHERE calendar_id = cct.calendar_id ORDER BY soil_quality_id DESC LIMIT 1) IS NULL THEN 7.75 ELSE (SELECT n_lvl FROM soil_quality_table WHERE calendar_id = cct.calendar_id ORDER BY soil_quality_id DESC LIMIT 1) END AS N, CASE WHEN (SELECT p_lvl FROM soil_quality_table WHERE calendar_id = cct.calendar_id ORDER BY soil_quality_id DESC LIMIT 1) IS NULL THEN 4.0 ELSE (SELECT p_lvl FROM soil_quality_table WHERE calendar_id = cct.calendar_id ORDER BY soil_quality_id DESC LIMIT 1) END AS P, CASE WHEN (SELECT k_lvl FROM soil_quality_table WHERE calendar_id = cct.calendar_id ORDER BY soil_quality_id DESC LIMIT 1) IS NULL THEN 8.75 ELSE (SELECT k_lvl FROM soil_quality_table WHERE calendar_id = cct.calendar_id ORDER BY soil_quality_id DESC LIMIT 1) END AS K, NULL AS applied_N, NULL AS applied_P, NULL AS applied_K FROM crop_calendar_table cct JOIN farm_table ft USING (farm_id) WHERE cct.status = 'Completed' UNION SELECT NULL, t.crop_calendar_id, NULL AS harvest_yield, NULL AS N, NULL AS P, NULL AS K, SUM(t.total_N) AS total_N, SUM(t.total_P) AS total_P, SUM(t.total_K) AS total_K FROM (SELECT wot.work_order_id, wot.crop_calendar_id, SUM(wort.qty) * ft.N AS total_N, SUM(wort.qty) * ft.P AS total_P, SUM(wort.qty) * ft.K AS total_K FROM work_order_table wot JOIN wo_resources_table wort USING (work_order_id) JOIN fertilizer_table ft ON ft.fertilizer_id = wort.item_id WHERE wot.type = 'Fertilizer Application' AND wot.status = 'Completed' GROUP BY crop_calendar_id , fertilizer_id) AS t GROUP BY crop_calendar_id) AS t1 ";
 		sql += 'GROUP BY calendar_id';
 	}
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
@@ -144,7 +144,7 @@ exports.createNutrientItem = function(data, next) {
 	while (sql.includes("`wo_id` = ''")) {
 		sql = sql.replace("`wo_id` = ''", '`wo_id` = '+null);
 	}
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
@@ -170,7 +170,7 @@ exports.getUpcomingImportantNutrients = function(query, type, next) {
 exports.getMostActiveFRPlan = function(query, next) {
 	var sql = "select * from ( select fr_plan_id, calendar_id, last_updated, farm_id, max(status) as status from ( select max(fr_plan_id) as fr_plan_id, max(calendar_id) as calendar_id, last_updated, (select farm_id from crop_calendar_table where calendar_id = frp.calendar_id) as farm_id, null as status from fertilizer_recommendation_plan frp group by farm_id union select null, calendar_id, null, farm_id, status from crop_calendar_table ) as t where ? group by t.calendar_id ) as t1 where fr_plan_id is not null "
 	sql = mysql.format(sql, query);
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
@@ -183,20 +183,20 @@ exports.deleteNutrientItems = function(query, next) {
 exports.getNutrientPlanDetails = function(data, next) {
 	var sql = "select * from fertilizer_recommendation_plan where ? order by last_updated desc, fr_plan_id desc";
 	sql = mysql.format(sql, data);
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
 exports.getNutrientPlanItems = function(data, next) {
 	var sql = "select ft.fertilizer_name, frp.calendar_id, frp.last_updated, fri.* from fertilizer_recommendation_items fri join fertilizer_table ft using (fertilizer_id) join fertilizer_recommendation_plan frp using (fr_plan_id) where ? order by target_application_date asc";
 	sql = mysql.format(sql, data);
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
 exports.getNutrientPlanItemsCompleted = function(data, next) {
 	var sql = "select ft.fertilizer_name, frp.calendar_id, frp.last_updated, fri.*, wot.work_order_id, wot.date_completed, wot.status from fertilizer_recommendation_items fri join fertilizer_table ft using (fertilizer_id) join fertilizer_recommendation_plan frp using (fr_plan_id) left join work_order_table wot ON wot.work_order_id = fri.wo_id where ? order by target_application_date asc";
 	sql = mysql.format(sql, data);
-	// console.log(sql);
+
 	mysql.query(sql, next);
 }

@@ -1,3 +1,23 @@
+exports.processChangedDate = function(start, end) {
+	var true_date = new Date();
+
+	if (start == end) {
+		start = new Date(start);
+		start.setDate(start.getDate() - 30);
+		start = formatDate(start, 'YYYY-MM-DD');
+	}
+
+	if (true_date < new Date(start) || true_date < new Date(end)) {
+		start = new Date(start);
+		start.setMonth(start.getMonth() - 12);
+
+		end = new Date(end);
+		end.setMonth(end.getMonth() - 12);
+	}
+
+	return { start: start, end: end };
+}
+
 exports.smoothDailyData = function(arr, type) {
 	var i = 0;
 	var counter = 1;
@@ -75,6 +95,18 @@ exports.processNPKValues = function(obj, area, applied, msg, wo_list) {
 	var conversion = 30.5151727; // oz / 100 sq ft to kg/ha
 	var count_deficiencies = 0;
 
+	for (var i = 0; i < applied.length; i++) {
+		if (applied[i].resources_used != 0) {
+			obj.p_lvl -= applied[i].P * applied[i].resources_used;
+			obj.k_lvl -= applied[i].K * applied[i].resources_used;
+			obj.n_lvl -= applied[i].N * applied[i].resources_used;
+		}
+	}
+
+	obj.p_lvl = obj.p_lvl < 0 ? 0 : obj.p_lvl;
+	obj.k_lvl = obj.k_lvl < 0 ? 0 : obj.k_lvl;
+	obj.n_lvl = obj.n_lvl < 0 ? 0 : obj.n_lvl; 
+
 	for (var i = 0; i < keys.length; i++) {
 			switch(keys[i]) {
 			case 'n_lvl':
@@ -123,15 +155,6 @@ exports.processNPKValues = function(obj, area, applied, msg, wo_list) {
 		}
 	}
 
-	for (var i = 0; i < applied.length; i++) {
-		if (applied[i].resources_used != 0) {
-			obj.p_lvl -= applied[i].P * applied[i].resources_used;
-			obj.k_lvl -= applied[i].K * applied[i].resources_used;
-			obj.n_lvl -= applied[i].N * applied[i].resources_used;
-		}
-	}
-	console.log()
-	console.log(wo_list);
 	count_applied = wo_list.length;
 	for (var  i = 0; i < keys.length; i++) {
 		obj[keys[i]] = Math.round(obj[keys[i]] * 100) / 100;
@@ -272,7 +295,7 @@ exports.dateToUnix = function(date) {
 		date = (new Date());
 		date.setDate(date.getDate() - 1);
 	}
-	console.log(date);
+	//console.log(date);
 
 	return parseInt((new Date(date).getTime() / 1000).toFixed(0));
 }

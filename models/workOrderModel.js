@@ -4,7 +4,7 @@ mysql = mysql.connection;
 exports.createWorkOrder = function(query, next) {
 	var sql = "insert into work_order_table set ?;";
 	sql = mysql.format(sql, query);
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
@@ -28,7 +28,7 @@ exports.createWorkOrderResources = function(query, next) {
 exports.getDetailedWorkOrder = function(query, next) {
 	var sql = "select wot.date_completed, cct.crop_plan, wot.work_order_id, wot.type, wot.crop_calendar_id, date_created, date_due, date_start, wot.status, wot.desc, notes, cct.harvest_yield, ft.farm_id, ft.farm_name, ft.farm_desc from work_order_table as wot join crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id join farm_table ft using(farm_id) where ?;";
 	sql = mysql.format(sql, query);
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
@@ -63,7 +63,7 @@ exports.getGroupedWO = function(type, filter, next) {
 	var sql = "select t.*, date_add(target_application_date, interval 7 day) as target_date_end, case when target_application_date is not null then case when (date_completed >= target_application_date and date_completed <= date_add(target_application_date, interval 7 day)) then 'Followed' else 'Unfollowed' end else 'N/A' end as followed from ( SELECT case when work_order_id in (select wo_id from fertilizer_recommendation_items where wo_id = work_order_id) then 'Generated Recommendation' else 'User Generated' end as record_type, (select target_application_date from fertilizer_recommendation_items where wo_id = work_order_id) as target_application_date, wot.*, wrt.item_id, ft.fertilizer_name, wrt.qty FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE wot.crop_calendar_id = ? AND wot.type = ? ) as t";
 	sql = mysql.format(sql, filter);
 	sql = mysql.format(sql, type);
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 
@@ -134,7 +134,7 @@ exports.getWorkOrders = function(query, next) {
 			
 		}
 	}
-	console.log(sql);
+
 	mysql.query(sql, next);
 }
 

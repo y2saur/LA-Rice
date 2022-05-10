@@ -26,15 +26,21 @@ exports.getSpecificFarm = function(data, next) {
 }
 
 exports.getForecastedYieldRecord1 = function(data, next) {
-	var sql = "SELECT calendar_id, temp, humidity, pressure, rainfall, seed_id, harvested, N, P, K, seed_rate, forecast FROM forecasted_yield where ";
-	for (var i = 0; i < data.calendar_id.length; i++) {
-		sql += 'calendar_id = '+data.calendar_id[i];
-		if (i != data.calendar_id.length-1) {
-			sql +=' or ';
+	if (data.calendar_id.length != 0) {
+		var sql = "SELECT calendar_id, temp, humidity, pressure, rainfall, seed_id, harvested, N, P, K, seed_rate, forecast FROM forecasted_yield where ";
+		for (var i = 0; i < data.calendar_id.length; i++) {
+			sql += 'calendar_id = '+data.calendar_id[i];
+			if (i != data.calendar_id.length-1) {
+				sql +=' or ';
+			}
 		}
+		//console.log(sql);
+		mysql.query(sql, next);
 	}
-	//console.log(sql);
-	mysql.query(sql, next);
+	else {
+		return next();
+	}
+		
 }
 
 exports.getAllFarmswCalendar = function(next) {
@@ -78,7 +84,7 @@ exports.filteredFarmDetails = function(data, next) {
 	var sql = "select * from ( select * from ( select * from farm_table ft cross join (select farm_id, et.* from farm_assignment fa join employee_table et using(employee_id) ) as t using(farm_id) ) as t where position = 'Farm Manager' and ? union select *, null as employee_id, null as position, null as last_name, null as first_name, null as phone_number, null, null from farm_table ft ) as t1 where ? group by farm_id";
 	sql = mysql.format(sql, data);
 	sql = mysql.format(sql, data);
-	// console.log(sql);
+
 	mysql.query(sql, next);
 }
 

@@ -7,7 +7,7 @@
 
 <div class="container-fluid">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark mb-0">Farms &gt; Work Order</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>Date<br><br></a>
+        <h3 class="text-dark mb-0">Farms &gt; Work Order</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
     </div>
     <div class="card shadow mb-4"  style="max-width: 1150px; margin: 0px auto;">
         <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;color: #ffffff;">
@@ -67,6 +67,7 @@
                                 <td>
                                     <input type="text" class="form-control" id="crop_plan" name="crop_plan" value="{{work_order.crop_plan}}" readonly>
                                     <input type="hidden" name="crop_calendar_id" id="crop_calendar_id" value="{{work_order.crop_calendar_id}}">
+                                    <input type="hidden" name="farm_id" id="farm_id" value="{{farm_id}}">
                                 </td>
                             </tr>
                             <tr>

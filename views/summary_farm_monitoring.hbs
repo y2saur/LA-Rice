@@ -530,22 +530,23 @@
 	jQuery.ajaxSetup({async: false });
 	var view = 'summary monitoring';
 	var obj = {{{JSON_data.farms}}};
-
-	var n_date = new Date();
+	var n_date = new Date({{#if cur_date}}"{{cur_date}}"{{/if}});
 	n_date.setDate(n_date.getDate() - 30);
-	var n = new Date();
-
+	var n = new Date({{#if cur_date}}"{{cur_date}}"{{/if}});
+	console.log(n_date);
+	console.log(n);
 	for (var i = 0; i < obj.length; i++) {
 		var query = { polygon_id: obj[i].id, start: n_date, end: n };
 
 		$.get('/agroapi/ndvi/imagery', query, function(imagery) {
 			if (imagery.length != 0) {
-				if (obj[i].name == 'LA Farm WEST (Scenario 1)') {
-					//console.log(imagery);
-					imagery[imagery.length-1] = imagery.filter(e => e.dt == '2022-01-05')[0];
+				imagery = imagery.filter(e => typeof e === 'object' && e != null);
+				// if (obj[i].name == 'LA Farm WEST (Scenario 1)') {
+				// 	//console.log(imagery);
+				// 	imagery[imagery.length-1] = imagery.filter(e => e.dt == '2022-01-05')[0];
 
-				}
-				
+				// }
+				console.log(imagery);
 				$.get(imagery[imagery.length-1].stats.ndvi, {}, function(stats) {
 					// $(`[id='${obj[i].name}_ndvi']`).html(' '+Math.round(stats.max * 100) / 100);
 					// $(`[id='${obj[i].name}_ndvi_date']`).html('Last updated: '+formatDate(new Date(imagery[0].dt), 'mm DD, YYYY'));

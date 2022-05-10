@@ -414,7 +414,7 @@
 </div> --}}
 <div class="container-fluid">
     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark mb-0">Farms &gt; Farm Monitoring</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>October 1, 2021 10:32am<br><br></a>
+        <h3 class="text-dark mb-0">Farms &gt; Farm Monitoring</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
     </div>
     <div class="row">
         <div class="col-xl-3">
@@ -450,10 +450,10 @@
                 <div class="card-body">
                     <h6 class="font-weight-bold m-0" style="color: #584c33;font-size: 20px;">Current Weather</h6>
                     <div class="row">
-                        <div class="col justify-content-xl-center align-items-xl-center"><i class="fas fa-cloud-moon-rain d-xl-flex justify-content-xl-center" style="font-size: 70px;color: rgb(88,76,51);"></i></div>
+                        <div class="col justify-content-xl-center align-items-xl-center"><img class="hide" src="" style="width: 88px; height: 60px;" id="monitor_icon"><!-- <i class="d-xl-flex justify-content-xl-center" style="font-size: 70px;color: rgb(88,76,51);"> --></i></div>
                         <div class="col">
-                            <div><span class="text-right d-block d-xl-flex justify-content-xl-end" id="monitor_temp">26.1°<br></span></div>
-                            <div><span class="text-right d-block d-xl-flex justify-content-xl-end" id="monitor_desc">Overcast Clouds<br></span></div>
+                            <div><span class="text-right d-block d-xl-flex justify-content-xl-end" id="monitor_temp"><br></span></div>
+                            <div><span class="text-right d-block d-xl-flex justify-content-xl-end" id="monitor_desc"><br></span></div>
                         </div>
                     </div>
                 </div>
@@ -469,15 +469,15 @@
                             <tbody>
                                 <tr>
                                     <td style="padding: 8px;">Temperature at the surface</td>
-                                    <td style="padding: 8px;" id="monitor_surface_temp">26.1°<br></td>
+                                    <td style="padding: 8px;" id="monitor_surface_temp"><br></td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 8px;">Temperature at the depth of 10cm</td>
-                                    <td style="padding: 8px;" id="monitor_ground_temp">26.1°<br></td>
+                                    <td style="padding: 8px;" id="monitor_ground_temp"><br></td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 8px;">Soil Moisture</td>
-                                    <td style="padding: 8px;" id="monitor_soil_moisture">26.1°<br></td>
+                                    <td style="padding: 8px;" id="monitor_soil_moisture"><br></td>
                                 </tr>
                             </tbody>
                         </table>

@@ -23,6 +23,7 @@ exports.deleteDisasterLog = function(query, next){
         sql += ' where ?';
         sql = mysql.format(sql, query);
     }
+
     mysql.query(sql, next);
 };
 
@@ -32,12 +33,13 @@ exports.getDisasterLogs = function(query, next){
         sql += ' where ?';
         sql = mysql.format(sql, query);
     }
+    sql += ' order by target_date desc';
     mysql.query(sql, next);
 };
 
 exports.createDisasterLog = function(warning, next){
     if (Array.isArray(warning)) {
-        console.log(warning);
+
         var sql = "insert into disaster_logs (max_temp, min_temp, pressure, humidity, weather, description, wind_speed, rainfall, wind_direction, status, type, date_recorded, target_date) values ";
         for (var i = 0; i < warning.length; i++) {
             if (i != 0) {

@@ -1,9 +1,15 @@
+const dataformatter = require('./dataformatter.js');
+
 exports.init_session = function(obj, role, name, username, tab, session) {
+	var date = new Date();
+	date = dataformatter.formatDate(date, 'YYYY-MM-DD');
 	var role = session.authority;
 	obj['writeable'] = session.writeable;
 	obj['name'] = session.username;
 	obj['username'] = session.username;
 	obj['session'] = true;
+	obj['cur_date'] = session.cur_date;
+	obj['true_date'] = date;
 
 	if (role === 0) 
 		obj['admin_role'] = true;

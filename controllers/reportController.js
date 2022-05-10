@@ -38,7 +38,7 @@ function processNutrientChartData(sql_filter, calendar_list, nutrient_chart, pd_
 
 		temp_nutrient = nutrient_chart.filter(e => e.crop_calendar_id == parseInt(sql_filter[x]));
 		temp_pd = pd_chart.filter(e => e.calendar_id == parseInt(sql_filter[x]));
-		//console.log(calendar);
+		//
 		for (var i = 0; i < temp_nutrient.length; i++) {
 			if (new Date(calendar.sowing_date > new Date(temp_nutrient[i].date_completed))) {
 				temp_nutrient[i]['dat'] = dateDiffInDays(new Date(calendar.sowing_date), new Date(temp_nutrient[i].date_completed));
@@ -121,7 +121,7 @@ function groupSPI_N(arr, month, n) {
 
 		cont.push({ date:`${arr[item].year} ${arr[item].month}`, data: grouped_precip, count: len });
 	});
-	//console.log(cont);
+	//
 
 	return cont;
 }
@@ -141,11 +141,6 @@ function gammaEq(params, spi_data) {
 	var x = spi_data[spi_data.length-1].data;
 	var t = x / params.beta;
 	var integral = ( (mathjs.pow(t, params.alpha-1)) * (mathjs.pow(2.71828, t*-1)) ) / mathjs.pow(1, params.alpha-1);
-	console.log(params.alpha);
-	console.log(g_of_x);
-	console.log(x);
-	console.log(t);
-	console.log(integral);
 }
 
 function calculateSPI(spi_data, month, n) {
@@ -209,7 +204,7 @@ exports.testDisasterChart = function(req, res) {
 	var html_data = {};
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'reports', req.session);
 	var month = 2;
-	var start_date = new Date();
+	var start_date = new Date(req.session.cur_date);
 	start_date.setMonth(start_date.getMonth() - 12);
 	
 	res.render('customCNRTest', html_data);
@@ -231,9 +226,8 @@ exports.getDetailedReport = function(req, res) {
 				else {
 					input_resources = input_resources.filter(e => e.calendar_id == req.query.calendar_id);
 					html_data['farm_productivity'] = analyzer.processDetailedFarmProductivity(fp_overview, input_resources);
-					console.log('----------------------');
-					//console.log(html_data['farm_productivity']);
-					//console.log(input_resources);
+					//
+					//
 					html_data["notifs"] = req.notifs;
 					res.render('detailed_farm_report', html_data)
 				}
@@ -250,55 +244,59 @@ exports.getFarmProductivityReport = function(req, res) {
 			throw err;
 		else {
 			var calendar_arr = fp_overview.map(({ calendar_id }) => calendar_id).concat(fp_overview.map(({ max_prev_calendar }) => max_prev_calendar));
-			reportModel.getInputResourcesUsed({ calendar_ids: calendar_arr }, function(err, input_resources) {
+
+			if (calendar_arr.length != 0) {
+				reportModel.getInputResourcesUsed({ calendar_ids: calendar_arr }, function(err, input_resources) {
+					if (err)
+						throw err;
+					else {	
+						html_data['farm_productivity'] = analyzer.smoothFP(analyzer.calculateProductivity(fp_overview, input_resources));
+					}
+				});
+			}
+				
+			reportModel.getHarvestReports(function(err, harvest_reports) {
 				if (err)
 					throw err;
 				else {
-					reportModel.getHarvestReports(function(err, harvest_reports) {
-						if (err)
-							throw err;
-						else {
-							//console.log(harvest_reports);
-							var years = harvest_reports.map( ({crop_plan}) => crop_plan.replace(/\D/g, "") );
-							years = years.filter((x, i, a) => a.indexOf(x) == i)
-							var lbl = ['Late', 'Early'];
-							var arr;
-							
-							// for (var y = 0; y < harvest_reports.length; y++) {
-							// 	for (var i = 0; i < years.length; i++) {
-							// 		for (var x = lbl.length; x > 0; x--) {
-							// 			if (`${lbl[x]} ${years[i]}` == harvest_reports[y].crop_plan) {
-							// 				console.log(harvest_reports[i].crop_plan);
-							// 			}
-							// 		}
-							// 	}
+					//
+					var years = harvest_reports.map( ({crop_plan}) => crop_plan.replace(/\D/g, "") );
+					years = years.filter((x, i, a) => a.indexOf(x) == i)
+					var lbl = ['Late', 'Early'];
+					var arr;
+					
+					// for (var y = 0; y < harvest_reports.length; y++) {
+					// 	for (var i = 0; i < years.length; i++) {
+					// 		for (var x = lbl.length; x > 0; x--) {
+					// 			if (`${lbl[x]} ${years[i]}` == harvest_reports[y].crop_plan) {
+					//
+					// 			}
+					// 		}
+					// 	}
 
-							// }
-							// var filtered;
-							// for (var i = 0; i < harvest_reports.length; i++) {
-							// 	for (var x = 0; x < years.length; x++) {
-							// 		filtered = harvest_reports.filter(e => (e.crop_plan.replace(/\D/g, "")) == years[x]);
-							// 		console.log(years[x]);
+					// }
+					// var filtered;
+					// for (var i = 0; i < harvest_reports.length; i++) {
+					// 	for (var x = 0; x < years.length; x++) {
+					// 		filtered = harvest_reports.filter(e => (e.crop_plan.replace(/\D/g, "")) == years[x]);
+					//
 
-							// 		filtered.sort((a,b) => a.crop_plan < b.crop_plan);
-							// 		console.log(filtered);
-							// 	}
-							// }
+					// 		filtered.sort((a,b) => a.crop_plan < b.crop_plan);
+					//
+					// 	}
+					// }
 
-							// harvest_reports.sort((a,b) => a.crop_plan.replace(/\D/g, "") > b.crop_plan.replace(/\D/g, ""));
-							// console.log(harvest_reports);
+					// harvest_reports.sort((a,b) => a.crop_plan.replace(/\D/g, "") > b.crop_plan.replace(/\D/g, ""));
+					//
 
-							//console.log(years);
-							html_data['harvest_reports'] = harvest_reports;
-							html_data['farm_productivity'] = analyzer.smoothFP(analyzer.calculateProductivity(fp_overview, input_resources));
+					//
+					html_data['harvest_reports'] = harvest_reports;
 
-							//console.log(html_data.farm_productivity);
-							html_data["notifs"] = req.notifs;
-							res.render('farm_productivity_report', html_data);
-						}
-					});			
+					//
+					html_data["notifs"] = req.notifs;
+					res.render('farm_productivity_report', html_data);
 				}
-			});
+			});		
 		}
 	});
 }
@@ -320,7 +318,7 @@ exports.ajaxSeedChart = function(req, res) {
 
 					seed_chart = analyzer.processSeedChartData(seed_chart, seed_materials)
 					
-					res.send({ stringify: (seed_chart.data), obj: seed_chart, legends: legends });
+					res.send({ stringify: (seed_chart.data), obj: seed_chart.stringify, legends: seed_chart.legends });
 				}
 			});
 		}
@@ -330,7 +328,7 @@ exports.ajaxSeedChart = function(req, res) {
 exports.ajaxNutrientTimingChart = function(req, res) {
 	var html_data = {};
 	var sql_filter = req.query.calendars;
-	//console.log(req.query);
+	//
 	reportModel.getSeedChart( req.query.farms, req.query.plans, function(err, seed_chart) {
 		if (err)
 			throw err;
@@ -343,7 +341,7 @@ exports.ajaxNutrientTimingChart = function(req, res) {
 						if (err)
 							throw err;
 						else {
-							var nutrient_chart_arr = nutrient_chart_arr = processNutrientChartData(sql_filter, seed_chart, nutrient_chart, pd_chart);
+							var nutrient_chart_arr = processNutrientChartData(sql_filter, seed_chart, nutrient_chart, pd_chart);
 
 							res.send({ obj: nutrient_chart_arr.dataset, legends: nutrient_chart_arr.legends });
 						}
@@ -452,7 +450,7 @@ exports.getSummaryHarvestReport = function(req, res) {
 																										throw err;
 																									else {
 																										var farm_filter2;
-																										//console.log(arr);
+																										//
 																										farm_list.forEach(function(e) {
 																											arr.forEach(function(item, index) {
 																												if (e.farm_name == item.farm_name) {
@@ -572,7 +570,7 @@ exports.getDetailedHarvestReport = function(req, res) {
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'reports', req.session);
 	html_data["notifs"] = req.notifs;
 	html_data["farm_name"] = req.query.farm;
-	html_data['range'] = { start: "2017-01-01", end: dataformatter.formatDate(new Date(), 'YYYY-MM-DD') };
+	html_data['range'] = { start: "2017-01-01", end: dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD') };
 
 	var arr = [], obj, calendar_ids;
 	reportModel.getHarvestSummaryChart({ crop_plan: req.params.crop_plan, status: 'Completed' }, function(err, chart_data) {
@@ -759,7 +757,7 @@ exports.getDetailedHarvestReport = function(req, res) {
 							// 				},
 							// 				body: JSON.stringify(data)
 							// 			};
-							// 			console.log(options.url);
+							//
 							// 			request(options, function(err, response, body) {
 							// 				if (err)
 							// 					throw err;
@@ -771,7 +769,7 @@ exports.getDetailedHarvestReport = function(req, res) {
 							// 		        		body[i].dt = dataformatter.formatDate(dataformatter.unixtoDate(body[i].dt), 'YYYY-MM-DD');
 							// 		        		body[i]['date'] = dataformatter.unixtoDate(body[i].dt);
 
-							// 		        		console.log(body[i].stats.ndvi);
+							//
 
 							// 		        		var stats_options = {
 							// 		        			url: body[i].stats.ndvi,
@@ -785,14 +783,14 @@ exports.getDetailedHarvestReport = function(req, res) {
 							// 		        				throw err;
 
 							// 		        			arr.push(stats.max);
-							// 		        			console.log(stats);
+							//
 							// 		        		});
 							// 		        	}
-							// 		        	console.log(arr);
-							// 		        	//console.log(body);
+							//
+							// 		        	//
 							// 					//var result = body[body.length-1];
 							// 					//result.dt = dataformatter.unixtoDate(result.dt);
-							// 					////console.log(body);
+							// 					////
 							// 					res.render('detailed_harvest_report', html_data);
 							// 				}
 							// 			});

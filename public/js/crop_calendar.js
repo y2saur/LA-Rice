@@ -426,6 +426,35 @@ function consolidateFRItems(wo_arr, frp_id) {
 	return wo_arr;
 }
 
+function processCNRItems(calendar_id) {
+	var obj, start_date, due_date, arr = [];
+	var dates = $("input[name='cnr_item_target_date").map(function(){return $(this).val();}).get();
+	var fertilizers = $("select[name='cnr_item_fertilizer']").map(function(){return $(this).val();}).get();
+	var desc = $("textarea[name='cnr_item_desc']").map(function(){return $(this).val();}).get();
+	var amt = $("input[name='cnr_item_amount").map(function(){return $(this).val();}).get();
+	var checkbox = $("input[name='cnr_fr_checkbox").map(function(){return $(this).val();}).get();
+	
+	for (var i = 0; i < checkbox.length; i++) {
+		start_date = new Date(dates[i]);
+		due_date = new Date(start_date.setDate(start_date.getDate() + 7));
+		obj = {
+			wo_type: 'Fertilizer Application',
+			crop_calendar_id: calendar_id,
+			start_date: start_date,
+			due_date: due_date,
+			notes: desc[i],
+			resources: {
+				ids: [fertilizers[i]],
+				qty: [amt[i]]
+			}
+		}
+
+		arr.push(obj);
+	}
+	console.log(arr);
+	return arr;
+}
+
 function processManualWO(calendar_id) {
 	var obj, start_date, due_date, arr = [];
 	var dates = $("input[name='manual_date").map(function(){return $(this).val();}).get();
@@ -575,31 +604,34 @@ $(document).ready(function() {
 
 			form_data['manual_wo'] = processManualWO(crop_plan.insertId);
 			form_data['manual_wo'] = form_data['manual_wo'].concat(processCustomFR(crop_plan.insertId));
-			
+			console.log(form_data.manual_wo);
 			//Create forecast record
-			if (form_data.seed_expected_yield != 'Insufficient historical data to make forecast') {
-				$.get('/create_forecast_record', { calendar_id: crop_plan.insertId, seed_id: form_data.seed_id, forecast: form_data.seed_expected_yield }, function(forecast_record) {
-
-				});
+			var forecast_val = form_data.seed_expected_yield;;
+			if (forecast_val == 'Insufficient historical data to make forecast') {
+				forecast_val = -1;
 			}
+
+			$.get('/create_forecast_record', { calendar_id: crop_plan.insertId, seed_id: form_data.seed_id, forecast: forecast_val }, function(forecast_record) {
+
+			});
 
 			// Check if FR Plan already exists!
 			$.get('/get_nutrient_plan_details', { farm_id: form_data.farm_id }, function(fr_plans) {
 
 				if (fr_plans.length != 0) {
 					if (fr_plans[0].calendar_id == null) {
-						$.post('/update_nutrient_plan', { update: { calendar_id: crop_plan.insertId }, filter: { fr_plan_id: fr_plans[0].fr_plan_id } }, function(fr_plan_update) {
+						$.post('/update_nutrient_plan', { update: { calendar_id: crop_plan.insertId, last_ndvi: 0 }, filter: { fr_plan_id: fr_plans[0].fr_plan_id } }, function(fr_plan_update) {
 							fr_items = consolidateFRItems(wo_arr, fr_plans[0].fr_plan_id);
 						});
 					}
 					else {
-						$.post('/create_nutrient_plan', { farm_id: form_data.farm_id ,calendar_id: crop_plan.insertId, last_updated: formatDate(new Date(), 'YYYY-MM-DD') }, function(nutrient_plan) {
+						$.post('/create_nutrient_plan', { farm_id: form_data.farm_id ,calendar_id: crop_plan.insertId, last_updated: formatDate(new Date(), 'YYYY-MM-DD'), last_ndvi: 0 }, function(nutrient_plan) {
 							fr_items = consolidateFRItems(wo_arr, nutrient_plan.insertId);
 						});
 					}
 				}
 				else {
-					$.post('/create_nutrient_plan', { farm_id: form_data.farm_id ,calendar_id: crop_plan.insertId, last_updated: formatDate(new Date(), 'YYYY-MM-DD') }, function(nutrient_plan) {
+					$.post('/create_nutrient_plan', { farm_id: form_data.farm_id ,calendar_id: crop_plan.insertId, last_updated: formatDate(new Date(), 'YYYY-MM-DD'), last_ndvi: 0 }, function(nutrient_plan) {
 						fr_items = consolidateFRItems(wo_arr, nutrient_plan.insertId);
 					});
 				}
@@ -670,33 +702,34 @@ $(document).ready(function() {
 					fr_items[i].wo_id = wo;
 				});
 
-				for (var i = 0; i < form_data.manual_wo.length; i++) {
-					$.post('/upload_wo', form_data.manual_wo[i], function(manual_wo) {
-						console.log('Success manual wo!');
-					});
-				}
-
-				//Create work order for FR items
-					// Insert FK with work_order_id for generated fr_items
-				wo_fr_items = processFRtoDB([], fr_items, crop_plan.insertId);
-
-				for (var i = 0; i < fr_items.length; i++) {
-					for (var x = 0; x < wo_fr_items.length; x++) {
-						if (wo_fr_items[x].notes == fr_items[i].description) {
-							$.post('/upload_wo', wo_fr_items[x], function(wo) {
-								wo = wo.replace('/farms/work_order&id=', '');
-								fr_items[i].wo_id = wo;
-							});
-						}
-					}
-					$.post('/create_nutrient_item', fr_items[i], function(nutrient_item) {
-							if (i == fr_items.length - 1) {
-								window.location.href = '/crop_calendar';
-							}
-					});
-				}
 			});
 
+			//Create work order for manual FR items and CNR items
+			for (var i = 0; i < form_data.manual_wo.length; i++) {
+				$.post('/upload_wo', form_data.manual_wo[i], function(manual_wo) {
+					console.log('Success manual wo!');
+				});
+			}
+
+			//Create work order for FR items
+				// Insert FK with work_order_id for generated fr_items
+			wo_fr_items = processFRtoDB([], fr_items, crop_plan.insertId);
+
+			for (var i = 0; i < fr_items.length; i++) {
+				for (var x = 0; x < wo_fr_items.length; x++) {
+					if (wo_fr_items[x].notes == fr_items[i].description) {
+						$.post('/upload_wo', wo_fr_items[x], function(wo) {
+							wo = wo.replace('/farms/work_order&id=', '');
+							fr_items[i].wo_id = wo;
+						});
+					}
+				}
+				$.post('/create_nutrient_item', fr_items[i], function(nutrient_item) {
+						if (i == fr_items.length - 1) {
+							window.location.href = '/crop_calendar';
+						}
+				});
+			}
 		});
 	});
 

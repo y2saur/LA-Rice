@@ -1,6 +1,6 @@
 <div class="container-fluid">
                     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h3 class="text-dark mb-0">Dashboard</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>October 1, 2021 10:32am<br><br></a>
+                        <h3 class="text-dark mb-0">Dashboard</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
                     </div>
 
     <div class="row" style="margin: 0px;">
@@ -85,6 +85,8 @@
     <div class="row mb-3">
         <div class="d-flex flex-column">
             <div class="form-row ml-3 mt-3">
+
+                {{#if crop_plans}}
                 <div class="form-group ml-2">
                   <label class="ml-1" for="farm_filter">Farms</label>
                     <div class="dropdown">
@@ -104,6 +106,7 @@
                       </ul>
                     </div>
                 </div>
+                {{/if}}
 
                 <div class="form-group mx-3">
                     <label class="ml-1" for="farm_filter">Farms</label>
@@ -153,6 +156,7 @@
         </div>
 
         <div class="col-lg-7 col-xl-8">
+            {{#if production_chart}}
             <div class="w-100 border border-secondary d-flex flex-column rounded" style="">
                 <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
                     <div>
@@ -164,8 +168,10 @@
                     <canvas id="crop_production" style="width: 500px;"></canvas>
                 </div>
             </div>
+            {{/if}}
 
             <div class="d-flex my-3 w-100">
+                {{#if consumption_chart}}
                 <div class="w-50 border border-secondary d-flex flex-column rounded" style="">
                     <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
                         Fertilizer Consumption <small>(in grams/ha)</small>
@@ -174,7 +180,9 @@
                         <canvas id="fertilizer_consumption" style=""></canvas>
                     </div>
                 </div>
+                {{/if}}
 
+                {{#if pd_overview_chart.trend}}
                 <div class="w-50 border border-secondary d-flex flex-column rounded" style="">
                     <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
                         Pest Disease Trend
@@ -183,6 +191,7 @@
                         <canvas id="pd_trend" style=""></canvas>
                     </div>
                 </div>
+                {{/if}}
             </div>
 
             <div class="w-100 border border-secondary d-flex flex-column rounded" style="height: 425px !important">
@@ -198,6 +207,7 @@
         </div>
 
         <div class="col-lg-5 col-xl-4">
+            {{#if pd_overview_chart.stage}}
             <div class="w-100 h-100 border border-secondary d-flex flex-column rounded" style="height: 800px !important;">
                 <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
                     Pest Disease By Stage
@@ -206,6 +216,7 @@
                     <canvas id="pd_stage" style="width: 500px; max-height: 760px !important;"></canvas>
                 </div>
             </div>
+            {{/if}}
 
             <div class="mt-3 w-100 border border-secondary d-flex flex-column rounded" style="">
                 <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
@@ -709,16 +720,8 @@
             }
         });
 
+        {{#if production_chart}}
         var production_data = {{{production_chart}}};
-        var consumption_data = {{{consumption_chart}}};
-        var pd_trend = {{{pd_overview_chart.trend}}};
-        var pd_stage = {{{pd_overview_chart.stage}}};
-
-        console.log(production_data);
-        console.log(consumption_data);
-        console.log(pd_trend);
-        console.log(pd_stage);
-
         var productionChart = new Chart(crop_production, {
           type: 'bar',
           data: production_data,
@@ -734,8 +737,11 @@
             scales: {
             }
           }
-        });
+        })
+        {{/if}}
 
+        {{#if consumption_chart}}
+        var consumption_data = {{{consumption_chart}}};
         var consumptionChart = new Chart(document.getElementById("fertilizer_consumption"), {
           type: 'bar',
           data: consumption_data,
@@ -758,7 +764,10 @@
             }
           }
         });
+        {{/if}}
 
+        {{#if pd_overview_chart.trend}}
+        var pd_trend = {{{pd_overview_chart.trend}}};
         var pdTrendChart = new Chart(document.getElementById("pd_trend"), {
           type: 'line',
           data: pd_trend,
@@ -782,7 +791,10 @@
             }
           }
         });
+        {{/if}}
 
+        {{#if pd_overview_chart.stage}}
+        var pd_stage = {{{pd_overview_chart.stage}}};
         var pdByStageChart = new Chart(document.getElementById("pd_stage"), {
           type: 'bar',
           data: pd_stage,
@@ -804,9 +816,10 @@
             }
           }
         });
+        {{/if}}
 
         var weather_chart_data = [];
-        var precip_chart_data = {{{precip_data}}};
+        var precip_chart_data = {{#if precip_data}} {{{precip_data}}} {{else}} [] {{/if}};
 
         var canvas = document.getElementById('weather_chart');
         var date = new Date().toISOString().split('T')[0];

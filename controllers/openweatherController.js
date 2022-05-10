@@ -7,19 +7,22 @@ const notifModel = require('../models/notificationModel.js');
 var key = 'd7aa391cd7b67e678d0df3f6f94fda20';
 var temp_lat = 13.073091;
 var temp_lon = 121.388563;
+var open_weather_key = 'd7aa391cd7b67e678d0df3f6f94fda20';
 
-exports.updateWeatherData = function(req, res) {
+exports.updateWeatherData = function(req, res, next) {
 	var lat = req.query.lat, lon = req.query.lon;
 	lat = temp_lat;
 	lon = temp_lon;
-	var start = dataformatter.dateToUnix(new Date('01/01/2020')), end = dataformatter.dateToUnix('20/01/2020');
+	var date = new Date();
+	date.setMonth(date.getMonth - 12);
+	var start = dataformatter.dateToUnix(date), end = dataformatter.dateToUnix(new Date());
 	var arr = [];
 	var date = new Date();
 	var month = date.getMonth()+1, day = date.getDate();
 	var range_start, range_end = new Date();
 	var month_end = range_end.getMonth()+1, day_end = range_end.getDate();
 	var url = `https://history.openweathermap.org/data/2.5/aggregated/year?lat=${lat}&lon=${lon}&appid=${open_weather_key}`;
-	//console.log(url);
+
 	weatherForecastModel.lastWeatherData(function(err, last_record) {
 		if (err)
 			throw err;
@@ -27,34 +30,39 @@ exports.updateWeatherData = function(req, res) {
 			range_start = new Date(last_record[0].date);
 			month = range_start.getMonth()+1;
 			day = range_start.getDate();
-			request(url, {json: true}, function(err, response, body) {
-				if (err)
-					throw err;
-				else {
-					body = body.result.filter(e => (e.month <= month_end && e.month >= month) && (e.day <= day_end && e.day > day) );
-					
-					if (body.length != 0) {
-						var temp_date;
-						body.forEach(function(item) {
-							temp_date = dataformatter.formatDate(new Date(`${item.month}-${item.day}-${date.getFullYear()}`), 'YYYY-MM-DD');
-							arr.push({ date: temp_date, temp_mean: Math.round((item.temp.mean-273.15)*100)/100, temp_min: Math.round((item.temp.record_min-273.15)*100)/100, 
-								temp_max: Math.round((item.temp.record_max-273.15)*100)/100, pressure_mean: Math.round(item.pressure.mean*100)/100, 
-								humidity_mean: Math.round(item.humidity.mean*100)/100, precipitation_mean: Math.round(item.precipitation.mean*100)/100 });
-						})
-						weatherForecastModel.saveWeatherData(arr, function(err, result) {
-							if (err)
-								throw err;
-							else {
-								console.log(result);
-							}
-						});
+			if (month_end == month && day_end == day) {
+				console.log('updated weather data');
+			}
+			else {
+				request(url, {json: true}, function(err, response, body) {
+					if (err)
+						throw err;
+					else {
+
+						body = body.result.filter(e => (e.month == month && (e.day > day && e.day <= day_end) ) || (e.month == month_end && (e.day <= day_end && e.day > day) ) );
+
+						if (body.length != 0) {
+							var temp_date;
+							body.forEach(function(item) {
+								temp_date = dataformatter.formatDate(new Date(`${item.month}-${item.day}-${date.getFullYear()}`), 'YYYY-MM-DD');
+								arr.push({ date: temp_date, temp_mean: Math.round((item.temp.mean-273.15)*100)/100, temp_min: Math.round((item.temp.record_min-273.15)*100)/100, 
+									temp_max: Math.round((item.temp.record_max-273.15)*100)/100, pressure_mean: Math.round(item.pressure.mean*100)/100, 
+									humidity_mean: Math.round(item.humidity.mean*100)/100, precipitation_mean: Math.round(item.precipitation.mean*100)/100 });
+							})
+							weatherForecastModel.saveWeatherData(arr, function(err, result) {
+								if (err)
+									throw err;
+								else {
+									//console.log(result);
+								}
+							});
+						}
 					}
-					res.send('Done');
-				}
-			});
+				});
+			}
+			return next();
 		}
 	});
-	//res.render('customCNRTest', html_data);
 };
 
 exports.getHistoricalWeather = function(req, res) {
@@ -68,8 +76,7 @@ exports.getHistoricalWeather = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			console.log(body);
-			res.render('')
+			//console.log(body);
 			res.send(body);
 		}
 	});
@@ -260,7 +267,7 @@ exports.climateForecast = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			console.log(body.list[29]);
+			//console.log(body.list[29]);
 			res.send(body);
 		}
 	});

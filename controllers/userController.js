@@ -1,15 +1,24 @@
 const userModel = require('../models/userModel');
 const employeeModel = require('../models/employeeModel');
 const { validationResult } = require('express-validator');
+const dataformatter = require('../public/js/dataformatter.js');
 const bcrypt = require('bcrypt');
 const js = require('../public/js/session.js');
 
 const saltRounds = 10;
 
 function initializeSessionInfo(session, obj) {
+	var date = new Date();
+	date = dataformatter.formatDate(date, 'YYYY-MM-DD')
+
 	session.authority = obj.access_level;
 	session.username = obj.username;
 	session.employee_id = obj.employee_id;
+	
+	if (!session.hasOwnProperty('cur_date')) {
+		session.cur_date = date;
+	}
+
 	return session;
 }
 
@@ -43,7 +52,6 @@ exports.deactivateAccount = function(req, res) {
 						if (err)
 							throw err;
 						else {
-							console.log(result);
 							res.redirect('/user_management');
 						}
 					});
@@ -149,7 +157,6 @@ exports.initializePassword = function(req, res) {
 		});
 	}
 	else {
-		console.log('Not same passwords');
 		req.flash('error_msg', 'Passwords do not match');
 		res.redirect(`/initialize_account?username=${username}`);
 	}
@@ -160,8 +167,10 @@ exports.loginUser = function(req, res) {
 	const errors = validationResult(req);
 
 	if(errors.isEmpty()) {
-		console.log(req.body);
-		var {username, password} = req.body;
+		//
+
+		var {username, password, cur_date} = req.body;
+		req.session.cur_date = cur_date;
 		userModel.queryEmployee(username, function(err, userQuery) {
 			if (err) throw err;
 			else {
@@ -175,7 +184,6 @@ exports.loginUser = function(req, res) {
 					else if (userQuery[0].password !== null && userQuery[0].otp == null) {
 						bcrypt.compare(password, userQuery[0].password, (err, result) => {
 							// passwords match (result == true)
-							console.log('for encrypted' + result);
 							if (result) {
 								employeeModel.queryEmployee({ username: username }, function(err, user_details) {
 									if (err)
@@ -218,12 +226,24 @@ exports.loginUser = function(req, res) {
 	}
 };
 
+exports.editSystemDate = function(req, res) {
+	req.session.cur_date = req.query.change_date;
+	res.redirect(req.get('Referrer'));
+}
+
 exports.logout = function(req, res) {
 	if (req.session) {
-		req.session.destroy(() => {
-			res.clearCookie('connect.sid');
-			res.redirect('/login');
-    	});
+		var date = req.session.cur_date;
+
+		req.session.destroy();
+
+		res.redirect(`/login?cur_date=${date}`);
+		// req.session.destroy(() => {
+		// 	res.clearCookie('connect.sid');
+		// 	req.session.cur_date = date;
+		//
+		// 	res.redirect('/login');
+  //   	});
   	}
 };
 

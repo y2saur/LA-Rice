@@ -49,7 +49,7 @@ function createDOM(obj) {
 	return ele;
 }
 
-function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
+function getNDVI(farm_name, dat, N_recommendation, sowing_date, system_date, ndvi_cont) {
 	console.log(farm_name);
 	var farm_area
 	$.get('/get_farm_list', {}, function(farm_list) {
@@ -77,9 +77,9 @@ function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
 			}
 		}
 
-		var n_date = new Date();
+		var n_date = new Date(system_date);
 		n_date.setDate(n_date.getDate() - 30);
-		var n = new Date();
+		var n = new Date(system_date);
 		var query = { polygon_id: polygon_id, start: n_date, end: n };
 
 		options = {
@@ -110,7 +110,7 @@ function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
 				5: { val: 'Surplus', range: [14, 15] },
 				4: { val: 'Optimal', range: [11, 12, 13] },
 				3: { val: 'Optimal', range: [9, 10] },
-				2: { val: 'Deficient', range: [7, 8] }
+				2: { val: 'Deficient', range: [1, 8] }
 			}
 			var split_pattern = {
 				Basal: { 
@@ -144,6 +144,7 @@ function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
 				$.get(imagery[imagery.length-1].stats.ndvi, {}, function(stats) {
 					var ndvi = Math.round(stats.max * 100) / 100;
 					console.log('NDVI Value: '+ndvi);
+					ndvi_cont = ndvi;
 					for (prop in leaf_color_chart) {
 						if (ndvi >= leaf_color_chart[prop].min && leaf_color_chart[prop].max >= ndvi) {
 							ndvi_reading = leaf_color_chart[prop].val
@@ -151,6 +152,7 @@ function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
 					}
 					var range_start, range_end;
 					var N = null;
+
 					for (prop in lcc_conversion) {
 						range_start = lcc_conversion[prop].range[0];
 						range_end = lcc_conversion[prop].range[lcc_conversion[prop].range.length-1];
@@ -203,17 +205,18 @@ function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
 
 					var obj;
 					for (var i = 0; i < stages_arr.length; i++) {
-						var now = new Date();
+						var now = new Date(system_date);
 
 						stage = stages_arr[i];
 						N_amount = split_pattern[stages_arr[i]].reqs[index];
-
 						if (N == 'Surplus' && stage == 'Midtillering' 
 							|| stage == 'Panicle') {
+							console.log(`Surplus nutrient subtract recommendation for ${stage} stage`)
 							N_amount -= 10;
 						}
 						else if (N == 'Deficient' && stage == 'Midtillering' 
 							|| stage == 'Panicle') {
+							console.log(`Deficient nutrient subtract recommendation for ${stage} stage`)
 							N_amount += 10;
 						}
 
@@ -237,16 +240,17 @@ function getNDVI(farm_name, dat, N_recommendation, sowing_date) {
 
 						result_arr.push(obj);
 					}
-
+					// return { result_arr: result_arr, ndvi: ndvi };
 				});
 			}
 			else {
 				console.log('No sufficient data from API!!');
+				// return null;
 			}
 		});
 	});
 
-	return result_arr;
+	return { result_arr: result_arr, ndvi: ndvi_cont };
 }
 
 function mapFertilizertoSchedule(obj, materials, applied, recommendation) {
@@ -397,7 +401,7 @@ function addDays(date, days) {
   return result;
 }
 
-function createSchedule(materials, recommendation, applied, farm_id, N_recommendation, details, crop_calendar, work_order_list) {
+function createSchedule(materials, recommendation, applied, farm_id, N_recommendation, details, crop_calendar, work_order_list, ndvi_cont) {
 	var schedule_arr = [];
 	var fertilizer = {  };
 	var fertilizer_arr = [];
@@ -427,7 +431,7 @@ function createSchedule(materials, recommendation, applied, farm_id, N_recommend
 
 
 	var target_date;
-	var N, P, K = [];
+	var N_val, P, K = [];
 	var method;
 	var DAT;
 	var active_calendar = crop_calendar;
@@ -449,7 +453,7 @@ function createSchedule(materials, recommendation, applied, farm_id, N_recommend
 
 	//var temp_date = sowing.date_completed == null || sowing.date_completed == undefined ? sowing.date_due : sowing.date_completed;
 	var temp_date = temp_d;
-	var now = new Date();
+	var now = new Date(system_date);
 	console.log(temp_date);
 	var diffTime = (now - temp_date);
 	var DAT = Math.ceil(Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
@@ -466,16 +470,29 @@ function createSchedule(materials, recommendation, applied, farm_id, N_recommend
 	
 	//target_date = formatDate(target_date, 'YYYY-MM-DD');
 	//K Fertilizer changes depending on K requirement
-	var k_date, k_stage;
+	var k_date, k_stage, temp_add;
 	if (details.k_lvl >= 30) {
 		for (var i = 0; i < 2; i++) {
 			if (i == 0) {
-				k_date = new Date(land_prep.date_completed != null || land_prep.date_completed != undefined ? land_prep.date_completed : land_prep.date_due);
+				if (method == 'Transplanting') {
+					k_date = new Date(land_prep.date_completed != null || land_prep.date_completed != undefined ? land_prep.date_completed : land_prep.date_due);
+				}
+				else {
+					k_date = new Date(sowing.date_completed != null || sowing.date_completed != undefined ? sowing.date_completed : sowing.date_due);
+					k_date = new Date(k_date.setDate(k_date.getDate() + 10));
+				}
 				k_stage = 'Basal Potassium Application (K)';
 			}
 			else {
-				k_date = new Date(sowing.date_completed != null || sowing.date_completed != undefined ? sowing.date_completed : sowing.date_due);
-				k_date = new Date(k_date.setDate(k_date.getDate() + 35));
+				if (method == 'Transplanting') {
+					k_date = new Date(sowing.date_completed != null || sowing.date_completed != undefined ? sowing.date_completed : sowing.date_due);
+					k_date = new Date(k_date.setDate(k_date.getDate() + 25));
+				}
+				else {
+					k_date = new Date(sowing.date_completed != null || sowing.date_completed != undefined ? sowing.date_completed : sowing.date_due);
+					k_date = new Date(k_date.setDate(k_date.getDate() + 40));
+				}
+					
 				k_stage = 'Early Panicle Potassium Application (K)';
 			}
 
@@ -488,6 +505,9 @@ function createSchedule(materials, recommendation, applied, farm_id, N_recommend
 		}
 	}
 	else {
+		k_date = new Date(sowing.date_completed != null || sowing.date_completed != undefined ? sowing.date_completed : sowing.date_due);
+		if (method == 'Direct Seeding')
+			k_date = new Date(k_date.setDate(k_date.getDate() + 15));
 		K.push({
 			desc: 'Potassium Application (K)',
 			date: formatDate(new Date(target_date),'YYYY-MM-DD'),
@@ -496,20 +516,30 @@ function createSchedule(materials, recommendation, applied, farm_id, N_recommend
 		});
 	}
 	//P Fertilizer 100% always
+	var p_date;
+	if (method == 'Direct Seeding') {
+		p_date = new Date(sowing.date_completed != null || sowing.date_completed != undefined ? sowing.date_completed : sowing.date_due);
+		p_date = new Date(k_date.setDate(p_date.getDate() + 15));
+	}
+	else {
+		p_date = new Date(land_prep.date_completed != null || land_prep.date_completed != undefined ? land_prep.date_completed : land_prep.date_due);
+	}
+	
 	P = [{
 		desc: 'Phosphorous Application (P)',
-		date: formatDate(new Date(target_date),'YYYY-MM-DD'),
+		date: formatDate(new Date(p_date),'YYYY-MM-DD'),
 		amount: details.p_lvl,
 		nutrient: 'P'
 	}];
 
 	//N Need-Based Approach
-	N = getNDVI(crop_calendar.farm_name, DAT, N_recommendation, sowing_ndvi);
+	N_val = getNDVI(crop_calendar.farm_name, DAT, N_recommendation, sowing_ndvi, system_date, ndvi_cont);
 
-	obj = { N: N, P: P, K: K};
+	obj = { N: N_val.result_arr, P: P, K: K};
+	console.log(obj);
 	schedule_arr = mapFertilizertoSchedule(obj, materials, applied, recommendation);
 
-	return schedule_arr;
+	return { schedule_arr: schedule_arr, ndvi: N_val.ndvi };
 }
 
 function calculateDeficientN(reqs, applied) {
@@ -792,8 +822,10 @@ function createInitialFRItem() {
 	$()
 }
 
-function dateDiff(d1, d2) {
-	return d1.getDate() - d2.getDate();
+function dateDiff(date1, date2) {
+	const diffTime = Math.abs(date2 - date1);
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+	return diffDays;
 }
 
 function processFRItems(arr, frp_id, origin) {
@@ -904,7 +936,7 @@ function processSoilTest(obj) {
 
 $(document).ready(function() {
 	jQuery.ajaxSetup({async: false });
-
+	var ndvi_cont = 0;
 	var farm_name = '';
 
 	// setInterval(function() {
@@ -985,8 +1017,10 @@ $(document).ready(function() {
 				$.get('/get_active_calendar', { farm_id: farm_list[i].farm_id }, function(calendar) {
 
 					if (calendar.length != 0) {
+
 						$.get('/get_nutrient_plan_details', { calendar_id: calendar[0].calendar_id}, function(plan) {
-							if (dateDiff(new Date(), new Date(plan[0].last_updated)) >= 7) {
+
+							if (dateDiff(new Date(system_date), new Date(plan[0].last_updated)) >= 7) {
 								var detailed_nutrient_query = {
 									farm_name: farm_list[i].farm_name,
 									calendar_id: calendar[0].calendar_id,
@@ -1011,9 +1045,11 @@ $(document).ready(function() {
 													order: ['work_order_table.status ASC', 'work_order_table.date_due DESC']
 												}
 												$.get('/get_work_orders', query, function(work_order_list) {
-													var schedule_arr = createSchedule(materials, details.recommendation, list, farm_list[i].farm_id, calculateDeficientN(details, list), details, curr_calendar[0], work_order_list);
+													var schedule_arr = createSchedule(materials, details.recommendation, list, farm_list[i].farm_id, calculateDeficientN(details, list), details, curr_calendar[0], work_order_list, ndvi_cont);
 													var recommendation_list = [];
-													
+													var ndvi_cont = schedule_arr.ndvi;
+													schedule_arr = schedule_arr.schedule_arr;
+
 													schedule_arr = normalizeSchedule(schedule_arr, 'js', materials, false);
 													schedule_arr = schedule_arr.filter(e => e.fertilizer.nutrient == 'N');
 
@@ -1021,8 +1057,8 @@ $(document).ready(function() {
 													
 													$.get('/get_nutrient_plan_items', { frp_id: plan[0].fr_plan_id }, function(fr_items) {
 														var db_arr = reduceDynamicFRItems(fr_db_items, fr_items);
-														console.log(fr_db_items);
-														$.post('/update_nutrient_plan', { update: { last_updated: formatDate(new Date(), 'YYYY-MM-DD') }, filter: { fr_plan_id: plan[0].fr_plan_id } }, function(update_status) {
+
+														$.post('/update_nutrient_plan', { update: { last_updated: formatDate(new Date(system_date), 'YYYY-MM-DD'), last_ndvi: ndvi_cont }, filter: { fr_plan_id: plan[0].fr_plan_id } }, function(update_status) {
 															console.log(update_status);
 														});
 
@@ -1089,8 +1125,10 @@ $(document).ready(function() {
 								}
 							];
 							//console.log(crop_calendar);
-							var schedule_arr = createSchedule(materials, nutrient_details.recommendation, list, $('#farm_id').val(), calculateDeficientN(nutrient_details, list), nutrient_details, crop_calendar, work_order_list);
+							var schedule_arr = createSchedule(materials, nutrient_details.recommendation, list, $('#farm_id').val(), calculateDeficientN(nutrient_details, list), nutrient_details, crop_calendar, work_order_list, ndvi_cont);
 							var recommendation_list = [];
+							var ndvi_cont = schedule_arr.ndvi;
+							schedule_arr = schedule_arr.schedule_arr;
 							
 							schedule_arr = normalizeSchedule(schedule_arr, 'js', materials, true);
 							//console.log(schedule_arr);
@@ -1115,7 +1153,7 @@ $(document).ready(function() {
 	else if (view == 'Soil Detailed') {
 		// Soil Test Form
 
-		$('#date_taken').val(formatDate(new Date(), 'YYYY-MM-DD'));
+		$('#date_taken').val(formatDate(new Date(system_date), 'YYYY-MM-DD'));
 
 		$.get('/get_farm_list', {  }, function(result) {
 			farm_list = result;
@@ -1176,8 +1214,10 @@ $(document).ready(function() {
 													order: ['work_order_table.status ASC', 'work_order_table.date_due DESC']
 												}
 												$.get('/get_work_orders', query, function(work_order_list) {
-													var schedule_arr = createSchedule(materials, details.recommendation, list, form_data.farm_id, calculateDeficientN(details, list), details, curr_calendar[0], work_order_list);
+													var schedule_arr = createSchedule(materials, details.recommendation, list, form_data.farm_id, calculateDeficientN(details, list), details, curr_calendar[0], work_order_list, ndvi_cont);
 													var recommendation_list = [];
+													var ndvi_cont = schedule_arr.ndvi;
+													schedule_arr = schedule_arr.schedule_arr;
 													
 													schedule_arr = normalizeSchedule(schedule_arr, 'js', materials, false);
 
@@ -1186,7 +1226,7 @@ $(document).ready(function() {
 													$.get('/get_nutrient_plan_items', { frp_id: plan[0].fr_plan_id }, function(fr_items) {
 														var db_arr = reduceDynamicFRItems(fr_db_items, fr_items);
 														
-														$.post('/update_nutrient_plan', { update: { last_updated: formatDate(new Date(), 'YYYY-MM-DD') }, filter: { fr_plan_id: plan[0].fr_plan_id } }, function(update_status) {
+														$.post('/update_nutrient_plan', { update: { last_updated: formatDate(new Date(system_date), 'YYYY-MM-DD'), last_ndvi: ndvi_cont }, filter: { fr_plan_id: plan[0].fr_plan_id } }, function(update_status) {
 															console.log(update_status);
 														});
 

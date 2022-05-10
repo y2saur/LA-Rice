@@ -3,9 +3,9 @@ mysql = mysql.connection;
 
 exports.getPrecipHistory = function(data, next) {
 	var str = ``;
-	str = `where date > '${data.date}'`;
+	str = `where date > '${data.date}' and date <= '${data.end_date}'`;
 	var sql = `select date, round(sum(precipitation_mean),2) as precipitation_mean, (select round(sum(precipitation_mean),2) from weather_data_table where date_sub(wdt.date, interval 1 year) <= date and date < wdt.date and month(wdt.date) = month(date)) as year_1_lag, (select round(sum(precipitation_mean) / 3,2) from weather_data_table where date_sub(wdt.date, interval 3 year) <= date and date < wdt.date and month(wdt.date) = month(date)) as year_3_lag, (select round(sum(precipitation_mean) / 30,2) from weather_data_table where date_sub(wdt.date, interval 30 year) <= date and date < wdt.date and month(wdt.date) = month(date)) as year_30_lag from weather_data_table wdt ${str} group by year(date), month(date)`;
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 

@@ -25,8 +25,8 @@ exports.formatProductionChart = function(data) {
 			sum_forecast = 0;
 
 			filtered.forEach(function(item) {
-				sum_harvest += Math.round(item.harvested/item.farm_area*100)/100;
-				sum_forecast += Math.round(item.forecasted/item.farm_area*100)/100;
+				sum_harvest += Math.round(item.harvested*100)/100;
+				sum_forecast += Math.round(item.forecasted*100)/100;
 			})
 
 			data1.push(filtered.length != 0 ? sum_harvest  : 0 );
@@ -49,7 +49,7 @@ exports.formatProductionChart = function(data) {
 		});
 	}
 
-	console.log(obj_data.datasets);
+	//console.log(obj_data.datasets);
 
 	return obj_data;
 } 

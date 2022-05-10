@@ -5,7 +5,6 @@ function processOverviewFilter(data) {
 	var str = '';
 	if (data != null) {
 		str += `where `;
-		//console.log(data.farm_id);
 		data.farm_id.forEach(function(item, index) {
 			if (index == 0) {
 				str += '(';
@@ -38,21 +37,21 @@ exports.getProductionOverview = function(data, next) {
 	var str = processOverviewFilter(data);
 	
 	var sql = `select ft.farm_area, ft.land_type, cct.calendar_id, ft.farm_name, st.seed_name, cct.crop_plan, case when fy.harvested is null then 0 else fy.harvested end as harvested, case when fy.forecast = -1 then 0 else fy.forecast end as forecasted from crop_calendar_table cct join forecasted_yield fy using(calendar_id) join seed_table st using(seed_id) join farm_table ft using(farm_id) ${str}`;
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
 exports.getFertilizerConsumption = function(data, next) {
 	var str = processOverviewFilter(data);
 	var sql = `select N, P, K, cct.crop_plan, cct.calendar_id, ft.farm_name, fet.fertilizer_name, sum(wrt.qty) as qty, ft.farm_area from crop_calendar_table cct join work_order_table wot on cct.calendar_id = wot.crop_calendar_id join wo_resources_table wrt using (work_order_id) join fertilizer_table fet on wrt.item_id = fet.fertilizer_id join farm_table ft using(farm_id) ${str} group by crop_plan, farm_name, fertilizer_name`;
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
 exports.getPDOverview = function(data, next) {
 	var str = processOverviewFilter(data);
 	var sql = `select cct.crop_plan, count(*) as count, d.type, d.stage_diagnosed, ft.farm_id, case when d.type = 'Pest' then (select pest_name from pest_table where pd_id = pest_id) else (select disease_name from disease_table where pd_id = disease_id) end as pd_name from crop_calendar_table cct join diagnosis d using(calendar_id) join farm_table ft on cct.farm_id = ft.farm_id  ${str} group by crop_plan, stage_diagnosed, pd_name`;
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
@@ -88,7 +87,7 @@ exports.getNutrientChart = function(data1, data2, next) {
 			sql += ' or ?';
 	}
 	sql += ") as t group by crop_calendar_id, application_type, date_completed, nutrient_type";
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
@@ -117,13 +116,13 @@ exports.getSeedChart = function(farm,data, next) {
 
 	sql += 'and crop_calendar_table.status = "Completed" order by harvest_date asc, calendar_id asc';
 
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
 exports.getFarmProductivity = function(next) {
 	var sql = "select * from ( SELECT *, MAX(prev_calendar) AS max_prev_calendar, MAX(previous_yield) AS max_previous_yield FROM (SELECT st.seed_name, ft.farm_area, fy.forecast_yield_id, cct.calendar_id, NULL AS prev_calendar, cct.status, ft.farm_id, ft.farm_name, cct.crop_plan, fy.forecast AS forecast_yield, cct.harvest_yield AS current_yield, NULL AS previous_yield FROM crop_calendar_table cct LEFT JOIN crop_calendar_table AS cct1 ON (cct.farm_id = cct1.farm_id AND cct.harvest_date < cct1.harvest_date) JOIN seed_table st ON cct.seed_planted = st.seed_id JOIN forecasted_yield fy ON (cct.calendar_id = fy.calendar_id AND cct.seed_planted = fy.seed_id) JOIN farm_table ft ON cct.farm_id = ft.farm_id WHERE cct1.harvest_date IS NULL UNION SELECT NULL, NULL, NULL, NULL, t1.calendar_id, NULL, t1.farm_id, NULL, NULL, NULL, NULL, t1.harvest_yield FROM (SELECT *, @rn:=IF(@prev = farm_id, @rn + 1, 1) AS rn, @prev:=farm_id FROM crop_calendar_table JOIN (SELECT @prev:=NULL, @rn:=0) AS vars ORDER BY farm_id , harvest_date DESC) AS t1 WHERE rn = 2) AS t2 GROUP BY t2.farm_id ) as t3 union select st.seed_name, ft.farm_area, null, cct.calendar_id, null, cct.status, ft.farm_id, ft.farm_name, cct.crop_plan, forecast, cct.harvest_yield, null, null, null from crop_calendar_table cct join seed_table st on seed_planted = seed_id join farm_table ft using(farm_id) left join forecasted_yield fy on fy.calendar_id = cct.calendar_id where cct.status = 'Completed' and cct.farm_id not in ( SELECT farm_id FROM (SELECT st.seed_name, ft.farm_area, fy.forecast_yield_id, cct.calendar_id, NULL AS prev_calendar, cct.status, ft.farm_id, ft.farm_name, cct.crop_plan, fy.forecast AS forecast_yield, cct.harvest_yield AS current_yield, NULL AS previous_yield FROM crop_calendar_table cct LEFT JOIN crop_calendar_table AS cct1 ON (cct.farm_id = cct1.farm_id AND cct.harvest_date < cct1.harvest_date) JOIN seed_table st ON cct.seed_planted = st.seed_id JOIN forecasted_yield fy ON (cct.calendar_id = fy.calendar_id AND cct.seed_planted = fy.seed_id) JOIN farm_table ft ON cct.farm_id = ft.farm_id WHERE cct1.harvest_date IS NULL UNION SELECT NULL, NULL, NULL, NULL, t1.calendar_id, NULL, t1.farm_id, NULL, NULL, NULL, NULL, t1.harvest_yield FROM (SELECT *, @rn:=IF(@prev = farm_id, @rn + 1, 1) AS rn, @prev:=farm_id FROM crop_calendar_table JOIN (SELECT @prev:=NULL, @rn:=0) AS vars ORDER BY farm_id , harvest_date DESC) AS t1 WHERE rn = 2) AS t2 GROUP BY t2.farm_id) ";
-	//console.log(sql);
+	
 
 	mysql.query(sql, next);
 };
@@ -151,13 +150,13 @@ exports.getInputResourcesUsed = function(data, next) {
 		}
 	}
 	sql += "and wot.status = 'Completed' group by calendar_id, item_id";
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
 exports.getHarvestReports = function(next) {
 	var sql = "SELECT REGEXP_SUBSTR(crop_plan,'[0-9]+') as year,group_concat(calendar_id , '') as calendar_ids, crop_plan, count(*) as count, DATE_FORMAT(min(land_prep_date), '%b %d, %Y') as min_start, DATE_FORMAT(max(harvest_date), '%b %d, %Y') as max_end, case when max(status) != 'Completed' then 'Partially Complete' else 'Completed' end as status FROM crop_calendar_table where status = 'Completed' group by crop_plan order by year desc ,crop_plan desc, max(harvest_date) desc;";
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
@@ -181,12 +180,11 @@ exports.getHarvestSummaryChart = function(data, next) {
 		}
 	}
 
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
 exports.getNutrientRecommendationDetails = function(data, next) {
-	//console.log(data);
 	var sql = "select count(*) as count, t.*, date_add(target_application_date, interval 7 day) as target_date_end, case when target_application_date is not null then case when (date_completed >= target_application_date and date_completed <= date_add(target_application_date, interval 7 day)) then 'Followed' else 'Unfollowed' end else 'N/A' end as followed from ( SELECT case when work_order_id in (select wo_id from fertilizer_recommendation_items where wo_id = work_order_id) then 'Nutrient Generated Recommendation' else 'Nutrient User Generated' end as record_type, (select target_application_date from fertilizer_recommendation_items where wo_id = work_order_id) as target_application_date, wot.date_completed, wot.status, cct.calendar_id, wot.work_order_id FROM work_order_table wot JOIN crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id join wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ?";
 	for (var i = 0; i < data.calendar_ids.length; i++) {
 		sql = mysql.format(sql, { 'calendar_id': data.calendar_ids[i] });
@@ -201,7 +199,7 @@ exports.getNutrientRecommendationDetails = function(data, next) {
 		sql = sql.replace('cct_calendar_id', 'cct.calendar_id');
 	}
 	sql += ` AND wot.type = 'Fertilizer Application' and wot.status = 'Completed') as t group by calendar_id, record_type, followed, status`;
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 
@@ -217,7 +215,7 @@ exports.getEarlyHarvestDetails = function(data, next) {
 		}
 	}
 	sql += "group by cct_id, stage_harvested ) as t where t.stage_harvested != 'Harvesting'";
-	//console.log(sql);
+	
 	mysql.query(sql, next);
 }
 

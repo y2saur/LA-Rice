@@ -564,7 +564,7 @@ function parseDecimal(num, decimal) {
 
 // [temp, humidity, pressure, rainfall, seed_type, yield, N, P, K, seed rate]
 exports.forecastYield = function(dataset, testing) {
-	const net = new brain.brain.recurrent.LSTMTimeStep({
+	const net = new brain.recurrent.LSTMTimeStep({
 	  inputSize: 10,
 	  hiddenLayers: [9],
 	  outputSize: 10,
@@ -592,7 +592,8 @@ exports.forecastYield = function(dataset, testing) {
 //!!
 exports.weatherForecast14D = function(dataset, testing, length) {
 	var result_obj;
-	const net = new brain.brain.recurrent.LSTMTimeStep({
+
+	const net = new brain.recurrent.LSTMTimeStep({
 	  inputSize: 6,
 	  hiddenLayers: [10],
 	  outputSize: 6,

@@ -13,6 +13,8 @@ const notifController = require('../controllers/notificationController.js');
 const disasterController = require('../controllers/disasterController.js');
 const globe = require('../controllers/smsController.js');
 
+const dataformatter = require('../public/js/dataformatter.js');
+
 const { isPrivate, isAdmin, isSales, isPurchasing, isLogistics } = require('../middlewares/checkAuth');
 
 router.get('/create_wo_test', (req, res) => {
@@ -23,6 +25,8 @@ router.get('/create_wo_test', (req, res) => {
 
 // router.get('/due_wo', notifController.checkDueWorkOrders);
 /*** Database Ajax Start ***/
+
+router.get('/edit_system_date', userController.editSystemDate);
 
 router.get('/get_farm_list', farmController.ajaxGetFarmList);
 router.post('/create_crop_plan', cropCalendarController.ajaxCreateCropPlan);
@@ -51,7 +55,7 @@ router.get('/get_soil_records', environmentController.ajaxGetSoilRecord);
 router.post('/update_soil_records', environmentController.ajaxUpdateSoilRecord);
 router.post('/update_nutrient_plan', environmentController.ajaxUpdateNutrientPlan);
 
-router.get('/farm_monitoring', isPrivate, notifController.getNotification ,farmController.getMonitorFarms);
+router.get('/farm_monitoring', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,farmController.getMonitorFarms);
 router.get('/filter_farm_details', farmController.getFarmDetails);
 router.get('/filter_farmers', employeeController.ajaxFilterFarmers);
 
@@ -85,7 +89,8 @@ router.get("/ajaxGetWorkOrders", workOrderController.ajaxGetWorkOrders);
 
 //Account Management
 router.get('/login', (req, res) => {
-  res.render('login', { } );
+	var date = req.query.cur_date != undefined ? req.query.cur_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD');
+  res.render('login', { cur_date: date } );
 });
 router.get('/initialize_account', userController.getInitializePassword);
 router.post('/initialize_password', userController.initializePassword);
@@ -94,26 +99,26 @@ router.get('/logout', userController.logout);
 
 
 /*** Page Navigation Start ***/
-router.get('/', isPrivate, notifController.getNotification ,workOrderController.getWorkOrdersDashboard); 
-router.get('/home', isPrivate, notifController.getNotification ,workOrderController.getWorkOrdersDashboard); 
+router.get('/', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,workOrderController.getWorkOrdersDashboard); 
+router.get('/home', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,workOrderController.getWorkOrdersDashboard); 
 
-router.get('/farms', isPrivate, notifController.getNotification ,workOrderController.getWorkOrdersPage); 
-router.get('/farms/add', isPrivate, notifController.getNotification ,farmController.getAddFarm);
+router.get('/farms', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,workOrderController.getWorkOrdersPage); 
+router.get('/farms/add', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,farmController.getAddFarm);
 
-router.get('/materials', isPrivate, notifController.getNotification ,materialController.getMaterials);
+router.get('/materials', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,materialController.getMaterials);
 
 //Disaster Tab
-router.get('/disaster_management', isPrivate, notifController.getNotification ,disasterController.getDisasterManagement);
-router.get('/farm_monitoring_summarized', isPrivate, notifController.getNotification, cropCalendarController.getSummarizedFarmMonitoring);
+router.get('/disaster_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,disasterController.getDisasterManagement);
+router.get('/farm_monitoring_summarized', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, cropCalendarController.getSummarizedFarmMonitoring);
 
 //Farms Tab
-router.get("/farm_resources",notifController.getNotification , environmentController.getFarmResources);
-router.get("/farm_pestdisease", isPrivate, notifController.getNotification ,environmentController.getFarmPestDiseases);
+router.get("/farm_resources",openWeatherController.updateWeatherData, notifController.getNotification , environmentController.getFarmResources);
+router.get("/farm_pestdisease", isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,environmentController.getFarmPestDiseases);
 
 //Crop Calendar
-router.get('/crop_calendar', isPrivate, notifController.getNotification ,cropCalendarController.getCropCalendarTab);
-router.get('/crop_calendar/add', isPrivate, notifController.getNotification ,cropCalendarController.getAddCropCalendar);
-router.get('/crop_calendar/details', isPrivate, notifController.getNotification ,cropCalendarController.getDetailedCropCalendar); //fix path later
+router.get('/crop_calendar', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,cropCalendarController.getCropCalendarTab);
+router.get('/crop_calendar/add', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,cropCalendarController.getAddCropCalendar);
+router.get('/crop_calendar/details', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,cropCalendarController.getDetailedCropCalendar); //fix path later
 
 router.get('/load_cnr_plans', cropCalendarController.ajaxLoadCNRPlan);
 //router.get('/crop_calendar_test/add', farmController.getAddCropCalendar2); //delete later
@@ -122,10 +127,10 @@ router.get('/harvest_cycle', farmController.getHarvestCycle);
 
 
 //Material Management
-router.get('/inventory',notifController.getNotification , materialController.getInventory);
+router.get('/inventory',openWeatherController.updateWeatherData, notifController.getNotification , materialController.getInventory);
 router.get('/ajaxGetInventory/:type', materialController.ajaxGetInventory);
-router.get('/orders', isPrivate, notifController.getNotification ,notifController.getNotification ,materialController.getOrders);
-router.get('/orders/details',notifController.getNotification , materialController.getPurchaseDetails);
+router.get('/orders', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,openWeatherController.updateWeatherData, notifController.getNotification ,materialController.getOrders);
+router.get('/orders/details',openWeatherController.updateWeatherData, notifController.getNotification , materialController.getPurchaseDetails);
 router.post('/addMaterial', materialController.newMaterial);
 router.get('/ajaxGetMaterials', materialController.getMaterialsAjax);
 router.post('/addPurchase', materialController.addPurchase);
@@ -133,9 +138,9 @@ router.post('/updatePurchase', materialController.updatePurchase)
 
 
 //Pest and Disease
-router.get('/pest_and_disease_management', isPrivate, notifController.getNotification ,environmentController.getPestDiseaseManagement);
-router.get('/pest_and_disease_management/:type/:name',notifController.getNotification , environmentController.getPestFactors);
-router.get('/pest_and_disease_details', isPrivate, notifController.getNotification ,environmentController.getPestDiseaseDetails);
+router.get('/pest_and_disease_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,environmentController.getPestDiseaseManagement);
+router.get('/pest_and_disease_management/:type/:name',openWeatherController.updateWeatherData, notifController.getNotification , environmentController.getPestFactors);
+router.get('/pest_and_disease_details', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,environmentController.getPestDiseaseDetails);
 router.get('/update_pd_details/:type/:id/:detail_type', environmentController.updatePDDetails);
 router.get('/PDProbability', environmentController.ajaxGetFarmPestDiseaseProbability); //ajax 
 router.post('/addPest', environmentController.addPest);
@@ -152,16 +157,16 @@ router.get('/getPDPreventions', environmentController.getPreventions);
 
 
 //diagnose tab
-router.get('/pest_and_disease/discover', isPrivate, notifController.getNotification ,environmentController.getPestandDiseaseDiscover);
+router.get('/pest_and_disease/discover', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,environmentController.getPestandDiseaseDiscover);
 router.post('/pest_and_disease/discover', environmentController.addNewPD);
-router.get('/pest_and_disease/diagnose', isPrivate, notifController.getNotification , environmentController.getDiagnoses);
+router.get('/pest_and_disease/diagnose', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification , environmentController.getDiagnoses);
 router.post('/pest_and_disease/diagnose', environmentController.addDiagnosis);
-router.get('/pest_and_disease/frequency', isPrivate, notifController.getNotification , environmentController.getPDFrequency);
+router.get('/pest_and_disease/frequency', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification , environmentController.getPDFrequency);
 router.post('/pest_and_disease/frequency', environmentController.createPreventionWo);
 // router.get('/pest_and_disease/diagnose_add_diagnosis', environmentController.getAddDiagnosis);
-router.get('/pest_and_disease/diagnose_add_pest',notifController.getNotification , environmentController.getAddPest);
+router.get('/pest_and_disease/diagnose_add_pest',openWeatherController.updateWeatherData, notifController.getNotification , environmentController.getAddPest);
 router.get('/pest_and_disease/diagnose_add_disease', environmentController.getAddDisease);
-router.get('/pest_and_disease/diagnose_details', isPrivate, notifController.getNotification ,environmentController.getDiagnosisDetails);
+router.get('/pest_and_disease/diagnose_details', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,environmentController.getDiagnosisDetails);
 router.post('/pest_and_disease/diagnose_details', environmentController.updateDiagnosis);
 
 router.get('/pest_and_disease/diagnose_detailed_diagnosis', environmentController.getDetailedDiagnosis);
@@ -178,32 +183,32 @@ router.get('/checkExistingPreventionWo', environmentController.checkExistingPrev
 
 
 //Nutrient Management
-router.get('/nutrient_management', isPrivate, notifController.getNotification ,nutrientController.getNurientManagement);
-router.get('/nutrient_management/:farm_name/:calendar_id', isPrivate, notifController.getNotification ,environmentController.detailedNutrientManagement);
+router.get('/nutrient_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,nutrientController.getNurientManagement);
+router.get('/nutrient_management/:farm_name/:calendar_id', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,environmentController.detailedNutrientManagement);
 router.post('/nutrient_management/add_record', environmentController.addSoilRecord);
 
-router.get('/nutrient_mgt/discover', isPrivate, notifController.getNotification ,nutrientController.getNutrientMgtDiscover);
-router.get('/nutrient_mgt/nutrient_plan', isPrivate, notifController.getNotification ,nutrientController.getNutrientMgtPlan);
+router.get('/nutrient_mgt/discover', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,nutrientController.getNutrientMgtDiscover);
+router.get('/nutrient_mgt/nutrient_plan', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,nutrientController.getNutrientMgtPlan);
 router.get('/nutrient_mgt/fertilizer_plan/ajax' ,nutrientController.ajaxGetNutrientPlanView);
-router.get('/nutrient_mgt/recommendation_system', isPrivate, notifController.getNotification ,nutrientController.getRecommendationSystem);
+router.get('/nutrient_mgt/recommendation_system', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,nutrientController.getRecommendationSystem);
 router.get('/nutrient_mgt/get_cnr_plans/ajax',nutrientController.ajaxCheckCNRPlans);
 router.get('/nutrient_mgt/create_cnr_plans/ajax',nutrientController.createCNRPlan);
 router.get('/nutrient_mgt/update_cnr_plan',nutrientController.updateCNRPlan);
 
 
 //SMS Management (Update later)
-router.get('/sms/subscriptions', isPrivate, notifController.getNotification , globe.getSubscriptions);
-router.get('/sms/subscriptions_add', isPrivate, notifController.getNotification , globe.getAddSubscription);
-router.get('/sms/messages', isPrivate, notifController.getNotification , globe.getMessages);
+router.get('/sms/subscriptions', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification , globe.getSubscriptions);
+router.get('/sms/subscriptions_add', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification , globe.getAddSubscription);
+router.get('/sms/messages', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification , globe.getMessages);
 
 
 //Work Order
-router.get('/farms/work_order&id=:work_order_id', isPrivate, notifController.getNotification ,workOrderController.getDetailedWO);
+router.get('/farms/work_order&id=:work_order_id', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,workOrderController.getDetailedWO);
 router.post('/create_work_order', workOrderController.createWorkOrder);
 router.post('/edit_work_order', workOrderController.editWorkOrder);
 
 //User Management
-router.get('/user_management', isPrivate, notifController.getNotification , userController.loadRegistration);
+router.get('/user_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification , userController.loadRegistration);
 router.get('/registration', userController.loadRegistration);
 router.post('/account_registration', userController.registerUser);
 router.get('/reset_password', (req, res) => {
@@ -213,10 +218,10 @@ router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
 
 //Report
-router.get('/farm_productivity_report', isPrivate, notifController.getNotification ,reportController.getFarmProductivityReport);
-router.get('/farm_productivity/detailed', isPrivate, notifController.getNotification ,reportController.getDetailedReport);
-router.get('/harvest_report/:crop_plan/summary', isPrivate, notifController.getNotification ,reportController.getSummaryHarvestReport);
-router.get('/harvest_report/:crop_plan/detailed', isPrivate, notifController.getNotification ,reportController.getDetailedHarvestReport);
+router.get('/farm_productivity_report', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,reportController.getFarmProductivityReport);
+router.get('/farm_productivity/detailed', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,reportController.getDetailedReport);
+router.get('/harvest_report/:crop_plan/summary', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,reportController.getSummaryHarvestReport);
+router.get('/harvest_report/:crop_plan/detailed', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification ,reportController.getDetailedHarvestReport);
 
 
 /*** Agro API Start ***/
@@ -282,8 +287,9 @@ router.get('/updatePurchase', materialController.updatePurchase);
 
 router.get('/getMaterialsAjax/:type', materialController.getMaterialsAjax);
 
-router.get("/updateNotif", notifController.updateNotif);//Ajax
-router.get("/notifications",  notifController.getNotification ,notifController.getNotificationTab);
+router.get("/updateNotif", notifController.updateNotif);
+router.get("/notifications",  openWeatherController.updateWeatherData, notifController.getNotification ,openWeatherController.updateWeatherData, notifController.getNotificationTab);
+
 
 
 

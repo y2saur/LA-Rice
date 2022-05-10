@@ -64,10 +64,19 @@ function dataValidation(step) {
 		var m = $(inp[i]).map(function(){return $(this).val();}).get();
 
 		for (var x = 0; x < m.length; x++) {
-			if (m[x] == '' || m[x] == undefined) {
-				var parent = $(inp[i]).eq(x).parent().append('<label class="inp-error">This field is required</label>');
-				pass = false;
+			if (inp[i] == '#seed_rate') {
+				if (isNaN(m[x]) || m[x] == '') {
+					var parent = $(inp[i]).eq(x).parent().append('<label class="inp-error">This field is required</label>');
+					pass = false;
+				}
 			}
+			else {
+				if (m[x] == '' || m[x] == undefined) {
+					var parent = $(inp[i]).eq(x).parent().append('<label class="inp-error">This field is required</label>');
+					pass = false;
+				}
+			}
+				
 		}	
 	}
 

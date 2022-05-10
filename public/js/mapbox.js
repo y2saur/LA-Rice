@@ -153,7 +153,9 @@ function getGeoData(farm_name) {
 		});
 		$.get('/agroapi/weather/current', { polyid: polygon_id }, function(weather) {
 			//console.log(weather);
-			// $('#monitor_icon').html();
+
+			$('#monitor_icon').attr('src', `http://openweathermap.org/img/wn/${weather.weather[0].icon}.png`);
+			$('#monitor_icon').removeClass('hide');
 			$('#monitor_temp').html(weather.main.temp);
 			$('#monitor_desc').html(weather.weather[0].description);
 		});
