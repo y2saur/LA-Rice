@@ -100,7 +100,8 @@ exports.getNotification = function(req, res, next) {
                                         console.log("entered");
                                         console.log(farmers);
                                         var wo_id = notif_query[i].url.split("=");
-                                        var msg = "Work Order " + wo_id[1] + " Due Today\n\n" + notif_query[i].notification_desc + "\n\nTapos na ba ang work order na ito?\n\nMagreply ng 'OO' o 'HINDI'";
+                                        
+                                        var msg = "Work Order " + wo_id[1].replace('"', "") + " Due Today\n\n" + notif_query[i].notification_desc + "\n\nTapos na ba ang work order na ito?\n\nMagreply ng 'OO' o 'HINDI'";
                                         //Loop through farmer with same farm
                                         for(var x = 0; x < farmers.length; x++){
                                             if(farmers[x].farm_id == notif_query[i].farm_id){

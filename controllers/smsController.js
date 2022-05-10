@@ -104,7 +104,7 @@ exports.globe_inbound_msg = function(req, res){
                         if (err)
                             throw err;
                         else{
-                            var last_message = last_msg.split("\n");
+                            var last_message = last_msg[0].message.split("\n");
                             //check last message
 
                             if(last_message[0].includes("Due Today")){ //Checks if last message is due today
