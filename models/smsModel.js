@@ -89,3 +89,19 @@ exports.getSubscriptionsList = function(next){
     mysql.query(sql, next);
     return sql;
 }
+
+exports.getSMSEmployees = function(data, next){
+    var sql = 'select et.*, fa.farm_id, fa.status, ft.farm_name from employee_table et join farm_assignment fa on et.employee_id = fa.employee_id left join farm_table ft USING (farm_id) where access_token is not null AND ?';
+	sql = mysql.format(sql, data);
+
+    mysql.query(sql, next);
+    return sql;
+}
+
+exports.getLastOutboundMessage = function(data, next){
+    var sql = "SELECT * FROM outbound_msg WHERE ? ORDER BY date DESC, TIME DESC LIMIT 1;";
+    sql = mysql.format(sql, data);
+
+    mysql.query(sql, next);
+    return sql;
+}

@@ -98,12 +98,31 @@ exports.globe_inbound_msg = function(req, res){
                     //POCESS MESSAGE
                     var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.slice(" ");
                     var msg;
-                    switch (text_message[0]){
-                        case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
-                        case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND "HELP"
-                        case "3" : msg = "PEST/DISEASE SYMPTOMS"; break; //INCOMING WORK ORDERS
-                        default : sendSMSActions(employee_details[0]); break;
-                    }
+
+                    //CHECK FOR PAST OUTBOUND MESSAGE FROM USER
+                    smsModel.getLastOutboundMessage({employee_id : employee_details[0].employee_id}, function(err, last_msg){
+                        if (err)
+                            throw err;
+                        else{
+                            var last_message = last_msg.split("\n");
+                            //check last message
+
+                            if(last_message[0].includes("Due Today")){ //Checks if last message is due today
+                                dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
+                            }
+                            else if(false){
+                                //FOR PD SYMPTOMS
+                            }
+                            else{
+                                switch (text_message[0]){
+                                    case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
+                                    case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND "HELP"
+                                    case "3" : msg = "PEST/DISEASE SYMPTOMS"; break; //INCOMING WORK ORDERS
+                                    default : sendSMSActions(employee_details[0]); break;
+                                } 
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -363,6 +382,34 @@ function getIncomingWos(employee){
     });
 }
 
+
+//DUE TODAY REPLY
+function dueTodayReply(emp, message, wo){
+    console.log(message);
+    var wo_id = wo.split(" ");
+    if(message.toLowerCase() == "oo"){
+        //update wo to completed
+        var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
+        woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_id[2]}, function(err, result){
+            if(err)
+                throw err;
+        });
+
+        //SEND SMS
+        var msg = "Maraming Salamat!";
+        sendSMS
+    }
+    else{
+        //send SMS
+        var msg = "Tapusin ang work order.";
+        //send
+    }
+    sendOutboundMsg(emp, msg);
+}
+
+
+
+
 exports.incomingWO = function(req, res){
     employeeModel.queryEmployee({employee_id: 24}, function(err, emp){
         if(err)
@@ -451,6 +498,8 @@ exports.sendSMS = function(emp, message){
         }
     });
 }
+
+
 
 
 
