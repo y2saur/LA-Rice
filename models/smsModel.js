@@ -39,7 +39,7 @@ exports.getEmployeeDetailsPhoneNum = function(phone_number, next){
 }
 
 exports.getEmployeeDetails = function(data, next){
-    var sql = "SELECT * FROM employee_table WHERE ";
+    var sql = "SELECT * FROM employee_table et INNER JOIN farm_assignment fa USING (employee_id) WHERE ";
     sql += data.key+' = ?';
 	sql = mysql.format(sql, data.value);
     console.log(sql);

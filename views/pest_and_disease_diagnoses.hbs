@@ -105,7 +105,7 @@
                                                                 {{#each symptom}}
                                                                     <div class="row">
                                                                         <div class="col-xl-12">
-                                                                            <div class="form-check" style="margin-left: 15px;"><input name="symptom[{{@index}}]" id="" class="form-check-input symptom-checkbox" type="checkbox" value="{{this.symptom_id}}" form="add_diagnosis_form"><label class="form-check-label font-weight-bold" for="formCheck-2" >{{this.symptom_name}}</label></div>
+                                                                            <div class="form-check" style="margin-left: 15px;"><input name="symptom[{{@index}}]" id="" class="form-check-input symptom-checkbox" type="checkbox" value="{{this.symptom_id}}" form="add_diagnosis_form" {{#if this.selected}}checked{{/if}}><label class="form-check-label font-weight-bold" for="formCheck-2" >{{this.symptom_name}}</label></div>
                                                                             
                                                                         </div>
                                                                     </div>

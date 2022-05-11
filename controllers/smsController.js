@@ -2,6 +2,7 @@ const js = require('../public/js/session.js');
 const smsModel = require('../models/smsModel.js');
 const employeeModel = require('../models/employeeModel.js');
 const woModel = require('../models/workOrderModel.js');
+const notifModel = require('../models/notificationModel.js');
 const cropCalendarModel = require('../models/cropCalendarModel.js');
 const pestdiseaseModel = require('../models/pestdiseaseModel.js');
 const farmModel = require('../models/farmModel.js');
@@ -111,14 +112,36 @@ exports.globe_inbound_msg = function(req, res){
                             if(last_message[0].includes("Due Today")){ //Checks if last message is due today
                                 dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
                             }
-                            else if(false){
+                            else if(last_message[0].includes("PEST/DISEASE SYMPTOMS")){
                                 //FOR PD SYMPTOMS
+
+                                //CREATE NOTIF WITH CUSTOM URL
+                                var symptoms_from_user = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(",");
+                                var url = "/pest_and_disease/diagnose?symptoms=";
+                                for(var i = 0; i < symptoms_from_user.length; i++){
+                                    url = url + symptoms_from_user[i] + "%";
+                                }
+
+                                //Create notif
+                                var notif = {
+                                    date : new Date(req.session.cur_date),
+                                    farm_id : employee_details[0].farm_id,
+                                    notification_title : "Symptoms Reported",
+                                    url : url,
+                                    icon : "fax",
+                                    color : "warning"
+                                };
+                                notifModel.createNotif(notif, function(err, success){
+                                    res.send("ok");
+                                });
+                                //SEND SMS REPLY
+                                sendOutboundMsg(employee_details[0], "Maraming Salamat!");
                             }
                             else{
                                 switch (text_message[0]){
                                     case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
                                     case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND "HELP"
-                                    case "3" : msg = "PEST/DISEASE SYMPTOMS"; break; //INCOMING WORK ORDERS
+                                    case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
                                     default : sendSMSActions(employee_details[0]); break;
                                 } 
                             }
