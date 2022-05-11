@@ -3,6 +3,7 @@ const smsModel = require('../models/smsModel.js');
 const employeeModel = require('../models/employeeModel.js');
 const woModel = require('../models/workOrderModel.js');
 const cropCalendarModel = require('../models/cropCalendarModel.js');
+const pestdiseaseModel = require('../models/pestdiseaseModel.js');
 const farmModel = require('../models/farmModel.js');
 var request = require("request");
 const { text } = require('express');
@@ -383,6 +384,24 @@ function getIncomingWos(employee){
 }
 
 
+//SEND LIST OF PD SYMPTOMS
+function sendPDSymptoms(emp){
+    var msg = "PEST/DISEASE SYMPTOMS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
+    pestdiseaseModel.getAllSymptoms(function(err, symptoms){
+        if(err)
+            throw err;
+        else{
+            for(var i = 0; i < symptoms.length; i++){
+                msg = msg + symptoms[i].symptom_id + " - " + symptoms[i].symptom_name + "\n";
+            }
+
+            //Send to user
+            sendOutboundMsg(emp, msg);
+        }
+    });
+}
+
+
 //DUE TODAY REPLY
 function dueTodayReply(emp, message, wo){
     console.log(message);
@@ -397,7 +416,6 @@ function dueTodayReply(emp, message, wo){
 
         //SEND SMS
         var msg = "Maraming Salamat!";
-        sendSMS
     }
     else{
         //send SMS
