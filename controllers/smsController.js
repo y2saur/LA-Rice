@@ -119,12 +119,14 @@ exports.globe_inbound_msg = function(req, res){
                                 var symptoms_from_user = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(",");
                                 var url = "/pest_and_disease/diagnose?symptoms=";
                                 for(var i = 0; i < symptoms_from_user.length; i++){
-                                    url = url + symptoms_from_user[i] + "%";
+                                    url = url + symptoms_from_user[i];
+                                    if(i != symptoms_from_user.length)
+                                        url = url + "-";
                                 }
 
                                 //Create notif
                                 var notif = {
-                                    date : new Date(req.session.cur_date),
+                                    date : new Date(),
                                     farm_id : employee_details[0].farm_id,
                                     notification_title : "Symptoms Reported",
                                     url : url,

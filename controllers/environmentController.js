@@ -1792,7 +1792,7 @@ exports.updatePDDetails = function(req,res){
 exports.getDiagnoses = function(req, res) {
 	console.log(req.query.symptoms);
 	if(req.query.symptoms != null)
-		var reported_symptoms = req.query.symptoms.split("%");
+		var reported_symptoms = req.query.symptoms.split("-");
 	else
 		var reported_symptoms = [];
 	var html_data = {};
