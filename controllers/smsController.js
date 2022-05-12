@@ -140,10 +140,11 @@ exports.globe_inbound_msg = function(req, res){
                                 sendOutboundMsg(employee_details[0], "Maraming Salamat!");
                             }
                             else{
-                                switch (text_message[0]){
+                                switch (text_message[0].toLowerCase()){
                                     case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
-                                    case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND "HELP"
+                                    case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                     case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
+                                    case "TAPOS" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
                                     default : sendSMSActions(employee_details[0]); break;
                                 } 
                             }
@@ -158,6 +159,42 @@ exports.globe_inbound_msg = function(req, res){
     // this.globe_outbound_msg;
     // this.getAccessToken;
     return true;
+}
+
+
+function updateWO(emp, message){ //Updates WO sent by farmer
+    
+    //Check if the message sent contains a number
+    if(isNaN(message[1])){
+        //Not a number send error message to employee
+        var msg = "Mali ang work order ID na sinend. Pumili ng tamang work order ID.";
+        sendOutboundMsg(employee, msg);
+    }
+    else{
+        //Check if wo id exists and matches farm id
+        woModel.getDetailedWorkOrder({work_order_id : message[1]}, function(err, wo_details){
+            if(err){
+                var msg = "Mali ang work order ID na sinend. Pumili ng tamang work order ID.";
+                sendOutboundMsg(employee, msg);
+            }
+            else{
+                //Check if same farm id
+                if(wo_details[0].farm_id == emp.farm_id){
+                    //Continue to update wo
+                    var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
+                    woModel.updateWorkOrder({status : "Completed", date_completed : date}, function(err, result){
+                        var msg = "Maraming Salamat!";
+                        sendOutboundMsg(employee, msg);
+                    });
+                }
+                else{
+                    var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
+                    sendOutboundMsg(employee, msg);
+                }
+            }
+        });
+    }
+
 }
 
 
@@ -393,7 +430,7 @@ function getIncomingWos(employee){
                                     not_completed.push(wos[i]); 
                                     wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
                                     wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
-                                    message = message + "\n\n" + wos[i].type + " (" + wos[i].notif_type + ")"+ "\nStart: " + wos[i].date_start + "\nDue: " + wos[i].date_due + "\nStatus: " + wos[i].status;
+                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wos[i].type + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nStatus: " + wos[i].status;
                                 }
                             }
                             console.log(message);
@@ -501,7 +538,7 @@ exports.incomingWO = function(req, res){
 }
 
 function sendSMSActions(employee){
-    var msg = "Below are the list of actions that can be performed.\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\nTo complete action, send <number of desired action> to 21663543";
+    var msg = 'Below are the list of actions that can be performed.\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS<space>Word order ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
 
     sendOutboundMsg(employee, msg);
 }
