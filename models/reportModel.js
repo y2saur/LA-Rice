@@ -150,7 +150,7 @@ exports.getInputResourcesUsed = function(data, next) {
 		}
 	}
 	sql += "and wot.status = 'Completed' group by calendar_id, item_id";
-	
+
 	mysql.query(sql, next);
 }
 

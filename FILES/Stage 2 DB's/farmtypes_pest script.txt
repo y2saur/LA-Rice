@@ -1,0 +1,24 @@
+DROP TABLE IF EXISTS `farmtypes_pest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `farmtypes_pest` (
+  `farmtypes_pest_id` int NOT NULL AUTO_INCREMENT,
+  `farm_type_id` int NOT NULL,
+  `pest_id` int NOT NULL,
+  PRIMARY KEY (`farmtypes_pest_id`),
+  KEY `fk_farm_types_has_pest_table_pest_table1_idx` (`pest_id`),
+  KEY `fk_farm_types_has_pest_table_farm_types1_idx` (`farm_type_id`),
+  CONSTRAINT `fk_farm_types_has_pest_table_farm_types1` FOREIGN KEY (`farm_type_id`) REFERENCES `farm_types` (`farm_type_id`),
+  CONSTRAINT `fk_farm_types_has_pest_table_pest_table1` FOREIGN KEY (`pest_id`) REFERENCES `pest_table` (`pest_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `farmtypes_pest`
+--
+
+LOCK TABLES `farmtypes_pest` WRITE;
+/*!40000 ALTER TABLE `farmtypes_pest` DISABLE KEYS */;
+INSERT INTO `farmtypes_pest` VALUES (6,3,1),(7,3,2),(8,4,2),(9,6,2),(10,6,3),(11,3,3),(12,5,3),(13,1,5),(14,4,5),(15,1,6),(16,4,7),(17,6,7),(18,4,8),(19,3,9),(20,4,9),(21,3,10),(22,6,10);
+/*!40000 ALTER TABLE `farmtypes_pest` ENABLE KEYS */;
+UNLOCK TABLES;

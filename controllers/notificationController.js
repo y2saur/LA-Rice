@@ -146,14 +146,13 @@ exports.getNotification = function(req, res, next) {
 
                     for (var i = 0; i < temp_arr.length; i++) {
                         temp_arr[i].date = dataformatter.formatDate(new Date(temp_arr[i].date), 'mm DD, YYYY');
-                    }
-                    // console.log(temp_arr);
+
                     req.notifs = temp_arr;
 
                     return next();
                 }
-            });
-                    
+            };
+             });     
         }
     });
 }

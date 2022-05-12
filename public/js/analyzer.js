@@ -100,11 +100,8 @@ exports.processNutrientChart = function(nutrients, pd) {
 	for (var x = 0; x < nutrient_arr.length; x++) {
 		for (var i = 0; i < type.length; i++) {
 			data_arr = [];
-			//console.log(`${type[i]} - ${nutrient_arr[x]}`);
 			filtered = nutrients.filter(e => e.nutrient_type == nutrient_arr[x] && e.application_type == type[i]);
-			//console.log(filtered);
 			for (var n = 0; n < filtered.length; n++) {
-				//console.log(filtered[n]);
 				data_arr.push({
 					x: filtered[n].dat, y: filtered[n].qty * filtered[n][nutrient_arr[x]]
 				});
@@ -132,7 +129,7 @@ exports.processNutrientChart = function(nutrients, pd) {
 				
 		}
 	}
-	//console.log(dataset);
+
 	var type = ['Pest', 'Disease'];
 	var pd_color = ['#d64700', '#cfc800',];
 	color_index = 0;
@@ -182,7 +179,7 @@ exports.processSeedChartData = function(calendars, seeds) {
 		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
 		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
 	]
-	//console.log(calendars);
+
 	var unique_cycles = [...new Set(calendars.map(item =>
 	  item.crop_plan))];
 	var unique_farms = [...new Set(calendars.map(item =>
@@ -273,7 +270,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 	var temp_nutrients;
 
 	var env_obj = { Temperature: { data: [] }, Humidity: { data: [] }, Pressure: { data: [ ] }, Rainfall: { data: [] }, labels: [] };
-	//console.log(data);
+
 	for (var i = 0; i < data.length; i++) {
 		env_obj.labels.push(data[i].farm_name);
 		env_obj.Temperature.data.push((Math.round((data[i].temp - 273.15) * 100)/100).toFixed(2));
@@ -289,7 +286,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 		 'User Nutrient Application', 'Recommended Nutrient Application', 'Total','Forecasted Yield', 'Actual Yield'], datasets: [], title: null };
 		chart_data.datasets = [];
 		chart_data.title = unique[i].seed_name;
-		//console.log(chart_data.title);
+
 		for (var x = 0; x < data.length; x++) {
 			dataset_obj = { label: data[x].farm_name, data: [] };
 
@@ -388,8 +385,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 		var lowest_yield = fp.filter(e => e.status == 'Completed' && e.current_yield != 'N/A').reduce((a,b)=>a.current_yield<b.current_yield?a:b);
 		var lowest_productivity = fp.filter(e => e.status == 'Completed' && e.productivity != 'N/A').reduce((a,b)=>a.current_productivity<b.current_productivity?a:b);
 	}
-	// console.log(lowest_yield.calendar_id);
-	// console.log(highest_productivity.calendar_id);
+
 	summary += ` ${highest_yield.farm_name} is the top performer in terms of cavans harvest with a harvest of ${highest_yield.current_yield} 
 	while the worst performer is ${lowest_yield.farm_name} with a harvest of only ${lowest_yield.current_yield}. In terms of farm productivity however,
 		${highest_productivity.farm_name} performed the best with costs incurred per cavan at Php 
@@ -400,7 +396,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 	for (var i = 0; i < data.length; i++) {
 		data[i]['historical_yield'] = 'N/A';
 		for (var x = 0; x < history.length; x++) {
-			//console.log(data[i].farm_id +' - '+history[x].farm_id);
+
 			if (data[i].farm_name == history[x].farm_name) {
 				data[i]['historical_yield'] = Math.round(history[x].avg_yield * 100)/100;
 			}
@@ -422,7 +418,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 		data[i].change.color = data[i].change.arrow == 'up' ? 
 		data[i].change.val != 0 ? 'text-success' : 'text-muted' : 'text-danger';
 	}
-	//console.log(data);
+
 	return { chart_data: chart_arr, env_chart: JSON.stringify(env_obj), json_chart_data: JSON.stringify(chart_arr), detailed_list: data, overview: summary, printable: printable };
 }
 
@@ -442,8 +438,8 @@ exports.processDetailedFarmProductivity = function(fp, resources) {
 	var index = 0;
 
 	var input_obj = {
-		name: fp[0].seed_name, forecasted_yield: fp[0].forecast_yield+' cavans/ha', 
-		current_yield: fp[0].current_yield != null ? fp[0].current_yield+' cavans/ha' : 'N/A',
+		name: fp[0].seed_name, forecasted_yield: fp[0].forecast_yield == -1 ? `N/A` : `${fp[0].forecast_yield} cavans/ha`, 
+		current_yield: fp[0].current_yield != null ? Math.round(fp[0].current_yield*100)/100+' cavans/ha' : 'N/A',
 		total: fp[0].current_yield != null ? Math.round(fp[0].current_yield * fp[0].farm_area * 100)/100+' cavans': 'N/A'
 	}
 	
@@ -484,7 +480,6 @@ exports.processDetailedFarmProductivity = function(fp, resources) {
 	fp_obj['cost_per_cavan'] = fp_obj.yield.total != 'N/A' ? (Math.round(fp_obj.inputs.total / parseInt(fp_obj.yield.total.replace(' cavans','')) * 1000) / 1000)+' pesos per cavan per' : '&nbsp';
 	fp_obj.inputs.total = numberWithCommas((Math.round(fp_obj.inputs.total * 100)/100).toFixed(2));
 
-	//console.log(fp);
 	if (fp[0].current_yield == 0 || fp[0].current_yield == null) {
 		fp_obj['cost_per_cavan'] = 'N/A';
 		fp_obj.productivity = 'N/A';
@@ -494,7 +489,6 @@ exports.processDetailedFarmProductivity = function(fp, resources) {
 }
 
 exports.calculateProductivity = function(fp_overview, input_resources) {
-	//console.log(fp_overview);
 	for (var i = 0; i < fp_overview.length; i++) {
 		fp_overview[i]['input_items'] = input_resources.filter(e => fp_overview[i].calendar_id == e.calendar_id);
 		fp_overview[i]['net_spend'] = fp_overview[i]['input_items'].reduce((a, b) => a + b.total_cost, 0);
@@ -526,9 +520,7 @@ exports.calculateProductivity = function(fp_overview, input_resources) {
 				'down'
 				: 'up'
 		};
-		if (fp_overview[i].change.val) {
-			//console.log(fp_overview[i]);
-		}
+
 		fp_overview[i].change.val = fp_overview[i].change.val != 'N/A' ?
 								fp_overview[i].change.val != 0 ? parseInt((fp_overview[i].change.val * 100)) : 'N/A'
 								: '0';
@@ -543,10 +535,9 @@ exports.calculateProductivity = function(fp_overview, input_resources) {
 
 		if (fp_overview[i].change.val == 'N/A')
 			fp_overview[i].change.color = 'text-muted';
-		//console.log(fp_overview[i].current_productivity+' - '+fp_overview[i].prev_productivity+'-'+fp_overview[i].outlook);
 	}
 
-	//console.log(fp_overview);
+
 	return fp_overview;
 }
 
@@ -570,18 +561,16 @@ exports.forecastYield = function(dataset, testing) {
 	  outputSize: 10,
 	});
 	const trainingData = [dataset.data];
-	//console.log(trainingData);
+
 	net.train(trainingData, { 
 		//log: true 
 	});
-	//console.log(testing.data);
+
 	const forecast = net.forecast(testing.data, 1);
-	//console.log(forecast);
-	//console.log(dataset.val);
+
 	for (var i = 0; i < forecast.length; i++) {
 		for (var x = 0; x < forecast[i].length; x++) {
-			// console.log(dataset.val[x]);
-			// console.log(x);
+
 			forecast[i][x] = denormalizeData(forecast[i][x], dataset.val[x]);
 		}
 	}
@@ -600,8 +589,7 @@ exports.weatherForecast14D = function(dataset, testing, length) {
 	});
 
 	const trainingData = dataset.data_arr;
-	// console.log(trainingData);
-	// console.log(testing.data_arr);
+
 	net.train(trainingData, { 
 		//log: true 
 	});

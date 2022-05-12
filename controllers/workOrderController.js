@@ -266,6 +266,10 @@ exports.getDetailedWO = function(req, res) {
 											if (harvest_details.length == 0) 
 												harvest_details.push({});
 
+											harvest_details.forEach(function(item, index) {
+												harvest_details[index].sacks_harvested = Math.round(harvest_details[index].sacks_harvested);
+											})
+											
 											html_data['stage'] = crop_calendar.filter(e => e.calendar_id == details.crop_calendar_id)[0].stage2;
 											html_data['status_editable'] = wo_list[0].status == 'Completed' ? true : false;
 											html_data['harvest_details'] = harvest_details;
@@ -499,7 +503,6 @@ exports.getWorkOrdersPage = function(req, res) {
 }
 
 exports.getWorkOrdersDashboard = function(req, res) {
-	//console.log(req.notifs[0]);
 	var upcoming = [];
 	var completed = [];
 	var html_data = {};
@@ -727,7 +730,7 @@ exports.getWorkOrdersDashboard = function(req, res) {
 										cycle_cont.push({ cycle_name: unique_cycles[index], checked: checked });
 									});
 									html_data['crop_plans'] = cycle_cont;
-									console.log(unique_cycles.length);
+
 									if (unique_cycles.length != 0) {
 										reportModel.getProductionOverview({ farm_id: unique_farms, cycles: unique_cycles }, function(err, production_chart_data) {
 											if (err)

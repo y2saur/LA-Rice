@@ -529,11 +529,12 @@ exports.getDetailedCropCalendar = function(req, res) {
 	html_data["title"] = "Crop Calendar";
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'detailed_crop_calendar', req.session);
 	
-	var query = { status: ['In-Progress', 'Active', 'Completed']};
+	var query = { status: ['In-Progress', 'Active', 'Completed'], date: req.session.cur_date};
 	cropCalendarModel.getCropCalendarByID(query, req.query.id, function(err, crop_calendar){
 		if(err)
 			throw err;
 		else{
+
 			crop_calendar[0].land_prep_date = dataformatter.formatDate(new Date(crop_calendar[0].land_prep_date), 'YYYY-MM-DD');
 			crop_calendar[0].sowing_date = dataformatter.formatDate(new Date(crop_calendar[0].sowing_date), 'YYYY-MM-DD');
 			crop_calendar[0].harvest_date = dataformatter.formatDate(new Date(crop_calendar[0].harvest_date), 'YYYY-MM-DD');
@@ -610,14 +611,25 @@ exports.getDetailedCropCalendar = function(req, res) {
 									fertilizer: material_list.filter(e => e.type == 'Fertilizer'), 
 									pesticide: material_list.filter(e => e.type == 'Pesticide')
 								};
-								html_data['materials'] = material_obj;
-								html_data["workorders"] = wos;
-								html_data["soil_record"] = soil_record[0];
-								html_data["fertilizer_wos"] = fertilizers;
-								html_data["pd_wos"] = pd_wos;
-								html_data["crop_plan_details"] = crop_calendar[0];
-								html_data["notifs"] = req.notifs;
-								res.render('detailed_crop_calendar', html_data); 
+
+								farmModel.getForecastedYieldRecord({ calendar_id: [req.query.id] }, function(err, forecast_yield) {
+									if (err)
+										throw err;
+									else {
+
+										html_data['forecasted_yield'] = forecast_yield[0].forecast != -1 ? `${forecast_yield[0].forecast} cavans/ha` : 'N/A';
+										html_data['materials'] = material_obj;
+										html_data["workorders"] = wos;
+										html_data["soil_record"] = soil_record[0];
+										html_data["fertilizer_wos"] = fertilizers;
+										html_data["pd_wos"] = pd_wos;
+										html_data["crop_plan_details"] = crop_calendar[0];
+										html_data["notifs"] = req.notifs;
+										res.render('detailed_crop_calendar', html_data); 
+									}
+								});
+
+										
 							}
 						});
 					}			
@@ -626,4 +638,4 @@ exports.getDetailedCropCalendar = function(req, res) {
 		});
 		
 	});
-}
+}	

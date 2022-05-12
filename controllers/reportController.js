@@ -4,6 +4,7 @@ const farmModel = require('../models/farmModel.js');
 const workOrderModel = require('../models/workOrderModel.js');
 const weatherForecastModel = require('../models/weatherForecastModel.js');
 const cropCalendarModel = require('../models/cropCalendarModel.js');
+const harvestModel = require('../models/harvestModel.js');
 const materialModel = require('../models/materialModel.js');
 const analyzer = require('../public/js/analyzer.js');
 const js = require('../public/js/session.js');
@@ -219,17 +220,30 @@ exports.getDetailedReport = function(req, res) {
 			throw err;
 		else {
 			fp_overview = fp_overview.filter(e => e.calendar_id == req.query.calendar_id);
+			
 			var calendar_arr = fp_overview.map(({ calendar_id }) => calendar_id).concat(fp_overview.map(({ max_prev_calendar }) => max_prev_calendar));
 			reportModel.getInputResourcesUsed({ calendar_ids: calendar_arr }, function(err, input_resources) {
 				if (err)
 					throw err;
 				else {
-					input_resources = input_resources.filter(e => e.calendar_id == req.query.calendar_id);
-					html_data['farm_productivity'] = analyzer.processDetailedFarmProductivity(fp_overview, input_resources);
-					//
-					//
-					html_data["notifs"] = req.notifs;
-					res.render('detailed_farm_report', html_data)
+					harvestModel.readHarvestDetail({ cct_id: req.query.calendar_id }, function(err, harvest_details) {
+						if (err)
+							throw err;
+						else {
+							var total_harvest = 0;
+							harvest_details.forEach(function(item) {
+								total_harvest += item.sacks_harvested;
+							})
+							fp_overview[0]['current_yield'] = total_harvest;
+
+							input_resources = input_resources.filter(e => e.calendar_id == req.query.calendar_id);
+							html_data['farm_productivity'] = analyzer.processDetailedFarmProductivity(fp_overview, input_resources);
+
+							html_data["notifs"] = req.notifs;
+							res.render('detailed_farm_report', html_data)
+						}
+					});
+							
 				}
 			});
 		}

@@ -327,7 +327,7 @@ exports.ajaxGetNutrientPlanView = function(req, res) {
 																			
 																			html_data['detailed_data'] = dataformatter.processNPKValues(result, result[0].farm_area, applied, summary, wo_list);
 																			if (forecast != 0) {
-																				html_data['yield_forecast'] = forecast[0].forecast;
+																				html_data['yield_forecast'] = forecast[0].forecast == -1 ? `N/A` : `${forecast[0].forecast} cavans/ha`;
 																			}
 																			fr_items = fr_items.filter(e => e.isCreated == 0);
 																			//
@@ -340,7 +340,7 @@ exports.ajaxGetNutrientPlanView = function(req, res) {
 																			html_data['inventory'] = processInventory(material_list, html_data.recommendation, applied);
 																			html_data['calendar_details'] = calendar_details[0];
 																			html_data['farm_id'] = farm_id;
-																			
+
 																			res.send(html_data);
 																		}
 																	});

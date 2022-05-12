@@ -1015,9 +1015,9 @@ $(document).ready(function() {
 		$.get('/get_farm_list', {  }, function(farm_list) {
 			for (var i = 0; i < farm_list.length; i++) {
 				$.get('/get_active_calendar', { farm_id: farm_list[i].farm_id }, function(calendar) {
-
+			
 					if (calendar.length != 0) {
-
+						console.log(calendar);
 						$.get('/get_nutrient_plan_details', { calendar_id: calendar[0].calendar_id}, function(plan) {
 
 							if (dateDiff(new Date(system_date), new Date(plan[0].last_updated)) >= 7) {
