@@ -300,7 +300,6 @@ router.get('/getWeather', materialController.getWeather);
 
 
 
-
 // router.get("/test_sample", globe.sampleUpdateWO);
 
 

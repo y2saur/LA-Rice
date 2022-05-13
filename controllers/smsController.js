@@ -98,7 +98,7 @@ exports.globe_inbound_msg = function(req, res){
                     });
 
                     //POCESS MESSAGE
-                    var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.slice(" ");
+                    var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(" ");
                     var msg;
 
                     //CHECK FOR PAST OUTBOUND MESSAGE FROM USER
@@ -140,11 +140,12 @@ exports.globe_inbound_msg = function(req, res){
                                 sendOutboundMsg(employee_details[0], "Maraming Salamat!");
                             }
                             else{
-                                switch (text_message[0].toLowerCase()){
+                                console.log(text_message[0].toLowerCase());
+                                switch (text_message[0]){
                                     case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
                                     case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                     case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
-                                    case "TAPOS" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
+                                    case "tapos" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
                                     default : sendSMSActions(employee_details[0]); break;
                                 } 
                             }
@@ -161,45 +162,95 @@ exports.globe_inbound_msg = function(req, res){
     return true;
 }
 
-
-function updateWO(emp, message){ //Updates WO sent by farmer
-    
+function updateWO(emp, message){
     //Check if the message sent contains a number
     if(isNaN(message[1])){
         //Not a number send error message to employee
         var msg = "Mali ang work order ID na sinend. Pumili ng tamang work order ID.";
-        sendOutboundMsg(employee, msg);
+        sendOutboundMsg(emp, msg);
     }
     else{
+        console.log("goods");
         //Check if wo id exists and matches farm id
         woModel.getDetailedWorkOrder({work_order_id : message[1]}, function(err, wo_details){
+            console.log(wo_details);
             if(err){
                 var msg = "Mali ang work order ID na sinend. Pumili ng tamang work order ID.";
-                sendOutboundMsg(employee, msg);
+                sendOutboundMsg(emp, msg);
+                throw err;
             }
             else{
                 //Check if same farm id
                 if(wo_details[0].farm_id == emp.farm_id){
                     //Continue to update wo
                     var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
-                    woModel.updateWorkOrder({status : "Completed", date_completed : date}, function(err, result){
+                    woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
                         var msg = "Maraming Salamat!";
-                        sendOutboundMsg(employee, msg);
+                        sendOutboundMsg(emp, msg);
                     });
                 }
                 else{
                     var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
-                    sendOutboundMsg(employee, msg);
+                    sendOutboundMsg(emp, msg);
                 }
             }
         });
     }
-
 }
+
+
+// exports.sampleUpdateWO = function(req, res){ //Updates WO sent by farmer
+//     var message = req.query.message.split(" ");
+//     console.log(message);
+//     smsModel.getEmployeeDetails({ key: "phone_number" , value : "9173028128"}, function(err, employee_details){
+//         if(err)
+//             throw err;
+//         else{
+//             console.log(employee_details[0]);
+
+//             //FROM HERE
+//             //Check if the message sent contains a number
+//             if(isNaN(message[1])){
+//                 //Not a number send error message to employee
+//                 var msg = "Mali ang work order ID na sinend. Pumili ng tamang work order ID.";
+//                 sendOutboundMsg(employee_details[0], msg);
+//             }
+//             else{
+//                 console.log("goods");
+//                 //Check if wo id exists and matches farm id
+//                 woModel.getDetailedWorkOrder({work_order_id : message[1]}, function(err, wo_details){
+//                     console.log(wo_details);
+//                     if(err){
+//                         var msg = "Mali ang work order ID na sinend. Pumili ng tamang work order ID.";
+//                         sendOutboundMsg(employee_details[0], msg);
+//                         throw err;
+//                     }
+//                     else{
+//                         //Check if same farm id
+//                         if(wo_details[0].farm_id == employee_details[0].farm_id){
+//                             //Continue to update wo
+//                             var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
+//                             woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+//                                 var msg = "Maraming Salamat!";
+//                                 sendOutboundMsg(employee_details[0], msg);
+//                             });
+//                         }
+//                         else{
+//                             var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
+//                             sendOutboundMsg(employee_details[0], msg);
+//                         }
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// }
 
 
 
 //RUNS WHEN USER REGISTERS THROUGH SMS
+
+
 exports.registerUser = function(req,res){
     console.log(req.query);
     //PROCESS
