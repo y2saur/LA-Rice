@@ -145,6 +145,7 @@ exports.globe_inbound_msg = function(req, res){
                                     case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
                                     case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                     case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
+                                    case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
                                     case "tapos" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
                                     default : sendSMSActions(employee_details[0]); break;
                                 } 
@@ -160,6 +161,55 @@ exports.globe_inbound_msg = function(req, res){
     // this.globe_outbound_msg;
     // this.getAccessToken;
     return true;
+}
+
+function getExistingDiagnosis(emp){
+    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){
+        if(err)
+            console.log(err);
+        else{
+            //Get active crop calendar
+            var farm_name = emp[0].farm_name;
+            var farm_id = emp[0].farm_id;
+            cropCalendarModel.getCurrentCropCalendar({farm_name : farm_name}, function(err, crop_calendar){
+                if(err)
+                    throw err;
+                else{
+                    console.log(crop_calendar);
+                    var message = "LISTAHAN NG MGA PESTE/SAKIT\n";
+                    pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnoses){
+                        if(err)
+                            throw err;
+                        else{
+                            //Loop throgh present diagnoses
+                            var ctr = 0;
+                            for(var i = 0; i < diagnoses.length; i++){
+                                if(diagnoses[i].status == "Present"){
+                                    ctr++;
+                                    //Add to message
+                                    var type;
+                                    if(diagnoses[i].type == "Pest"){
+                                        type = "PESTE";
+                                    }
+                                    else{
+                                        type = "SAKIT";
+                                    }
+
+                                    message = message + "\nDIAGNOSE ID: " + diagnoses[i].diagnosis_id + "\n" + type + ": " + diagnoses[i].name + "\nPETSA: " + dataformatter.formatDate(diagnoses[i].date_diagnosed, "mm DD, YYYY") + "\n";
+                                }
+                            }
+                            console.log(message);
+                            if(ctr == 0){
+                                message = message + "\nWalang lumalaganap na peste/sakit.";
+                            }
+                            //Send outbound message
+                            sendOutboundMsg(emp, message);
+                        }
+                    });
+                }
+            });
+        }
+    });
 }
 
 function updateWO(emp, message){
@@ -589,7 +639,7 @@ exports.incomingWO = function(req, res){
 }
 
 function sendSMSActions(employee){
-    var msg = 'Below are the list of actions that can be performed.\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS<space>Word order ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
+    var msg = 'Below are the list of actions that can be performed.\n\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS<space>Word order ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
 
     sendOutboundMsg(employee, msg);
 }

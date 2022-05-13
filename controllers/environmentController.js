@@ -3480,6 +3480,7 @@ exports.checkExistingPreventionWo = function(req, res){
 
 
 exports.createPreventionWo = function(req, res){
+	console.log("CREATE PREVENTIONS");
 	var calendar_id = req.body.calendar_id;
 	var workorders = [];
 	var preventions = req.body.preventions;
@@ -3490,7 +3491,8 @@ exports.createPreventionWo = function(req, res){
 	//Create new WorkOrders
 	var today = new Date(req.session.cur_date); 
 	today.setDate(today.getDate() + 7);	
-	//
+	//set message for sms
+	var message = "BAGONG WORK ORDERS\n";
 	for(i = 0;i < workorders.length; i++){
 
 		var temp_wo = {
@@ -3501,8 +3503,34 @@ exports.createPreventionWo = function(req, res){
 			date_due : today,
 			crop_calendar_id : calendar_id
 		}
+		message = message + "\n" + temp_wo.type + "\nSIMULA: " + dataformatter.formatDate(temp_wo.date_start, "mm DD, YYYY") + "\nTAPOS: " + dataformatter.formatDate(temp_wo.date_due, "mm DD, YYYY") + "\n";
 		workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 	}
 
-	res.redirect("/pest_and_disease/frequency");
+	//Get farn based on calendar id
+	var query = { status: ['In-Progress', 'Active', 'Completed']};
+	cropCalendarModel.getCropCalendarByID(query, calendar_id, function(err, calendar){
+		console.log(calendar);
+		if(err)
+			throw err;
+		else{
+			var farm_id = calendar[0].farm_id;
+			//get employees based on farm id
+			smsModel.getSMSEmployees({position: "Farmer"}, function(err, employees){
+				console.log(employees);
+				if(err)
+					throw err;
+				else{
+					for(var x = 0; x < employees.length; x++){
+						if(employees[x].farm_id == farm_id){
+							//SEND SMS
+							globe.sendSMS(employees[x], message);
+						}
+					}
+				}
+				res.redirect("/pest_and_disease/frequency");
+			});
+			
+		}
+	});
 }
