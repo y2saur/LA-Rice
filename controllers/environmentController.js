@@ -1,4 +1,5 @@
 const dataformatter = require('../public/js/dataformatter.js');
+const smsModel = require('../models/smsModel.js');
 const similarity = require('../public/js/similarity.js');
 const analyzer = require('../public/js/analyzer.js');
 const js = require('../public/js/session.js');
@@ -10,9 +11,11 @@ const materialModel = require('../models/materialModel.js');
 const workOrderModel = require('../models/workOrderModel.js');
 const pestdiseaseModel = require('../models/pestdiseaseModel.js');
 const notifModel = require('../models/notificationModel.js');
+const globe = require('../controllers/smsController.js');
 var request = require('request');
 var solver = require('javascript-lp-solver');
 const e = require('connect-flash');
+const { globe_inbound_msg } = require('./smsController.js');
 
 
 var key = '2ae628c919fc214a28144f699e998c0f';
@@ -2251,6 +2254,7 @@ exports.ajaxGetPD = function(req, res){
 
 
 exports.addDiagnosis = function(req,res){
+	console.log("ADD DIAGNOSIS");
 	var workorders = [];
 	var i;
 	if(req.body.solution != null)
@@ -2426,6 +2430,7 @@ exports.addDiagnosis = function(req,res){
 								//Create Cancelled Workorders
 								var recommended_solutions = [];
 								//Get pest/disease solutions
+								var message;
 								if(pd[1] == "Pest"){
 									pestdiseaseModel.getPestSolutions(pd[0], function(err, solutions){
 										var i;
@@ -2456,6 +2461,40 @@ exports.addDiagnosis = function(req,res){
 												workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 											}
 										}
+
+
+										pestdiseaseModel.getPestDetails(diagnosis.pd_id, function(err, pd){
+											if(err)
+												throw err;
+											else{
+												message = "BAGONG PESTE/SAKIT\nPESTE: " + pd[0].pd_name + "\nPETSA: " + dataformatter.formatDate(new Date(diagnosis.date_diagnosed), "mm DD, YYYY") + "\n\nBAGONG WORK ORDERS\n";
+
+												for(var i = 0; i < workorders.length; i++){
+													message = message + "\n" + workorders[i][1] + "\n" +  workorders[i][2] + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
+												}
+
+												console.log(diagnosis);
+												console.log(workorders);
+												console.log(message);
+
+												//CREATE SMS FOR FARMERS WITHIN THE FARM
+												smsModel.getSMSEmployees({position : "Farmer"}, function(err, employees){
+													if(err)
+														throw err;
+													else{
+														//set message
+														//FOr diagnosis deatails
+														//look for employees with the same farm id
+														for(var x = 0; x < employees.length; x++){
+															if(employees[x].farm_id == diagnosis.farm_id){
+																//SEND SMS
+																globe.sendSMS(employees[x], message);
+															}
+														}
+													}
+												});
+											}
+										});
 									});
 								}
 								else if(pd[1] == "Disease"){
@@ -2487,6 +2526,41 @@ exports.addDiagnosis = function(req,res){
 												workOrderModel.createWorkOrder(temp_wo, function(err, success){});
 											}
 										}
+
+										pestdiseaseModel.getDiseaseDetails(diagnosis.pd_id, function(err, pd){
+											if(err)
+												throw err;
+											else{
+												message = "BAGONG PESTE/SAKIT\nSAKIT: " + pd[0].pd_name + "\nPETSA: " + dataformatter.formatDate(new Date(diagnosis.date_diagnosed), "mm DD, YYYY") + "\n\nBAGONG WORK ORDERS\n";
+
+												for(var i = 0; i < workorders.length; i++){
+													message = message + "\n" + workorders[i][1] + "\n" +  workorders[i][2] + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
+												}
+
+												console.log(diagnosis);
+												console.log(workorders);
+												console.log(message);
+
+												//CREATE SMS FOR FARMERS WITHIN THE FARM
+												smsModel.getSMSEmployees({position : "Farmer"}, function(err, employees){
+													if(err)
+														throw err;
+													else{
+														//set message
+														//FOr diagnosis deatails
+														//look for employees with the same farm id
+														for(var x = 0; x < employees.length; x++){
+															if(employees[x].farm_id == diagnosis.farm_id){
+																//SEND SMS
+																globe.sendSMS(employees[x], message);
+															}
+														}
+													}
+												});
+											}
+										});
+
+
 									});
 								}
 								//Set cancelled work orders
