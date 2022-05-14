@@ -120,10 +120,15 @@ exports.globe_inbound_msg = function(req, res){
                                 var url = "/pest_and_disease/diagnose?symptoms=";
                                 for(var i = 0; i < symptoms_from_user.length; i++){
                                     url = url + symptoms_from_user[i];
+
+                                    //Check if symptom is in db
+
+                                    
                                     if(i != symptoms_from_user.length - 1)
                                         url = url + "-";
                                 }
 
+                                url = url + "&farm=" + farm_id; 
                                 //Create notif
                                 var notif = {
                                     date : new Date(),

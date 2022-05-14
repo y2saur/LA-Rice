@@ -1794,6 +1794,13 @@ exports.updatePDDetails = function(req,res){
 // Pest and Disease Diagnosis Part (Temporary)
 exports.getDiagnoses = function(req, res) {
 	console.log(req.query.symptoms);
+	console.log(req.query.farm);
+
+	if(req.query.farm != null)
+		var farm_id = req.query.farm;
+	else
+		var farm_id = null;
+
 	if(req.query.symptoms != null)
 		var reported_symptoms = req.query.symptoms.split("-");
 	else
@@ -1837,7 +1844,11 @@ exports.getDiagnoses = function(req, res) {
 								if(err)
 									throw err;
 								else{
-
+									for(var i = 0; i < farms.length; i++){
+										if(farms[i].farm_id == farm_id){
+											farms[i]["selected"] = true;
+										}
+									}
 								}
 								pestdiseaseModel.getPestDiseaseList("Pest", function(err, pd_list){
 									if(err)

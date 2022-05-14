@@ -80,7 +80,7 @@
                                                             <label for="type">Farm Affected <span style="color: #CA4E0C;">*</span></label>
                                                                     <select class="form-select" id="farm_id" name="farm_id" form="add_diagnosis_form">
                                                                         {{#each farms}}
-                                                                            <option value="{{this.farm_id}}">{{this.farm_name}}</option>
+                                                                            <option value="{{this.farm_id}}" {{#if this.selected}}selected{{/if}}>{{this.farm_name}}</option>
                                                                         {{/each}}
                                                                     </select>
 
