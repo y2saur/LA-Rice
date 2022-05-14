@@ -10,6 +10,14 @@
 		visibility: hidden;
 	}
 
+	/* Removes Extra Page */
+	html, body {
+      height:100vh; 
+      margin: 0 !important; 
+      padding: 0 !important;
+      overflow: hidden;
+    }
+
 	.section-to-print, .section-to-print * {
 		visibility: visible !important;
 		color: #332C1F;
@@ -50,7 +58,7 @@
     </div>
 
     <div class="col" style="margin-right: 650px; padding-top: 15px">
-    	<h6>Detailed Harvest Report</h6> <!-- Change to handlebar later -->
+    	<h6>Detailed Harvest Report ({{crop_plans.start}} to {{crop_plans.end}})</h6> <!-- Change to handlebar later -->
     </div>
 
     <i class="fas fa-print" style="color: rgb(255,255,255);" value="print" id="print" type="button"></i>
@@ -481,10 +489,10 @@
                 <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">LA Rice Mill</h1>
             </div>
             <div>
-                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Harvest Report</h1>
+                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Harvest Report for All Farms</h1>
             </div>
             <div>
-                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle on October 2021 - March 2022</h1>
+                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle on {{crop_plans.start}} to {{crop_plans.end}}</h1>
             </div>
         </div>
     	</div>
@@ -492,7 +500,7 @@
 
     <div class="row">
         <div class="col" style="background-color:#212529;margin-top: 15px; height: auto">
-            <h4 style="color:white; font-weight: bold; margin-bottom: 15px">Crop Plan Name</h4>
+            <h4 style="color:white; font-weight: bold; margin-bottom: 15px">{{crop_plans.start}} to {{crop_plans.end}}</h4>
         </div>
     </div>
     <div class="row">
