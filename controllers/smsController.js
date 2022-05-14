@@ -120,7 +120,7 @@ exports.globe_inbound_msg = function(req, res){
                                 var url = "/pest_and_disease/diagnose?symptoms=";
                                 for(var i = 0; i < symptoms_from_user.length; i++){
                                     url = url + symptoms_from_user[i];
-                                    if(i != symptoms_from_user.length)
+                                    if(i != symptoms_from_user.length - 1)
                                         url = url + "-";
                                 }
 
@@ -146,7 +146,8 @@ exports.globe_inbound_msg = function(req, res){
                                     case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                     case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
                                     case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
-                                    case "tapos" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
+                                    case "tapos1" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
+                                    case "tapos2" : msg = updateDiagnosis(employee_details[0], text_message); break;
                                     default : sendSMSActions(employee_details[0]); break;
                                 } 
                             }
@@ -163,7 +164,42 @@ exports.globe_inbound_msg = function(req, res){
     return true;
 }
 
-function getExistingDiagnosis(emp){
+
+
+function updateDiagnosis(employee, message){
+    //Check if the message sent contains a number
+    if(isNaN(message[1])){
+        //Not a number send error message to employee
+        var msg = "Mali ang Diagnosis ID na sinend. Pumili ng tamang diagnosis ID.";
+        sendOutboundMsg(emp, msg);
+    }
+    else{
+        console.log("goods");
+        //Check if diagnosis id exists and matches farm id
+        pestdiseaseModel.getDiagnosisDetails(message[1], function(err, diagnosis_details){
+            console.log(diagnosis_details);
+            if(err)
+                throw err;
+            else{
+                //Check if same farm_id
+                if(diagnosis_details[0].farm_id == employee.farm_id){
+                    //Continue to update diagnosis
+                    var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
+                    pestdiseaseModel.updateDiagnosis(message[1], new Date(), function(err, success){
+                        var msg = "Maraming Salamat!\n\nNaresulba na ang diagnosis " + message[1] + ".\n" + diagnosis_details[0].name + "\n" + diagnosis_details[0].crop_plan;
+                        sendOutboundMsg(employee, msg);
+                    });
+                }
+                else{
+                    var msg = "Mali ang diagnosis ID na sinend (ibang farm). Pumili ng tamang diagnosis ID.";
+                    sendOutboundMsg(emp, msg);
+                }
+            }
+        });
+    }
+}
+
+function getExistingDiagnosis(employee){
     employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){
         if(err)
             console.log(err);
@@ -203,7 +239,7 @@ function getExistingDiagnosis(emp){
                                 message = message + "\nWalang lumalaganap na peste/sakit.";
                             }
                             //Send outbound message
-                            sendOutboundMsg(emp, message);
+                            sendOutboundMsg(employee, message);
                         }
                     });
                 }
@@ -235,7 +271,7 @@ function updateWO(emp, message){
                     //Continue to update wo
                     var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
                     woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
-                        var msg = "Maraming Salamat!";
+                        var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
                         sendOutboundMsg(emp, msg);
                     });
                 }
@@ -639,7 +675,7 @@ exports.incomingWO = function(req, res){
 }
 
 function sendSMSActions(employee){
-    var msg = 'Below are the list of actions that can be performed.\n\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS<space>Word order ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
+    var msg = 'Below are the list of actions that can be performed.\n\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543\n\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
 
     sendOutboundMsg(employee, msg);
 }
