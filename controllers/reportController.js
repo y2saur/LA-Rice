@@ -276,7 +276,7 @@ exports.getFarmProductivityReport = function(req, res) {
 						throw err;
 					else {	
 						html_data['farm_productivity'] = analyzer.smoothFP(analyzer.calculateProductivity(fp_overview, input_resources));
-						html_data['currentCycle'] = fp_overview[0];
+						html_data['currentCycle'] = fp_overview[fp_overview.length-1];
 					}
 				});
 			}
