@@ -3,6 +3,8 @@ const dataformatter = require('../public/js/dataformatter.js');
 const weatherForecastModel = require('../models/weatherForecastModel.js');
 const disasterModel = require('../models/disasterModel.js');
 const notifModel = require('../models/notificationModel.js');
+const globe = require('../controllers/smsController.js');
+const smsModel = require('../models/smsModel.js');
 
 var key = 'd7aa391cd7b67e678d0df3f6f94fda20';
 var temp_lat = 13.073091;
@@ -358,6 +360,14 @@ exports.get14DWeatherForecast = function(req, res) {
 						target_date: '"'+weather_obj.date+'"'
 					});
 				}
+				//CREATE AND SEND SMS TO FARMERS
+				var message = "MALAKAS NA ULAN\n\nSa susunod na dalawang linggo, asahan ang malakas na pag-ulan sa iba't ibang bahagi ng Mindoro.\n\nPosibleng mag-ani ng maaga upang mabawasan ang pagkawala. Makipag-ugnayan sa Farm manager sa maaaring gawin."
+				smsModel.getSMSEmployees({isActive : "1"}, function(err, employees){
+					//For each employee, send message
+					for(var i = 0; i < employees.length; i++){
+						globe.sendSMS(employees[i], message);
+					}
+				});
 
 				weather_obj = {};
 			}

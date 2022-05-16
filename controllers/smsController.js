@@ -123,12 +123,12 @@ exports.globe_inbound_msg = function(req, res){
 
                                     //Check if symptom is in db
 
-                                    
+
                                     if(i != symptoms_from_user.length - 1)
                                         url = url + "-";
                                 }
 
-                                url = url + "&farm=" + farm_id; 
+                                url = url + "&farm=" + employee_details[0].farm_id; 
                                 //Create notif
                                 var notif = {
                                     date : new Date(),
@@ -396,13 +396,18 @@ exports.registerUser = function(req,res){
     return true;
 }
 
+const translator = require('../public/js/translator.js');
 
 //SEND MESSAGE TO USER FROM APP
-exports.globe_outbound_msg = function(req, res){
+exports.globe_outbound_msg = async function(req, res){
     console.log("sending outbound message");
     console.log(req.query);
     var employee_id = req.query.employee_id;
     var message = req.query.message;
+    var translated_msg = await translator.translateText(message);
+
+    
+    console.log(translated_msg.data[0].translations[0].text);
     //GET EMPLOYEE DETAILS
     smsModel.getEmployeeDetails({key : "employee_id", value : employee_id}, function(err, employee_details){
         if(err)
@@ -415,7 +420,7 @@ exports.globe_outbound_msg = function(req, res){
                     res.send("No access token");
                 }
                 else{
-                    sendOutboundMsg(emp, message);
+                    sendOutboundMsg(emp, translated_msg.data[0].translations[0].text);
                     res.send("message sent");
                 }
             }
@@ -721,8 +726,44 @@ exports.sendSMS = function(emp, message){
     });
 }
 
+const axios = require('axios').default;
+const { v4: uuidv4 } = require('uuid');
 
+//TRANSLATION TEST
+exports.testTranslation = function(req, res){
 
+    var key = "85f608a71b654ef8bbdef5dbaaa0c416";
+    var endpoint = "https://api.cognitive.microsofttranslator.com";
+    
+
+    // Add your location, also known as region. The default is global.
+    // This is required if using a Cognitive Services resource.
+    var location = "southeastasia";
+
+    axios({
+        baseURL: endpoint,
+        url: '/translate',
+        method: 'post',
+        headers: {
+            'Ocp-Apim-Subscription-Key': key,
+            'Ocp-Apim-Subscription-Region': location,
+            'Content-type': 'application/json',
+            'X-ClientTraceId': uuidv4().toString()
+        },
+        params: {
+            'api-version': '3.0',
+            'from': 'en',
+            'to': 'fil'
+        },
+        data: [{
+            'text': 'Good morning!'
+        }],
+        responseType: 'json'
+    }).then(function(response){
+        console.log(JSON.stringify(response.data, null, 4));
+    });
+
+}
 
 
 

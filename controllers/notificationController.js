@@ -124,7 +124,6 @@ exports.getNotification = function(req, res, next) {
                                                 //SEND SMS
                                                 console.log("SEND SMS --------------------------------------");
                                                 globe.sendSMS(farmers[x], msg);
-
                                             }
                                         }
                                     }
