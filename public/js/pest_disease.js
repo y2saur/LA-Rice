@@ -10,7 +10,24 @@ function update_color_meter(){
     });
 }
 $(document).ready(function(){
-
+    //Update possibilities
+    $("#pd_possibility_list").empty();
+    var symptoms = [];
+    $(".symptom-checkbox:checkbox:checked").each(function(){
+        symptoms.push($(this).val());
+    });
+    $.get('/ajaxSymptomPossibilities', {farm_id : $("#farm_id").val(), symptoms: symptoms}, function(possibilities){
+        var i;
+        for(i = 0; i < possibilities.length; i++){
+            if(symptoms.length > 0){
+                $("#pd_possibility_list").append('<tr> <td colspan="3">'+ possibilities[i].pd_name +'</td> <td colspan="2">'+ possibilities[i].pd_type +'</td></td><td colspan="1" style="text-align: right;">'+ possibilities[i].count +'</td><td colspan="1" style="text-align: right;">'+ possibilities[i].percent +'</td> <td colspan="1"><input class="diagnosis_radio" type="radio" id="" name="pd" value="'+ possibilities[i].pd_id +'|'+ possibilities[i].pd_type +'"></tr>');
+            }
+            else{
+                $("#pd_possibility_list").append('<tr> <td colspan="3">'+ possibilities[i].pd_name +'</td> <td colspan="2">'+ possibilities[i].pd_type +'</td></td><td colspan="1" style="text-align: right;">N/A</td><td colspan="1" style="text-align: right;" style="text-align: right;">'+ possibilities[i].percent +'</td> <td colspan="1"><input class="diagnosis_radio" type="radio" id="" name="pd" form="add_diagnosis_form" value="'+ possibilities[i].pd_id +'|'+ possibilities[i].pd_type +'"></tr>');
+            }
+        }
+    });
+    
     $(".add-pd-btn").on("click", function(){
         var cur_id = $(this).attr("id");
         if(cur_id == "step1"){

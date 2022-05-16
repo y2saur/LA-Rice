@@ -235,12 +235,23 @@ exports.getDetailedReport = function(req, res) {
 								total_harvest += item.sacks_harvested;
 							})
 							fp_overview[0]['current_yield'] = total_harvest;
+							
+							var query = { status: ['In-Progress', 'Active', 'Completed'], date: req.session.cur_date};
+							
+							cropCalendarModel.getCropCalendarByID(query, req.query.calendar_id,  function(err, calendar_details) {
+
+							farmModel.getSpecificFarm({farm_id: calendar_details[0].farm_id}, function(err,farm_details) {
+
 
 							input_resources = input_resources.filter(e => e.calendar_id == req.query.calendar_id);
 							html_data['farm_productivity'] = analyzer.processDetailedFarmProductivity(fp_overview, input_resources);
-
+							html_data['calendar'] = calendar_details[0];
+							html_data['farm'] = farm_details[0];
 							html_data["notifs"] = req.notifs;
-							res.render('detailed_farm_report', html_data)
+							res.render('detailed_farm_report', html_data);
+
+							});
+							});
 						}
 					});
 							
@@ -265,6 +276,7 @@ exports.getFarmProductivityReport = function(req, res) {
 						throw err;
 					else {	
 						html_data['farm_productivity'] = analyzer.smoothFP(analyzer.calculateProductivity(fp_overview, input_resources));
+						html_data['currentCycle'] = fp_overview[fp_overview.length-1];
 					}
 				});
 			}

@@ -1,10 +1,213 @@
+<style>
+.container{
+    max-width: 2000px; 
+    margin: auto;
+}
 
+img {
+     max-width:100%;
+}
+
+.inbox_people {
+  background: #f8f8f8 none repeat scroll 0 0;
+  float: left;
+  overflow: hidden;
+  width: 40%; border-right:1px solid #c4c4c4;
+}
+
+.inbox_msg {
+  border: 1px solid #c4c4c4;
+  clear: both;
+  overflow: hidden;
+}
+
+.top_spac{
+     margin: 20px 0 0;
+}
+
+.recent_heading {
+    float: left; width:40%;
+}
+
+.srch_bar {
+  display: inline-block;
+  text-align: right;
+  width: 60%;
+}
+
+.headind_srch { 
+    padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;
+}
+
+.recent_heading h4 {
+    color: #05728f;
+    font-size: 21px;
+    margin: auto;
+}
+
+.srch_bar input { 
+    border:1px solid #cdcdcd; border-width:0 0 1px 0; width:80%; padding:2px 0 4px 6px; background:none;
+}
+
+.srch_bar .input-group-addon button {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  border: medium none;
+  padding: 0;
+  color: #707070;
+  font-size: 18px;
+}
+
+.srch_bar .input-group-addon { 
+    margin: 0 0 0 -27px;
+}
+
+.chat_ib h5 { 
+    font-size:15px; color:#464646; margin:0 0 8px 0;
+}
+
+.chat_ib h5 span { 
+    font-size:13px; float:right;
+}
+
+.chat_ib p { 
+    font-size:14px; color:#989898; margin:auto
+}
+
+.chat_img {
+  float: left;
+  width: 11%;
+}
+
+.chat_ib {
+  float: left;
+  padding: 0 0 0 15px;
+  width: 88%;
+}
+
+.chat_people { 
+    overflow:hidden; clear:both;
+}
+
+.chat_list {
+  border-bottom: 1px solid #c4c4c4;
+  margin: 0;
+  padding: 18px 16px 10px;
+}
+
+.chat_list:hover {
+    cursor: pointer;
+}
+
+.inbox_chat {
+    max-height: 670px;
+    overflow-y: auto;
+    margin-bottom: 5px;
+   
+}
+
+.active_chat{ 
+    background:rgba(196, 212, 217, 0.4); /*#ebebeb*/
+}
+
+.incoming_msg_img {
+  display: inline-block;
+  width: 6%;
+}
+
+.received_msg {
+  display: inline-block;
+  padding: 0 0 0 10px;
+  vertical-align: top;
+  width: 92%;
+ }
+ .received_withd_msg p {
+  background: #ebebeb none repeat scroll 0 0;
+  border-radius: 3px;
+  color: #646464;
+  font-size: 14px;
+  margin: 0;
+  padding: 5px 10px 5px 12px;
+  width: 100%;
+}
+
+.time_date {
+  color: #747474;
+  display: block;
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+
+.received_withd_msg { 
+    width: 57%;
+}
+
+.mesgs {
+  float: left;
+  padding: 20px;
+  width: 60%;
+}
+
+ .sent_msg p {
+  background: #05728f none repeat scroll 0 0;
+  border-radius: 3px;
+  font-size: 14px;
+  margin: 0; color:#fff;
+  padding: 5px 10px 5px 12px;
+  width:100%;
+}
+
+.outgoing_msg{ overflow:hidden; margin:26px 0 26px;}
+.sent_msg {
+  float: right;
+  width: 46%;
+}
+
+.input_msg_write input {
+  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  border: medium none;
+  color: #4c4c4c;
+  font-size: 15px;
+  min-height: 48px;
+  width: 100%;
+}
+
+.type_msg {
+    border-top: 1px solid #c4c4c4;position: relative;
+}
+
+.msg_send_btn {
+  background: #EDD172;
+  color: #332c1f;
+  border-radius: 100%;
+  cursor: pointer;
+  font-size: 17px;
+  height: 33px;
+  position: absolute;
+  right: 0;
+  top: 11px;
+  width: 33px;
+}
+
+.messaging { 
+    padding: 0 0 5px 0;
+}
+
+.msg_history {
+  max-height: 540px;
+  height: 540px;
+  padding-right: 30px;
+  margin-bottom: 10px;
+  overflow-y: auto;
+
+}
+
+</style>
 
 
 <div class="container-fluid">
 
      <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h3 class="text-dark mb-0">{{title}}</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>October 1, 2021 10:32am<br><br></a>
+                        <h3 class="text-dark mb-0">{{title}}</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
                     </div>
     
 
@@ -49,7 +252,7 @@
                                         <div class="inbox_msg">
                                             
                                             {{!-- INBOX DIV --}}
-                                            <div class="inbox_people" style="position: relative;">
+                                            <div class="inbox_people" style="position: relative; height:720px; max-height: 720px">
 
                                             <div class="headind_srch">
                                                 <div class="recent_heading">
@@ -151,488 +354,6 @@
 
                                                 <div class="col-1">
                                                      <button class="btn btn-primary btn-circle btn-md msg_send_btn" type="button" style="margin-right: 14px; margin-top:8px;" id="send_btn"><span><i class="fas fa-paper-plane" style="color: #  color: #332c1f;"></i></span></button>
-                                                </div>
-
-                                            </div>
-                                               
-
-                                               
-                                              
-                                            </div>
-
-                                            
-
-                                            </div>
-                                            {{!-- END OF MESSAGES DIV --}}
-
-                                        </div>
-                                        
-                                        
-                                        </div>
-                                        
-                                {{!-- </div> --}}
-                                {{!-- END OF MAIN MESSAGING DIV --}}
-
-                                </div>
-                                {{!-- END OF TAB 1 --}}
-
-                                {{!-- TAB 2 --}}
-                                <div class="tab-pane fade" id="archivedMessages" role="tabpanel" aria-labelledby="archived-messages-tab">
-                                
-                        
-                                </div>
-                                {{!-- END OF TAB 2 --}}
-
-                            </div>
-                            {{!-- END OF TAB CONTENT --}}
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-    </div>
-<style>
-.container{
-    max-width: 2000px; 
-    margin: auto;
-}
-
-img {
-     max-width:100%;
-}
-
-.inbox_people {
-  background: #f8f8f8 none repeat scroll 0 0;
-  float: left;
-  overflow: hidden;
-  width: 40%; border-right:1px solid #c4c4c4;
-}
-
-.inbox_msg {
-  border: 1px solid #c4c4c4;
-  clear: both;
-  overflow: hidden;
-}
-
-.top_spac{
-     margin: 20px 0 0;
-}
-
-.recent_heading {
-    float: left; width:40%;
-}
-
-.srch_bar {
-  display: inline-block;
-  text-align: right;
-  width: 60%;
-}
-
-.headind_srch { 
-    padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;
-}
-
-.recent_heading h4 {
-    color: #05728f;
-    font-size: 21px;
-    margin: auto;
-}
-
-.srch_bar input { 
-    border:1px solid #cdcdcd; border-width:0 0 1px 0; width:80%; padding:2px 0 4px 6px; background:none;
-}
-
-.srch_bar .input-group-addon button {
-  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-  border: medium none;
-  padding: 0;
-  color: #707070;
-  font-size: 18px;
-}
-
-.srch_bar .input-group-addon { 
-    margin: 0 0 0 -27px;
-}
-
-.chat_ib h5 { 
-    font-size:15px; color:#464646; margin:0 0 8px 0;
-}
-
-.chat_ib h5 span { 
-    font-size:13px; float:right;
-}
-
-.chat_ib p { 
-    font-size:14px; color:#989898; margin:auto
-}
-
-.chat_img {
-  float: left;
-  width: 11%;
-}
-
-.chat_ib {
-  float: left;
-  padding: 0 0 0 15px;
-  width: 88%;
-}
-
-.chat_people { 
-    overflow:hidden; clear:both;
-}
-
-.chat_list {
-  border-bottom: 1px solid #c4c4c4;
-  margin: 0;
-  padding: 18px 16px 10px;
-}
-
-.inbox_chat {
-    max-height: 670px;
-    overflow-y: auto;
-    margin-bottom: 5px;
-   
-}
-
-.active_chat{ 
-    background:#ebebeb;
-}
-
-.incoming_msg_img {
-  display: inline-block;
-  width: 6%;
-}
-
-.received_msg {
-  display: inline-block;
-  padding: 0 0 0 10px;
-  vertical-align: top;
-  width: 92%;
- }
- .received_withd_msg p {
-  background: #ebebeb none repeat scroll 0 0;
-  border-radius: 3px;
-  color: #646464;
-  font-size: 14px;
-  margin: 0;
-  padding: 5px 10px 5px 12px;
-  width: 100%;
-}
-
-.time_date {
-  color: #747474;
-  display: block;
-  font-size: 12px;
-  margin: 8px 0 0;
-}
-
-.received_withd_msg { 
-    width: 57%;
-}
-
-.mesgs {
-  float: left;
-  padding: 20px;
-  width: 60%;
-}
-
- .sent_msg p {
-  background: #05728f none repeat scroll 0 0;
-  border-radius: 3px;
-  font-size: 14px;
-  margin: 0; color:#fff;
-  padding: 5px 10px 5px 12px;
-  width:100%;
-}
-
-.outgoing_msg{ overflow:hidden; margin:26px 0 26px;}
-.sent_msg {
-  float: right;
-  width: 46%;
-}
-
-.input_msg_write input {
-  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
-  border: medium none;
-  color: #4c4c4c;
-  font-size: 15px;
-  min-height: 48px;
-  width: 100%;
-}
-
-.type_msg {
-    border-top: 1px solid #c4c4c4;position: relative;
-}
-
-.msg_send_btn {
-  background: #EDD172;
-  color: #332c1f;
-  border-radius: 100%;
-  cursor: pointer;
-  font-size: 17px;
-  height: 33px;
-  position: absolute;
-  right: 0;
-  top: 11px;
-  width: 33px;
-}
-
-.messaging { 
-    padding: 0 0 5px 0;
-}
-
-.msg_history {
-  max-height: 540px;
-  padding-right: 30px;
-  margin-bottom: 10px;
-  overflow-y: auto;
-
-}
-
-</style>
-
-<div class="container-fluid">
-
-     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h3 class="text-dark mb-0">{{title}}</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
-                    </div>
-    
-
-    <div class="row">
-
-        <div class="col-lg-12 col-xl-12 col-xxl-12">
-
-            <div class="card shadow mb-4"  style="max-width: 1150px; margin: 0px auto;">
-
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;color: #ffffff; height:auto">
-
-                    <ul class="nav nav-tabs card-header-tabs" id="nav-tab" role="tablist">
-                        <li class="nav-item"><a id="active-messages-tab" class="nav-link active" data-toggle="tab" href="#activeMessages"role="tab" aria-controls="activeMessages" aria-selected="true" 
-                            style="background: #F0F0F0;">Recent Messages</a></li>
-
-                        <li class="nav-item"><a id="archived-messages-tab" class="nav-link" data-toggle="tab" href="#archivedMessages"role="tab" aria-controls="archivedMessages" aria-selected="false" 
-                            style="background: #F0F0F0;">Archived</a></li>
-                    </ul>
-                        {{!-- <div class="dropdown no-arrow"><button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v d-xxl-flex justify-content-xxl-end text-gray-400"></i></button>
-                            <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                                <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
-                                    <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
-                            </div>
-                        </div> --}}
-
-                    </div>
-
-                    <div class="card-body">
-                            {{!-- TAB CONTENT --}}
-
-                            <div class="tab-content" id="nav-tabContent">
-
-                                {{!-- TAB 1 --}}
-                                <div class="tab-pane fade show active" id="activeMessages" role="tabpanel" aria-labelledby="active-messages-tab">
-                                    
-                                    {{!-- MAIN MESSAGING DIV --}}
-                                    {{!-- <div class="container" style="padding-top: 5px;"> --}}
-                                        
-
-                                    <div class="messaging" style="padding-top:10px">
-
-                                        <div class="inbox_msg">
-                                            
-                                            {{!-- INBOX DIV --}}
-                                            <div class="inbox_people" style="position: relative;">
-
-                                            <div class="headind_srch">
-                                                <div class="recent_heading">
-                                                <h4>Recent</h4>
-                                                </div>
-                                                
-                                                {{!-- <div class="srch_bar">
-                                                <div class="stylish-input-group">
-                                                    <input type="text" class="search-bar"  placeholder="Search" >
-                                                    <span class="input-group-addon">
-                                                    <button type="button"> <i class="fa fa-search" aria-hidden="true"></i> </button>
-                                                    </span> 
-                                                </div>
-                                                </div> --}}
-
-                                            </div>
-                                            
-                                            {{!-- INBOX HISTORY --}}
-                                            <div class="inbox_chat" id="inboxChat" style=" overflow: auto; width: 100%;height: 100%;">
-
-                                                 <button class="btn btn-primary btn-circle btn-lg" role="button" style="background: #EDD172;border-style: none;color: #332c1f;border-radius: 20px; position: absolute; right: 20px; bottom: 25px; border-radius:100%" onclick='window.location=""'>
-                                                     <i class="fas fa-plus"></i>
-                                                 </button>
-
-                                                <div class="chat_list">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <div class="chat_list active_chat">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <div class="chat_list">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <div class="chat_list">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <div class="chat_list">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <div class="chat_list">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-
-                                                <div class="chat_list">
-                                                <div class="chat_people">
-                                                    <div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                    <div class="chat_ib">
-                                                    <h5>Sunil Rajput <span class="chat_date">Dec 25</span></h5>
-                                                    <p>Test, which is a new approach to have all solutions 
-                                                        astrology under one roof.</p>
-                                                    </div>
-                                                </div>
-                                                </div>
-                                                
-                                            </div>
-                                            {{!-- END OF INBOX HISTORY --}}
-
-                                           
-                                            
-                                            </div>
-                                            {{!-- END OF INBOX DIV --}}
-
-                                            {{!-- MESSAGES --}}
-
-                                                <div class="headind_srch" style="background-color: white;">
-                                                <div class="recent_heading">
-                                                <h4>Sunil Rajput</h4>
-                                                </div>
-                                                
-                                                </div>
-                                       
-
-                                            <div class="mesgs">    
-                                                                                        
-                                            <div class="msg_history" id="msgHistory">
-
-                                                <div class="incoming_msg">
-                                                <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                <div class="received_msg">
-                                                    <div class="received_withd_msg">
-                                                    <p>Test which is a new approach to have all
-                                                        solutions</p>
-                                                    <span class="time_date"> 11:01 AM    |    June 9</span></div>
-                                                </div>
-                                                </div>
-
-                                                <div class="outgoing_msg">
-                                                <div class="sent_msg">
-                                                    <p>Test which is a new approach to have all
-                                                    solutions</p>
-                                                    <span class="time_date"> 11:01 AM    |    June 9</span> </div>
-                                                </div>
-
-                                                <div class="incoming_msg">
-                                                <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                <div class="received_msg">
-                                                    <div class="received_withd_msg">
-                                                    <p>Test, which is a new approach to have</p>
-                                                    <span class="time_date"> 11:01 AM    |    Yesterday</span></div>
-                                                </div>
-                                                </div>
-
-                                                <div class="outgoing_msg">
-                                                <div class="sent_msg">
-                                                    <p>Apollo University, Delhi, India Test</p>
-                                                    <span class="time_date"> 11:01 AM    |    Today</span> </div>
-                                                </div>
-
-                                                <div class="incoming_msg">
-                                                <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                <div class="received_msg">
-                                                    <div class="received_withd_msg">
-                                                    <p>We work directly with our designers and suppliers,
-                                                        and sell direct to you, which means quality, exclusive
-                                                        products, at a price anyone can afford.</p>
-                                                    <span class="time_date"> 11:01 AM    |    Today</span></div>
-                                                </div>
-                                                </div>
-
-                                                                               <div class="outgoing_msg">
-                                                <div class="sent_msg">
-                                                    <p>I am saying such amazing words.</p>
-                                                    <span class="time_date"> 11:01 AM    |    Today</span> </div>
-                                                </div>
-
-                                                <div class="incoming_msg">
-                                                <div class="incoming_msg_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
-                                                <div class="received_msg">
-                                                    <div class="received_withd_msg">
-                                                    <p>I am hearing such amazing words.</p>
-                                                    <span class="time_date"> 11:01 AM    |    Today</span></div>
-                                                </div>
-                                                </div>
-
-                                            </div>
-
-                                            <div class="type_msg" style="padding-top: 20px;">
-                                               
-                                            <div class="row">
-
-                                                <div class="col-11">
-                                                     <textarea class="form-control" placeholder="Type a message"></textarea>
-                                                </div>
-
-                                                <div class="col-1">
-                                                     <button class="btn btn-primary btn-circle btn-md msg_send_btn" type="button" style="margin-right: 14px; margin-top:8px;"><span><i class="fas fa-paper-plane" style="color: #  color: #332c1f;"></i></span></button>
                                                 </div>
 
                                             </div>

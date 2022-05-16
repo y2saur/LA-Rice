@@ -39,7 +39,7 @@ exports.getEmployeeDetailsPhoneNum = function(phone_number, next){
 }
 
 exports.getEmployeeDetails = function(data, next){
-    var sql = "SELECT * FROM employee_table WHERE ";
+    var sql = "SELECT * FROM employee_table et INNER JOIN farm_assignment fa USING (employee_id) WHERE ";
     sql += data.key+' = ?';
 	sql = mysql.format(sql, data.value);
     console.log(sql);
@@ -85,6 +85,22 @@ exports.getUserConverstation = function(employee_id, next){
 
 exports.getSubscriptionsList = function(next){
     var sql = "SELECT et.*, a.date as last_message, a.time as last_time, a.message, fa.* FROM employee_table et LEFT JOIN (SELECT fa.*, ft.farm_name FROM farm_assignment fa LEFT JOIN farm_table ft USING (farm_id)) fa USING (employee_id) LEFT JOIN (SELECT * FROM (SELECT im.message_id, im.message, im.employee_id, im.date, im.time  FROM inbound_msg im UNION SELECT om.message_id, om.message, om.employee_id, om.date, om.time FROM outbound_msg om ORDER BY date DESC, time DESC) a group by employee_id) a USING (employee_id) WHERE access_token is not null GROUP by et.employee_id ORDER BY last_message DESC, last_time DESC;";
+
+    mysql.query(sql, next);
+    return sql;
+}
+
+exports.getSMSEmployees = function(data, next){
+    var sql = 'select et.*, fa.farm_id, fa.status, ft.farm_name from employee_table et join farm_assignment fa on et.employee_id = fa.employee_id left join farm_table ft USING (farm_id) where access_token is not null AND ?';
+	sql = mysql.format(sql, data);
+
+    mysql.query(sql, next);
+    return sql;
+}
+
+exports.getLastOutboundMessage = function(data, next){
+    var sql = "SELECT * FROM outbound_msg WHERE ? ORDER BY date DESC, TIME DESC LIMIT 1;";
+    sql = mysql.format(sql, data);
 
     mysql.query(sql, next);
     return sql;

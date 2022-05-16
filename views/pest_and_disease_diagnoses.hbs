@@ -80,7 +80,7 @@
                                                             <label for="type">Farm Affected <span style="color: #CA4E0C;">*</span></label>
                                                                     <select class="form-select" id="farm_id" name="farm_id" form="add_diagnosis_form">
                                                                         {{#each farms}}
-                                                                            <option value="{{this.farm_id}}">{{this.farm_name}}</option>
+                                                                            <option value="{{this.farm_id}}" {{#if this.selected}}selected{{/if}}>{{this.farm_name}}</option>
                                                                         {{/each}}
                                                                     </select>
 
@@ -105,7 +105,7 @@
                                                                 {{#each symptom}}
                                                                     <div class="row">
                                                                         <div class="col-xl-12">
-                                                                            <div class="form-check" style="margin-left: 15px;"><input name="symptom[{{@index}}]" id="" class="form-check-input symptom-checkbox" type="checkbox" value="{{this.symptom_id}}" form="add_diagnosis_form"><label class="form-check-label font-weight-bold" for="formCheck-2" >{{this.symptom_name}}</label></div>
+                                                                            <div class="form-check" style="margin-left: 15px;"><input name="symptom[{{@index}}]" id="" class="form-check-input symptom-checkbox" type="checkbox" value="{{this.symptom_id}}" form="add_diagnosis_form" {{#if this.selected}}checked{{/if}}><label class="form-check-label font-weight-bold" for="formCheck-2" >{{this.symptom_name}}</label></div>
                                                                             
                                                                         </div>
                                                                     </div>
