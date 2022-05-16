@@ -546,7 +546,7 @@ function getWeatherForecastMsg(employee){
 }
 
 function getIncomingWos(employee){
-    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){
+    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){ //employee.employee_id
         if(err)
             console.log(err);
         else{
@@ -565,7 +565,7 @@ function getIncomingWos(employee){
                         },
                         order: ['work_order_table.date_start ASC']
                     };
-                    woModel.getWorkOrders(wo_query, function(err, wos){
+                    woModel.getWorkOrders(wo_query, async function(err, wos){
                         if(err)
                             throw err;
                         else{
@@ -574,10 +574,11 @@ function getIncomingWos(employee){
                             var not_completed = [];
                             for(var i = 0; i < wos.length; i++){
                                 if(wos[i].status != "Completed"){
+                                    var wo_type = await translator.translateText(wos[i].type);
                                     not_completed.push(wos[i]); 
                                     wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
                                     wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
-                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wos[i].type + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nStatus: " + wos[i].status;
+                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nStatus: " + wos[i].status;
                                 }
                             }
                             console.log(message);
@@ -591,6 +592,7 @@ function getIncomingWos(employee){
         }
     });
 }
+
 
 
 //SEND LIST OF PD SYMPTOMS
