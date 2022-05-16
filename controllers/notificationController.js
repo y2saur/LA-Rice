@@ -60,7 +60,7 @@ exports.getNotification = function(req, res, next) {
                     url: `"/farms/work_order&id=${wo_list[i].work_order_id}"`,
                     icon: '"exclamation-triangle"',
                     color: color,
-                    status: 1
+                    status: 1,
                     type: "'WO_REMINDER'",
                     time: "'" + time + "'"
                 });
