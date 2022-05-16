@@ -196,12 +196,13 @@ exports.updateWeatherData = function(req, res, next) {
 						else {
 							var precip_details = processPrecipChartData(precip_data)
 							req.precip_data = JSON.stringify(precip_details.chart);
-							req.outlook = { drought_summary: disaster_records[0].description, classification: disaster_records[0].type, last_update: dataformatter.formatDate(new Date(disaster_records[0].date_recorded), 'YYYY-MM-DD') };
+							//req.outlook = { drought_summary: disaster_records[0].description, classification: disaster_records[0].type, last_update: dataformatter.formatDate(new Date(disaster_records[0].date_recorded), 'YYYY-MM-DD') };
+							req.outlook = { drought_summary: precip_details.outlook.drought_summary, classification: precip_details.outlook.classification, last_update: dataformatter.formatDate(new Date(cur_date), 'YYYY-MM-DD') };
 
 							var cur_date = new Date(req.session.cur_date);
 							var cur_month = cur_date.getMonth(), cur_year = cur_date.getFullYear();
-							var last_record_date = new Date(disaster_records[0].date_recorded);
-							var last_record_month = last_record_date.getMonth(), last_record_year = last_record_date.getFullYear();
+							var last_record_date = disaster_records.length <= 0 ? 1 : new Date(disaster_records[0].date_recorded);
+							var last_record_month = disaster_records.length <= 0 ? 0 : last_record_date.getMonth(), last_record_year = disaster_records.length <= 0 ? 0 : last_record_date.getFullYear();
 
 							// Check if assessment must be updated
 							if (disaster_records.length < 1 || ((cur_year != last_record_year) || (cur_month != last_record_month))) {
@@ -210,7 +211,7 @@ exports.updateWeatherData = function(req, res, next) {
 									if (err)
 										throw err;
 									else {
-										req.outlook = { drought_summary: precip_details.outlook.drought_summary, classification: precip_details.outlook.classification, last_update: dataformatter.formatDate(new Date(cur_date), 'YYYY-MM-DD') };
+										
 									}
 								});
 								// Create new disaster log and notification
@@ -415,7 +416,6 @@ exports.get14DWeatherForecast = function(req, res) {
 													if (err)
 														throw err;
 													else {
-														console.log(disaster_add);
 														if (query_notif.length != 0) {
 															notifModel.createNotif(query_notif, function(err, notif) {
 																if (err)
@@ -425,7 +425,7 @@ exports.get14DWeatherForecast = function(req, res) {
 									                                    if (err)
 									                                        throw err;
 									                                    else {
-									                                    	console.log(notif);
+
 																			res.send({});	
 									                                    }
 									                                });																	

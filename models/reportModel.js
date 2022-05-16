@@ -88,8 +88,8 @@ exports.getPDOccurence = function(data1, next) {
 		if (i < data1.calendar_id.length - 1)
 			sql += ' or ?';
 	}
-	sql += " group by calendar_id";
-
+	// sql += " group by calendar_id";
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 

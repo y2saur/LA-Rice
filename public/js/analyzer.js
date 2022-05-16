@@ -327,6 +327,8 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient, s
 				// temp_nutrients += dataset_obj.data[6];
 				temp_nutrients = filtered_reco[0].count;
 				dataset_obj.data.splice(7, 0, temp_nutrients);
+
+				dataset_obj.data[8] = dataset_obj.data[8] == -1 ? 'N/A' : dataset_obj.data[8];
 				//console.log(dataset_obj);
 				chart_data.datasets.push(dataset_obj);
 			}

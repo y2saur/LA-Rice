@@ -497,7 +497,7 @@ $(document).ready(function() {
 					$(".calendar_status").addClass(farm_details.crop_calendar_details.status);
 					$(".calendar_start").text(farm_details.crop_calendar_details.land_prep_date);
 					$(".calendar_harvest").text(farm_details.crop_calendar_details.expected_harvest);
-					
+					console.log(farm_details.crop_calendar_details);
 					$.get("/ajaxGetSoilData", {farm_name : farm_details.details[0].farm_name, calendar_id: calendar_id }, function(soil_data){
 						
 						$("#ph_lvl").text(soil_data.pH_lvl);
@@ -579,14 +579,14 @@ $(document).ready(function() {
 				if($("#crop_calendar_list").children('option').length == 0){
 					$(".calendar_based").prop("hidden", !this.checked);
 				}
-				$.get("ajax_farm_details", {farm_id : viewed_farm_id, center : center, calendar_id : calendar_id}, function(farm_details){
+				$.get("/ajax_farm_details", {farm_id : viewed_farm_id, center : center, calendar_id : calendar_id}, function(farm_details){
 					$("#farm_id").text(farm_details.details[0].farm_id);
 					$("#farm_name").text(farm_details.details[0].farm_name);
 					$("#farm_type").text(farm_details.details[0].land_type);
 					$("#farm_manager").text(farm_details.details[0].first_name + " " + farm_details.details[0].last_name);
 					$("#farm_desc").text(farm_details.details[0].farm_desc);
 					$("#farm_area").text(farm_details.details[0].farm_area + " sqm");
-					
+					console.log(farm_details.crop_calendar_details);
 					$("#view_more_pd").attr("href", "/pest_and_disease/frequency");
 					$("#vmore_resources").attr("href", "/farm_resources?farm_id=" + farm_details.details[0].farm_id);
 

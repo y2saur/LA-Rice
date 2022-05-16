@@ -30,7 +30,7 @@ exports.checkLowStock = function(req, res, next) {
                     color: '"warning"',
                     status: 1,
                     type: `"LOW_STOCK"`,
-                    time: `"time"`
+                    time: `"${time}"`
                 };
                 notif_arr.push(notif);
             });

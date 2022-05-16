@@ -82,15 +82,17 @@ exports.ajaxGetRecommendations = function(req, res) {
 						if (err)
 							throw err;
 						else {
-							var rainfall = disasters.filter(e => e.type == 'Heavy Rainfall'), drought = disasters.filter(e => e.type == 'Drought');
+							var rainfall = disasters.filter(e => e.type == 'Heavy Rainfall'), drought = disasters.filter(e => e.type == 'Drought' || e.type == 'Dry Spell' || e.type == 'Dry Condition');
 							var rainfall_arr = [], drought_arr = [];
 
 							for (var i = 0; i < rainfall.length; i++) {
-								rainfall_arr.push(prepareRainfallDisaster(rainfall[i], active_calendars));
+								rainfall_arr.push(prepareRainfallDisaster(rainfall[i], active_calendars, html_data));
 							}
 
+							drought_arr = drought;
+
 							//
-							res.send(consolidateRecommendations(nutrients, rainfall_arr));
+							res.send(consolidateRecommendations(nutrients, rainfall_arr, html_data));
 						}
 					});			
 				}
