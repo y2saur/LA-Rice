@@ -59,6 +59,8 @@ exports.getNotification = function(req, res, next) {
                     icon: '"exclamation-triangle"',
                     color: color,
                     status: 1
+                    type: "'WO_REMINDER'",
+                    time: "'" + time + "'"
                 });
             }
             notifModel.getAllNotifs(function(err, notif_list) {

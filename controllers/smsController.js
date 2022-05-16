@@ -126,7 +126,7 @@ exports.globe_inbound_msg = function(req, res){
 
                                 //Create notif
                                 var notif = {
-                                    date : new Date(),
+                                    date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
                                     farm_id : employee_details[0].farm_id,
                                     notification_title : "Symptoms Reported",
                                     url : url,
@@ -485,7 +485,8 @@ function getWeatherForecastMsg(employee){
                             //SET MESSAGE LAYOUT
                             message = "WEATHER FORECAST\nFarm: " + farm_name;
                             for(var i = 0 ; i < daily_weather.length; i++){
-                                message = message + "\n\nDate: " + daily_weather[i].date + "\nWeather: " + daily_weather[i].weather + "\nTemp: " + daily_weather[i].temp.toFixed(2) + " C";
+                                var weather_desc = translator.localTranslate(daily_weather[i].weather);
+                                message = message + "\n\nPetsa: " + daily_weather[i].date + "\nPanahon: " + weather_desc + "\nTemp: " + daily_weather[i].temp.toFixed(2) + " C";
                             }
                             console.log(message);
                             
