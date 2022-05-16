@@ -113,7 +113,7 @@ exports.getNutrientChart = function(data1, data2, next) {
 			sql += ' or ?';
 	}
 	sql += ") as t group by crop_calendar_id, application_type, date_completed, nutrient_type";
-	
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 
@@ -139,8 +139,8 @@ exports.getSeedChart = function(farm,data, next) {
 			}
 		}
 	}
-
-	sql += 'and crop_calendar_table.status = "Completed" order by harvest_date asc, calendar_id asc';
+	sql += ' order by harvest_date asc, calendar_id asc';
+	//sql += 'and crop_calendar_table.status = "Completed" order by harvest_date asc, calendar_id asc';
 
 	
 	mysql.query(sql, next);

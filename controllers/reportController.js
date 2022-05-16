@@ -367,6 +367,7 @@ exports.ajaxNutrientTimingChart = function(req, res) {
 						if (err)
 							throw err;
 						else {
+
 							var nutrient_chart_arr = processNutrientChartData(sql_filter, seed_chart, nutrient_chart, pd_chart);
 
 							res.send({ obj: nutrient_chart_arr.dataset, legends: nutrient_chart_arr.legends });

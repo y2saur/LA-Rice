@@ -147,7 +147,7 @@ exports.getNotification = function(req, res, next) {
                             notif_obj.earlier = user_notif_list.filter(e => e.isSeen == 1);
                             notif_obj.earlier = notif_obj.earlier.slice(0, 10);
                             notif_obj.disaster = user_notif_list.filter(e => e.isSeen == 1 && e.type == 'DISASTER_WARNING' && dataformatter.dateDiff(req.session.cur_date, e.date) >=0 && dataformatter.dateDiff(req.session.cur_date, e.date) <= 30);
-                            //console.log(notif_obj.disaster);
+
                             req.notifs = notif_obj;
 
                             return next();

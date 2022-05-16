@@ -221,7 +221,9 @@ exports.dateDiff = function(d1, d2) {
 	if (!(d2 instanceof Date && !isNaN(d2))) {
 		d2 = new Date(d2);
 	}
-	return d1.getDate() - d2.getDate();
+	const diffTime = Math.abs(d2 - d1);
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+	return diffDays;
 }
 
 exports.smoothHourlyData = function(arr, hours) {
