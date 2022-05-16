@@ -6,6 +6,74 @@ const dataformatter = require('../public/js/dataformatter.js');
 const notifModel = require('../models/notificationModel.js');
 const { Solve } = require('javascript-lp-solver');
 
+exports.checkLowStock = function(req, res, next) {
+    materialModel.getLowStocks(null, function(err, result){
+        if(err)
+            throw err;
+        else{
+            var notif_arr = [];
+            var notif;
+            var notif_query = [];
+
+
+            result.forEach(function(item) {
+                var time = new Date();
+                time = time.toLocaleTimeString();
+
+                notif = {
+                    date : `"${dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')}"`,
+                    notification_title : `"Low Stock Item"`,
+                    notification_desc: `"${item.farm_name} running low on ${item.item_name} with only ${item.current_amount} remaining"`,
+                    farm_id : item.farm_id,
+                    url : `"/orders"`,
+                    icon: '"exclamation-triangle"',
+                    color: '"warning"',
+                    status: 1,
+                    type: `"LOW_STOCK"`,
+                    time: `"time"`
+                };
+                notif_arr.push(notif);
+            });
+
+            notifModel.getAllNotifs(function(err, notif_list) {
+                if (err)
+                    throw err;
+                else {
+                    notif_list = notif_list.filter(e => e.type == 'LOW_STOCK');
+
+                    //Remove existing notification records from array
+                    for (var i = 0; i < notif_arr.length; i++) {
+                        list_index = notif_list.filter(e => '"'+e.notification_title+'"' == notif_arr[i].notification_title && 
+                            '"'+e.notification_desc+'"' == notif_arr[i].notification_desc);
+                        if (list_index.length == 0) {
+                            notif_query.push(notif_arr[i]);
+                        }
+                    }
+
+                    if (notif_query.length != 0) {
+                        notifModel.createNotif(notif_query, function(err, create_status) {
+                            if (err) {
+                                throw err;
+                            }
+                            else {
+                                notifModel.createUserNotif(function(err, user_notif_status) {
+                                    if (err)
+                                        throw err;
+                                    else {
+
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                    return next();
+                }
+            });
+        }
+    })
+}
+
 exports.getMaterials = function(req,res){
     var html_data = {};
     html_data = js.init_session(html_data, 'role', 'name', 'username', 'farm', req.session);
@@ -474,7 +542,7 @@ exports.addPurchase = function(req,res){
     var farm_id = req.body.farm;
 
     var i;
-
+    console.log(req.body);
     materialModel.getAllPurchases(null, {status : "Pending"}, function(err, purchases){
         if(err)
             throw err;
@@ -505,16 +573,31 @@ exports.addPurchase = function(req,res){
                         }
                         else{
                             //Create Notification
+                            var time = new Date();
+                            time = time.toLocaleTimeString();
+
                             var notif = {
-                                date : new Date(req.session.cur_date),
+                                date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
                                 farm_id : farm_id,
-                                notification_title : "New pending order",
+                                notification_title : "New Material Request",
                                 url : "/orders/details?id=" + add.insertId,
                                 icon : "fax",
-                                color : "primary"
+                                color : "primary",
+                                type: 'MATERIAL_REQUEST',
+                                time: time
                             };
                             notifModel.createNotif(notif, function(err, success){
+                                if (err)
+                                    throw err;
+                                else {
+                                    notifModel.createUserNotif(function(err, user_notif_status) {
+                                        if (err)
+                                            throw err;
+                                        else {
 
+                                        }
+                                    });
+                                }
                             });
                         }
                     });

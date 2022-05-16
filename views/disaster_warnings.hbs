@@ -4,6 +4,52 @@
 		<h3 class="text-dark mb-0">Disaster Management</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
 	</div>
 
+	<div class="row py-3" style="margin: 0px;">
+		<div class="col-lg-7 col-xl-8">
+			<div class="h-100 w-100 border border-secondary d-flex flex-column rounded" style="">
+                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
+                    Precipitation Data
+                </div>
+                <div class="h-100 w-100">
+                     <canvas id="precip_chart" style="width: 500px; height: 100% !important;"></canvas>     
+                </div>
+               
+            </div>
+		</div>
+
+		<div class="col-lg-5 col-xl-4">
+			<div class="w-100 h-100 border border-secondary d-flex flex-column rounded" style="">
+                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
+                    Weather Data
+                </div>
+                <div class="w-100 d-flex">
+                    <div class="form-row ml-3 mt-2">
+                        <div class="form-group">
+                            <label class="form-check-label">From: </label>
+                            <div class="">
+                              <input class="form-control " type="date" id="weather_start" name="weather_start" value="">
+                            </div>
+                        </div>
+                        <div class="form-group ml-2">
+                            <label class="form-check-label">To: </label>
+                            <div class="">
+                              <input class="form-control " type="date" id="weather_end" name="weather_end" value="">
+                            </div>
+                        </div>
+                        <div class="form-group align-bottom ml-3">
+                            <div class="h-100 align-bottom align-text-bottom mt-2">
+                                <button type="button" id="weather_filter" class="btn btn-primary float-right mt-3">Filter</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                    
+                <canvas id="weather_chart" style="width: 500px; height: 100%;"></canvas>
+            </div>
+		</div>
+	</div>
+
 	<div class="col-lg-7 col-xl-12">
 		<div class="card shadow mb-4">
 			<div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;height: auto;padding: 16px 20px;">
@@ -91,9 +137,19 @@
 										<td colspan="3" class="bg-dark text-white">Drought</td>
 									</tr>
 									{{#if active_drought}}
+										{{#each active_drought}}
 										<tr>
-											<td colspan="3" class="text-center">N/A</td>
+											<td colspan="3">
+												<div class="d-flex flex-column">
+													<div>Classification: {{this.type}}</div>
+													<div>Summary:</div>
+
+													<div>{{this.description}}</div>
+													<div>Date Recorded: {{this.date_recorded}}</div>
+												</div>
+											</td>
 										</tr>
+										{{/each}}
 									{{else}}
 										<tr>
 											<td colspan="3" class="text-center">N/A</td>
@@ -199,9 +255,19 @@
 										<td colspan="3" class="bg-dark text-white">Drought</td>
 									</tr>
 									{{#if inactive_drought}}
+										{{#each inactive_drought}}
 										<tr>
-											<td colspan="3" class="text-center">N/A</td>
+											<td colspan="3">
+												<div class="d-flex flex-column">
+													<div>Classification: {{this.type}}</div>
+													<div>Summary:</div>
+
+													<div>{{this.description}}</div>
+													<div>Date Recorded: {{this.date_recorded}}</div>
+												</div>
+											</td>
 										</tr>
+										{{/each}}
 									{{else}}
 										<tr>
 											<td colspan="3" class="text-center">N/A</td>
@@ -228,4 +294,85 @@
 
 <script type="text/javascript">
 	var view = '';
+
+	$(document).ready(function() {
+		var weather_chart_data = [];
+        var precip_chart_data = {{#if precip_data}} {{{precip_data}}} {{else}} [] {{/if}};
+
+        var canvas = document.getElementById('weather_chart');
+        var date = new Date().toISOString().split('T')[0];
+        var start = new Date();
+        start.setDate(start.getDate() - 30);
+        start = start.toISOString().split('T')[0];
+
+        var weather_chart = new Chart(canvas, {
+          type: 'line',
+          data: weather_chart_data,
+          options: {
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    ticks: {
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return value+' ℃';
+                        }
+                    }
+                },
+                // y1: {
+                //  type: 'linear',
+                //  display: true,
+                //  position: 'right',
+                //  ticks: {
+       //                  // Include a dollar sign in the ticks
+       //                  callback: function(value, index, values) {
+       //                      return value+' mm';
+       //                  }
+       //              }
+                // }
+            }
+          }
+        });
+
+        var precipitation_chart = new Chart(document.getElementById('precip_chart'), {
+            type: 'line',
+            data: precip_chart_data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        ticks: {
+                            // Include a dollar sign in the ticks
+                            callback: function(value, index, values) {
+                                return value+' mm';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        $('#weather_start').val(start);
+        $('#weather_end').val(date);
+
+        function updateWeatherChart() {
+            var start = new Date($('#weather_start').val()), date = new Date($('#weather_end').val());
+            $.get('/ajax_weather_chart', { start_date: start, end_date: date }, function(result) {
+                weather_chart.data = result.stringify;
+                weather_chart.update();
+            });
+        }
+
+        updateWeatherChart();
+
+        $('#weather_filter').on('click', function() {
+            updateWeatherChart();
+        });
+	});
 </script>

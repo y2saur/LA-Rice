@@ -9,8 +9,23 @@ exports.updateLog = function(query, where, next){
         sql = mysql.format(sql, query);
     }
     if (where != null) {
-        sql += ' where ?';
-        sql = mysql.format(sql, where);
+        if (typeof(where) == 'object') {
+            if (where.hasOwnProperty('type')) {
+                sql += ` where (`;
+                where.type.forEach(function(item, index) {
+                    sql += `type = ${item} `;
+                    if (index == where.type.length-1)
+                        sql += `)`;
+                    if (index != where.type.length-1)
+                        sql += ` or `;
+                });
+            }
+        }
+        else {
+            sql += ' where ?';
+            sql = mysql.format(sql, where);
+        }
+            
     }
 
     mysql.query(sql, next);
@@ -29,9 +44,25 @@ exports.deleteDisasterLog = function(query, next){
 
 exports.getDisasterLogs = function(query, next){
     var sql = "SELECT * FROM disaster_logs";
-    if (query != null) {
+    if (typeof(query) == 'object' && query != null) {
+        if (query.hasOwnProperty('type')) {
+            sql += ` where status = ${query.status} and (`;
+            query.type.forEach(function(item, index) {
+                sql += `type = ${item} `;
+                if (index == query.type.length-1)
+                    sql += `)`;
+                if (index != query.type.length-1)
+                    sql += ` or `;
+            });
+        }
+            
+    }
+    else if (query != null) {
         sql += ' where ?';
         sql = mysql.format(sql, query);
+    }
+    else {
+
     }
     sql += ' order by target_date desc';
     mysql.query(sql, next);
@@ -47,9 +78,9 @@ exports.createDisasterLog = function(warning, next){
             }
             sql += ' ('+(Object.values(warning[i])).join(',')+')';
         }
-        // while (sql.includes('null')) {
-        //     sql = sql.replace('null', null);
-        // }
+        while (sql.includes('"null"')) {
+            sql = sql.replace('"null"', null);
+        }
     }
     else {
         var sql = "INSERT INTO notification_table SET ?";

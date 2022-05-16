@@ -205,7 +205,8 @@ exports.getSummarizedFarmMonitoring = function(req, res) {
 											forecast = 'Forecasted Yield: N/A';
 										}
 										else {
-											forecast = 'Forecasted Yield: '+forecast[0].forecast+' cavans/ha';
+
+											forecast = forecast[0].forecast == -1 ? `Forecasted Yield: N/A` : `Forecasted Yield: ${forecast[0].forecast} cavans/ha`;
 										}
 
 									list[i]['forecast'] = forecast; 
@@ -352,6 +353,8 @@ exports.getCropCalendarTab = function(req, res) {
 										throw err;
 									else {
 										var unique;
+										var deficient_count = 0;
+										var total_deficient;
 										var material_obj = {
 											seed: { data: material_list.filter(e => e.type == 'Seed'), rows: [] },
 											fertilizer:  { data: material_list.filter(e => e.type == 'Fertilizer'), rows: [] },
@@ -369,12 +372,17 @@ exports.getCropCalendarTab = function(req, res) {
 		  									[item.farm_id, item])).values()];
 											
 											for (var y = 0; y < unique_mats.length; y++) {
+												total_deficient = material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name && e.deficient_qty != 'N/A').map(e => (e.deficient_qty)).reduce(function (acc, obj) { return parseInt(acc) + parseInt(obj); }, 0);
 												material_obj[obj_keys[i]].rows.push({
 													item_name: unique_mats[y].item_name,
 													total_req: material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name).map(e => (e.qty)).reduce(function (acc, obj) { return acc + obj; }, 0),
 													list: [],
-													total_deficient: material_obj[obj_keys[i]].data.filter(e => e.item_name == unique_mats[y].item_name && e.deficient_qty != 'N/A').map(e => (e.deficient_qty)).reduce(function (acc, obj) { return parseInt(acc) + parseInt(obj); }, 0)
+													total_deficient: total_deficient
 												});
+
+												if (total_deficient > 0)
+													deficient_count++;
+
 												for (var x = 0; x < unique.length; x++) {
 			  										var unique_farm_mats = material_obj[obj_keys[i]].data.filter(e => e.farm_id == unique[x].farm_id && e.item_id == unique_mats[y].item_id);
 
@@ -395,13 +403,18 @@ exports.getCropCalendarTab = function(req, res) {
 										}
 										
 										html_data['materials'] = material_obj;
+										html_data["notifs"] = req.notifs;
+										html_data['deficient_count'] = deficient_count;
+
+										res.render('crop_calendar_tab', html_data);	
 									}
 								});
 							}
-							
-							html_data["notifs"] = req.notifs;
+							else {
+								html_data["notifs"] = req.notifs;
 
-							res.render('crop_calendar_tab', html_data);	
+								res.render('crop_calendar_tab', html_data);	
+							}
 						}
 					});
 				}

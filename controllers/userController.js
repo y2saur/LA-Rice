@@ -127,7 +127,7 @@ exports.resetPassword = function(req, res) {
 }
 
 exports.getInitializePassword = function(req, res) {
-	var html_data = { username: req.query.username };
+	var html_data = { username: req.query.username, title: 'Account Setup | LA Rice Mill' };
 
 	res.render('initialize_pass', html_data);
 }

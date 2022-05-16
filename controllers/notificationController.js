@@ -49,6 +49,8 @@ exports.getNotification = function(req, res, next) {
                     color = `"warning"`;
                     break;
                 }
+                var time = new Date();
+                time = time.toLocaleTimeString();
 
                 notif_obj_arr.push({
                     date: '"'+dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')+'"',
@@ -58,7 +60,9 @@ exports.getNotification = function(req, res, next) {
                     url: `"/farms/work_order&id=${wo_list[i].work_order_id}"`,
                     icon: '"exclamation-triangle"',
                     color: color,
-                    status: 1
+                    status: 1,
+                    type: "'WO_REMINDER'",
+                    time: time
                 });
             }
             notifModel.getAllNotifs(function(err, notif_list) {
@@ -67,6 +71,8 @@ exports.getNotification = function(req, res, next) {
                 else {
                     var notif_query = [];
                     var list_index;
+
+                    //Remove existing notification records from array
                     for (var i = 0; i < notif_obj_arr.length; i++) {
                         list_index = notif_list.filter(e => '"'+e.notification_title+'"' == notif_obj_arr[i].notification_title && 
                             '"'+e.notification_desc+'"' == notif_obj_arr[i].notification_desc);
@@ -78,8 +84,18 @@ exports.getNotification = function(req, res, next) {
                     //Creates notification if it is not yet created
                     if (notif_query.length != 0) {
                         notifModel.createNotif(notif_query, function(err, create_status) {
-                            if (err)
+                            if (err) {
                                 throw err;
+                            }
+                            else {
+                                notifModel.createUserNotif(function(err, user_notif_status) {
+                                    if (err)
+                                        throw err;
+                                    else {
+
+                                    }
+                                });
+                            }
                         });
 
                         //CODE: OSMS1
@@ -119,47 +135,75 @@ exports.getNotification = function(req, res, next) {
 
                     }
 
-                    //Filter notifs with status 1
-                    for(var i = 0; i < notif_list.length; i++){
-                        if(notif_list[i].status == 0){
-                            notif_list.splice(i, 1);
-                            i--;
+                    notifModel.getUserNotifs({ employee_id: req.session.employee_id }, function(err, user_notif_list) {
+                        if (err)
+                            throw err;
+                        else {
+                            user_notif_list.forEach(function(item, index) {
+                                user_notif_list[index].date = dataformatter.formatDate(new Date(item.date), 'mm DD, YYYY');
+                            })
+                            var notif_obj = { new: [], earlier: [], disaster: [] };
+                            notif_obj.new = user_notif_list.filter(e => e.isSeen == 0);
+                            notif_obj.earlier = user_notif_list.filter(e => e.isSeen == 1);
+                            notif_obj.earlier = notif_obj.earlier.slice(0, 10);
+                            notif_obj.disaster = user_notif_list.filter(e => e.isSeen == 1 && e.type == 'DISASTER_WARNING' && dataformatter.dateDiff(req.session.cur_date, e.date) >=0 && dataformatter.dateDiff(req.session.cur_date, e.date) <= 30);
+                            //console.log(notif_obj.disaster);
+                            req.notifs = notif_obj;
+
+                            return next();
                         }
-                    }
-                    //Limit list to 10 notifs
-                    notif_list = notif_list.slice(0, 10);
+                    });
 
-                    //Sort notifications by urgency
-                    var temp_arr = [];
-                    for(var i = 0; i < notif_list.length; i++){
-                        if(notif_list[i].color == "danger"){
-                            temp_arr.push(notif_list[i]);
-                            notif_list.splice(i, 1);
-                            i--;
-                        }
-                    }
-                    for(var i = 0; i < notif_list.length; i++){
-                        temp_arr.push(notif_list[i]);
-                    }
-
-                    
-
-                    for (var i = 0; i < temp_arr.length; i++) {
-                        temp_arr[i].date = dataformatter.formatDate(new Date(temp_arr[i].date), 'mm DD, YYYY');
-
-                    req.notifs = temp_arr;
-
-                    return next();
+                            
                 }
-            };
              });     
         }
     });
 }
 
+exports.updateSeenStatus = function(req, res) {
+    if (req.session.employee_id != null) {
+        notifModel.updateUserNotif({ isSeen: 1 }, { isSeen: 0, user_id: req.session.employee_id }, function(err, user_notif) {
+            if (err)
+                throw err;
+            else {
+                res.send(user_notif);
+            }
+        });
+    }
+    else {
+        res.send('Error!');
+    }
+}
+
+exports.ajaxNotifList = function(req, res) {
+    if (req.session) {
+        notifModel.getUserNotifs({ employee_id: req.session.employee_id }, function(err, user_notif_list) {
+            if (err)
+                throw err;
+            else {
+                user_notif_list = user_notif_list.filter(e => e.isSeen == 0);
+                user_notif_list.forEach(function(item, index) {
+                    user_notif_list[index].date = dataformatter.formatDate(new Date(item.date), 'mm DD, YYYY');
+                });
+
+                res.send(user_notif_list);
+            }
+        });
+    }
+    else {
+        var date = req.session.cur_date;
+
+        req.session.destroy();
+
+        res.redirect(`/login?cur_date=${date}`);
+    }
+        
+}
+
 exports.getNotificationTab = function(req,res){
     var html_data = {};
-    html_data = js.init_session(html_data, 'role', 'name', 'username', 'user_management', req.session);
+    html_data = js.init_session(html_data, 'role', 'name', 'username', 'notification_tab', req.session);
     notifModel.getAllNotifs(function(err, notifs){
         if(err)
             throw err;
@@ -177,7 +221,6 @@ exports.getNotificationTab = function(req,res){
             var primary = [];
             var warning = [];
             for(var i = 0; i < notifs.length; i++){
-                console.log(notifs[i].color);
                 switch(notifs[i].color){
                     case "danger" : danger.push(notifs[i]); break;
                     case "primary" : primary.push(notifs[i]); break;

@@ -33,6 +33,32 @@ function processOverviewFilter(data) {
 	return str;
 }
 
+exports.getUpcomingWOByStatus = function(data, next) {
+	var sql = `select count(*) as count, wot.status, wot.crop_calendar_id  from work_order_table wot join crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id where cct.status != 'Completed' and (yearweek(date('${data.date}'), 0) >= yearweek(wot.date_start, 0)) and (yearweek(date('${data.date}'), 0)-yearweek(wot.date_start, 0) <= 1 and yearweek(date('${data.date}'), 0)-yearweek(wot.date_start, 0)  >= -1) group by wot.crop_calendar_id, wot.status`;
+	mysql.query(sql, next);
+}
+
+
+
+exports.getCropCalendarNutrientRecommendations = function(data, next) {
+	var sql = `select count(*) as count, 'Nutrient Generated Recommendation' as record_type, calendar_id from fertilizer_recommendation_plan frp join fertilizer_recommendation_items fri using (fr_plan_id) where ?`;
+	for (var i = 0; i < data.calendar_ids.length; i++) {
+		sql = mysql.format(sql, { 'calendar_id': data.calendar_ids[i] });
+		if (i != data.calendar_ids.length - 1) {
+			sql += " or ?";
+		}
+		else {
+			sql += " ";
+		}
+	}
+	while(sql.includes('cct_calendar_id')) {
+		sql = sql.replace('cct_calendar_id', 'calendar_id');
+	}
+	sql += ' group by calendar_id';
+
+	mysql.query(sql, next);
+}
+
 exports.getProductionOverview = function(data, next) {
 	var str = processOverviewFilter(data);
 	
@@ -199,7 +225,7 @@ exports.getNutrientRecommendationDetails = function(data, next) {
 		sql = sql.replace('cct_calendar_id', 'cct.calendar_id');
 	}
 	sql += ` AND wot.type = 'Fertilizer Application' and wot.status = 'Completed') as t group by calendar_id, record_type, followed, status`;
-	
+
 	mysql.query(sql, next);
 }
 

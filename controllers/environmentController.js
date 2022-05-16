@@ -647,7 +647,43 @@ exports.ajaxUpdateNutrientPlan = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			res.send(plan_record);
+			nutrientModel.getFRPFarmDetails(filter, function(err, frp_details) {
+				if (err)
+					throw err;
+				else {
+					if (update.last_ndvi == null || update.last_ndvi == undefined || update.last_ndvi == 'undefined')
+						update.last_ndvi = 'N/A';
+
+					var time = new Date();
+					time = time.toLocaleTimeString();
+					var notif = {
+				        date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
+				        farm_id : frp_details[0].farm_id,
+				        notification_title : `Nutrient Recommendation Adjustment`,
+				        notification_desc: `Nutrient Recommendation Adjusted last ${update.last_updated} with NDVI value of ${update.last_ndvi}`,
+				        url : `/nutrient_mgt/nutrient_plan?farm_name=${frp_details[0].farm_name}`,
+				        icon : "digging",
+				        color : "primary",
+				        type: `RECOMMENDATION`,
+				        time: time
+				    };
+					notifModel.createNotif(notif, function(err, create_status) {
+		                if (err) {
+		                    throw err;
+		                }
+		                else {
+		                    notifModel.createUserNotif(function(err, user_notif_status) {
+		                        if (err)
+		                            throw err;
+		                        else {
+
+		                        }
+		                    });
+		                }
+		            });
+					res.send(plan_record);
+				}
+			});	
 		}
 	});
 }
@@ -2583,16 +2619,31 @@ exports.addDiagnosis = function(req,res){
 								// res.redirect("/pest_and_disease/diagnose");
 
 								//Create Notification
+								var time = new Date();
+								time = time.toLocaleTimeString();
+
 								var notif = {
 									date : new Date(req.session.cur_date),
 									farm_id : diagnosis.farm_id,
 									notification_title : "New Pest/Disease diagnosed",
 									url : "/pest_and_disease/diagnose_details?id=" + last[0].last,
 									icon : "bug",
-									color : "danger"
+									color : "danger",
+									type: 'PD_DIAGNOSED',
+									time: time
 								}
 								notifModel.createNotif(notif, function(err, success){
-
+									if (err)
+										throw err;
+									else {
+										notifModel.createUserNotif(function(err, user_notif_status) {
+			                                if (err)
+			                                    throw err;
+			                                else {
+			                                    
+			                                }
+			                            });
+									}
 								});
 								res.redirect("/pest_and_disease/diagnose_details?id=" + last[0].last);
 							});

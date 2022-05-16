@@ -123,6 +123,13 @@ exports.updateNutrientPlan = function(update, filter, next) {
 	mysql.query(sql, next);
 }
 
+exports.getFRPFarmDetails = function(data, next) {
+	var sql = `select * from fertilizer_recommendation_plan frp join farm_table using(farm_id) where ?`;
+	sql = mysql.format(sql, data);
+	console.log(sql);
+	mysql.query(sql, next);
+}
+
 exports.createNutrientPlan = function(data, next) {
 	var sql = "insert into fertilizer_recommendation_plan set ?";
 	sql = mysql.format(sql, data);
