@@ -255,7 +255,7 @@ exports.prepHarvestComparison = function(harvest_summary, nutrient_det) {
 	return harvest_summary;
 }
 
-exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
+exports.processHarvestSummary = function(data, harvest, history, fp, nutrient, system_reco_count) {
 	const unique = [...new Map(data.map(item =>
 	  [item.seed_name, item])).values()];
 	var obj_keys = ['seed_rate', 'temp', 'humidity', 'pressure', 'rainfall', 'forecast', 'harvested'];
@@ -267,6 +267,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 	var printable = [];
 	var og_pressure = [];
 	var filtered_nutrients;
+	var filtered_reco;
 	var temp_nutrients;
 
 	var env_obj = { Temperature: { data: [] }, Humidity: { data: [] }, Pressure: { data: [ ] }, Rainfall: { data: [] }, labels: [] };
@@ -311,6 +312,7 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 				}
 
 				filtered_nutrients = nutrient.filter(e => e.calendar_id == data[x].calendar_id);
+				filtered_reco = system_reco_count.filter(e => e.calendar_id == data[x].calendar_id);
 
 				temp_nutrients = filtered_nutrients.filter(e => e.record_type == 'Nutrient User Generated');
 				temp_nutrients = temp_nutrients.length != 0 ? temp_nutrients[0].count : 0;
@@ -320,11 +322,12 @@ exports.processHarvestSummary = function(data, harvest, history, fp, nutrient) {
 				temp_nutrients = temp_nutrients.length != 0 ? temp_nutrients[0].count : 0;
 				dataset_obj.data.splice(6, 0, temp_nutrients);
 				
-				temp_nutrients = filtered_nutrients.filter(e => e.record_type == 'Nutrient Generated Recommendation' && e.followed == 'Unfollowed');
-				temp_nutrients = temp_nutrients.length != 0 ? temp_nutrients[0].count : 0;
-				temp_nutrients += dataset_obj.data[6];
+				// temp_nutrients = filtered_nutrients.filter(e => e.record_type == 'Nutrient Generated Recommendation' && (e.followed == 'Unfollowed' || e.followed == 'N/A') );
+				// temp_nutrients = temp_nutrients.length != 0 ? temp_nutrients[0].count : 0;
+				// temp_nutrients += dataset_obj.data[6];
+				temp_nutrients = filtered_reco[0].count;
 				dataset_obj.data.splice(7, 0, temp_nutrients);
-				
+				//console.log(dataset_obj);
 				chart_data.datasets.push(dataset_obj);
 			}
 

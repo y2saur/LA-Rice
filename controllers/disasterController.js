@@ -26,14 +26,14 @@ exports.getDisasterManagement = function(req, res) {
 				if (err)
 					throw err;
 				else {
-					var active_disasters = disasters.filter(e => e.status == 1 && cur_date <= new Date(e.target_date)), inactive_disasters = disasters.filter(e => e.status == 0);
+					var active_disasters = disasters.filter(e => e.status == 1 && ( (e.type == 'Heavy Rainfall' && cur_date <= new Date(e.target_date)) || (e.type == 'Drought' || e.type == 'Dry Spell' || e.type == 'Dry Condition') ) ), inactive_disasters = disasters.filter(e => e.status == 0);
 					var active_rainfall = active_disasters.filter(e => e.type == 'Heavy Rainfall'), 
 					inactive_rainfall = inactive_disasters.filter(e => e.type == 'Heavy Rainfall');
-					var active_drought = active_disasters.filter(e => e.type == 'Drought'), 
-					inactive_drought = inactive_disasters.filter(e => e.type == 'Drought');
+					var active_drought = active_disasters.filter(e => e.type == 'Drought' || e.type == 'Dry Spell' || e.type == 'Dry Condition'), 
+					inactive_drought = inactive_disasters.filter(e => e.type == 'Drought' || e.type == 'Dry Spell' || e.type == 'Dry Condition');
 
 					var active_rainfall_arr = [], inactive_rainfall_arr = [];
-					var active_drought_arr = [], inactive_drought_arr = [];
+
 
 					for (var i = 0; i < active_rainfall.length; i++) {
 						active_rainfall_arr.push(prepareRainfallDisaster(active_rainfall[i], active_calendars, html_data));
@@ -42,13 +42,22 @@ exports.getDisasterManagement = function(req, res) {
 					for (var i = 0; i < len; i++) {
 						inactive_rainfall_arr.push(prepareRainfallDisaster(inactive_rainfall[i], active_calendars, html_data));
 					}
+
+					active_drought.forEach(function(item, index) {
+						active_drought[index].date_recorded = dataformatter.formatDate(new Date(item.date_recorded), 'YYYY-MM-DD');
+					});
+					inactive_drought.forEach(function(item, index) {
+						inactive_drought[index].date_recorded = dataformatter.formatDate(new Date(item.date_recorded), 'YYYY-MM-DD');
+					});
 					//
 					html_data['active_rainfall'] = active_rainfall_arr;
 					html_data['inactive_rainfall'] = inactive_rainfall_arr;
 					html_data['notifs'] = req.notifs;
-					html_data['active_drought'] = active_drought_arr;
-					html_data['inactive_drought'] = inactive_drought_arr;
-					//
+					html_data['active_drought'] = active_drought;
+					html_data['inactive_drought'] = inactive_drought;
+					
+
+					html_data['precip_data'] = req.precip_data;
 					res.render('disaster_warnings', html_data);					
 				}
 			});

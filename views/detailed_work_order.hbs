@@ -183,7 +183,8 @@
                                             <input class="form-control" type="text" required="" readonly id="{{../resources.lbl.name}}" name="{{../resources.lbl.name}}" value="{{this.material_name}}" style="width: 375px">
                                             <input class="hide" style="" type="text" id="{{../resources.lbl.item}}" name="{{../resources.lbl.item}}" value="{{this.item_id}}" readonly="true">
                                             <div class="d-flex flex-column" style="">
-                                                <input class="form-control mx-2" style="width: 100px;" type="number" id="{{../resources.lbl.qty}}" name="{{../resources.lbl.qty}}" step="any" value="{{this.qty}}" readonly>
+                                                <input class="form-control mx-2" style="width: 100px;" type="number" id="{{../resources.lbl.qty}}" name="{{../resources.lbl.qty}}" step="any" value="{{this.qty}}" readonly min="0">
+                                                <div class="ml-3 text-small text-muted">In-stock: {{this.inventory_qty}}</div>
                                             </div>
                                         </div>
                                             

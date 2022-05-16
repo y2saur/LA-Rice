@@ -13,13 +13,13 @@
 
             <li class="nav-item">
                 <div class="nav-item dropdown show text-decoration-none" style="text-decoration: none;padding: 16px;margin-bottom: 0px;">
-                    <a aria-expanded="false" data-toggle="collapse" data-target="#farms" href="#" id="firstDp"
+                    <a aria-expanded="{{# if farms_mgt_tab}}true{{else}}false{{/if}}" data-toggle="collapse" data-target="#farms" href="#" id="firstDp"
                         class="dropdown-lbl text-decoration-none {{# if farm_tab}}active{{/if}}{{# if monitor_farms_tab}}active{{/if}}{{# if calendar_tab}}active{{/if}}{{# if disaster}}active{{/if}}" style="">
                         <i class="fas fa-farm" style="font-size: 16px;margin-right: 10px;"></i>Farms &nbsp;&nbsp;
                         <i class="fas fa-caret-down"></i> 
                     </a>
                     
-                    <div class="collapse" style="" id="farms">
+                    <div class="collapse {{# if farms_mgt_tab}}show{{/if}}" style="" id="farms">
                         <a class="dropdown-item {{# if farm_tab}}active{{/if}}" href="/farms" style="">Work Orders</a>
                         <a class="dropdown-item {{# if calendar_tab}}active{{/if}}" href="/crop_calendar" style="">Crop Calendar</a>
                         <a class="dropdown-item {{# if monitor_farms_tab}}active{{/if}}" href="/farm_monitoring_summarized" style="">Farm Monitoring</a>
@@ -31,11 +31,11 @@
             {{else}}
             <li class="nav-item">
                 <div class="nav-item dropdown show text-decoration-none" style="text-decoration: none;padding: 16px;margin-bottom: 0px;">
-                    <a aria-expanded="false" data-toggle="collapse" data-target="#materials" href="#" class="dropdown-lbl text-decoration-none {{# if inventory_tab}}active{{/if}}{{# if orders_tab}}active{{/if}}" href="#" style="font-size: 16px" id="secondDp">
+                    <a aria-expanded="{{# if material_mgt_tab}}true{{else}}false{{/if}}" data-toggle="collapse" data-target="#materials" href="#" class="dropdown-lbl text-decoration-none {{# if inventory_tab}}active{{/if}}{{# if orders_tab}}active{{/if}}" href="#" style="font-size: 16px" id="secondDp">
                         <i class="fas fa-box" style="margin-right: 10px;"></i>Material Management &nbsp;&nbsp;
                         <i class="fas fa-caret-down"></i> 
                     </a>
-                    <div class="collapse" style="" id="materials">
+                    <div class="collapse {{# if material_mgt_tab}}show{{/if}}" style="" id="materials">
                         <a class="dropdown-item {{# if inventory_tab}}active{{/if}}" href="/inventory" style="">Inventory</a>
                         <a class="dropdown-item {{# if orders_tab}}active{{/if}}" href="/orders" style="">Orders</a>
                     </div>
@@ -45,12 +45,12 @@
 
             <li class="nav-item" style="">
                 <div class="nav-item dropdown " style="margin-bottom: 0px;padding: 16px;">
-                    <a aria-expanded="false" data-toggle="collapse" data-target="#nutrient_mgt" href="#" class="dropdown-lbl text-decoration-none {{# if nutrient_mgt_discover}}active{{/if}}{{# if nutrient_mgt_plan}}active{{/if}}{{# if nutrient_mgt_reco}}active{{/if}}"id="sixthDp"><i class="dropdown-lbl fas fa-bug" 
+                    <a aria-expanded="{{#if nutrient_mgt_tab}}true{{else}}false{{/if}}" data-toggle="collapse" data-target="#nutrient_mgt" href="#" class="dropdown-lbl text-decoration-none {{# if nutrient_mgt_discover}}active{{/if}}{{# if nutrient_mgt_plan}}active{{/if}}{{# if nutrient_mgt_reco}}active{{/if}}"id="sixthDp"><i class="dropdown-lbl fas fa-hand-holding-seedling" 
                         style="margin-right: 10px;"></i>Nutrient Management &nbsp;&nbsp;
                         <i class="fas fa-caret-down"></i>
                     </a>
-                    <div class="collapse" style="" id="nutrient_mgt">
-                        <a class="dropdown-item {{# if nutrient_mgt_discover}}active{{/if}}" href="/nutrient_mgt/discover" style="">Discover</a>
+                    <div class="collapse {{# if nutrient_mgt_tab}}show{{/if}}" style="" id="nutrient_mgt">
+                        <!-- <a class="dropdown-item {{# if nutrient_mgt_discover}}active{{/if}}" href="/nutrient_mgt/discover" style="">Discover</a> -->
                         <a class="dropdown-item {{# if nutrient_mgt_plan}}active{{/if}}" href="/nutrient_mgt/nutrient_plan" style="">Nutrient Plan</a>
                         <a class="dropdown-item {{# if nutrient_mgt_reco}}active{{/if}}" href="/nutrient_mgt/recommendation_system" style="">Recommendation <br>System</a>
                     </div>
@@ -59,11 +59,11 @@
 
             <li class="nav-item" style="">
                 <div class="nav-item dropdown " style="margin-bottom: 0px;padding: 16px;">
-                    <a aria-expanded="false" data-toggle="collapse" data-target="#pestAndDisease" href="#" class="dropdown-lbl text-decoration-none {{# if pest_and_disease_discover}}active{{/if}}{{# if pest_and_disease_frequency}}active{{/if}} {{# if pest_and_disease_diagnoses}}active{{/if}}"id="thirdDp"><i class="dropdown-lbl fas fa-bug" 
+                    <a aria-expanded="{{# if pd_mgt_tab}}true{{else}}false{{/if}}" data-toggle="collapse" data-target="#pestAndDisease" href="#" class="dropdown-lbl text-decoration-none {{# if pest_and_disease_discover}}active{{/if}}{{# if pest_and_disease_frequency}}active{{/if}} {{# if pest_and_disease_diagnoses}}active{{/if}}"id="thirdDp"><i class="dropdown-lbl fas fa-bug" 
                         style="margin-right: 10px;"></i>Pest and Disease &nbsp;&nbsp;
                         <i class="fas fa-caret-down"></i>
                     </a>
-                    <div class="collapse" style="" id="pestAndDisease">
+                    <div class="collapse {{# if pd_mgt_tab}}show{{/if}}" style="" id="pestAndDisease">
                         <a class="dropdown-item {{# if pest_and_disease_discover}}active{{/if}}" href="/pest_and_disease/discover" style="">Discover</a>
                         <a class="dropdown-item {{# if pest_and_disease_diagnoses}}active{{/if}}" href="/pest_and_disease/diagnose" style="">Diagnose</a>
                         <a class="dropdown-item {{# if pest_and_disease_frequency}}active{{/if}}" href="/pest_and_disease/frequency" style="">Frequency</a>
@@ -88,11 +88,11 @@
             {{else}}
             <li class="nav-item">
                 <div class="nav-item dropdown text-decoration-none" style="text-decoration: none;padding: 16px;margin-bottom: 0px;">
-                    <a aria-expanded="false" data-toggle="collapse" data-target="#smsManagement" href="#" class="dropdown-lbl text-decoration-none {{# if subscriptions_tab}}active{{/if}}{{# if messages_tab}}active{{/if}}" href="#" id="fifthDp">
+                    <a aria-expanded="{{# if sms_mgt_tab}}true{{else}}false{{/if}}" data-toggle="collapse" data-target="#smsManagement" href="#" class="dropdown-lbl text-decoration-none {{# if subscriptions_tab}}active{{/if}}{{# if messages_tab}}active{{/if}}" href="#" id="fifthDp">
                         <i class="fas fa-sms" style="margin-right: 10px;"></i>SMS Management  &nbsp;&nbsp;
                         <i class="fas fa-caret-down"></i>
                     </a>
-                    <div class="collapse" style="" id="smsManagement">
+                    <div class="collapse {{# if sms_mgt_tab}}show{{/if}}" style="" id="smsManagement">
                         <a class="dropdown-item {{# if subscriptions_tab}}active{{/if}}" href="/sms/subscriptions" style="">Subscriptions</a>
                         <a class="dropdown-item {{# if messages_tab}}active{{/if}}" href="/sms/messages" style="">Messages</a>
                     </div>

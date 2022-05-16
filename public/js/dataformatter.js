@@ -215,6 +215,12 @@ function objectMerger(arr1, arr2, arr1_param, arr2_param, id) {
 }
 
 exports.dateDiff = function(d1, d2) {
+	if (!(d1 instanceof Date && !isNaN(d1))) {
+		d1 = new Date(d1);
+	}
+	if (!(d2 instanceof Date && !isNaN(d2))) {
+		d2 = new Date(d2);
+	}
 	return d1.getDate() - d2.getDate();
 }
 

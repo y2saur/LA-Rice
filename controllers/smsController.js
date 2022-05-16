@@ -120,10 +120,15 @@ exports.globe_inbound_msg = function(req, res){
                                 var url = "/pest_and_disease/diagnose?symptoms=";
                                 for(var i = 0; i < symptoms_from_user.length; i++){
                                     url = url + symptoms_from_user[i];
-                                    if(i != symptoms_from_user.length)
+
+                                    //Check if symptom is in db
+
+
+                                    if(i != symptoms_from_user.length - 1)
                                         url = url + "-";
                                 }
 
+                                url = url + "&farm=" + employee_details[0].farm_id; 
                                 //Create notif
                                 var notif = {
                                     date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
@@ -146,7 +151,8 @@ exports.globe_inbound_msg = function(req, res){
                                     case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                     case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
                                     case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
-                                    case "tapos" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
+                                    case "tapos1" : msg = updateWO(employee_details[0], text_message); break; //When user wants to update wo
+                                    case "tapos2" : msg = updateDiagnosis(employee_details[0], text_message); break;
                                     default : sendSMSActions(employee_details[0]); break;
                                 } 
                             }
@@ -163,7 +169,42 @@ exports.globe_inbound_msg = function(req, res){
     return true;
 }
 
-function getExistingDiagnosis(emp){
+
+
+function updateDiagnosis(employee, message){
+    //Check if the message sent contains a number
+    if(isNaN(message[1])){
+        //Not a number send error message to employee
+        var msg = "Mali ang Diagnosis ID na sinend. Pumili ng tamang diagnosis ID.";
+        sendOutboundMsg(emp, msg);
+    }
+    else{
+        console.log("goods");
+        //Check if diagnosis id exists and matches farm id
+        pestdiseaseModel.getDiagnosisDetails(message[1], function(err, diagnosis_details){
+            console.log(diagnosis_details);
+            if(err)
+                throw err;
+            else{
+                //Check if same farm_id
+                if(diagnosis_details[0].farm_id == employee.farm_id){
+                    //Continue to update diagnosis
+                    var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
+                    pestdiseaseModel.updateDiagnosis(message[1], new Date(), function(err, success){
+                        var msg = "Maraming Salamat!\n\nNaresulba na ang diagnosis " + message[1] + ".\n" + diagnosis_details[0].name + "\n" + diagnosis_details[0].crop_plan;
+                        sendOutboundMsg(employee, msg);
+                    });
+                }
+                else{
+                    var msg = "Mali ang diagnosis ID na sinend (ibang farm). Pumili ng tamang diagnosis ID.";
+                    sendOutboundMsg(emp, msg);
+                }
+            }
+        });
+    }
+}
+
+function getExistingDiagnosis(employee){
     employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){
         if(err)
             console.log(err);
@@ -203,7 +244,7 @@ function getExistingDiagnosis(emp){
                                 message = message + "\nWalang lumalaganap na peste/sakit.";
                             }
                             //Send outbound message
-                            sendOutboundMsg(emp, message);
+                            sendOutboundMsg(employee, message);
                         }
                     });
                 }
@@ -235,7 +276,7 @@ function updateWO(emp, message){
                     //Continue to update wo
                     var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
                     woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
-                        var msg = "Maraming Salamat!";
+                        var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
                         sendOutboundMsg(emp, msg);
                     });
                 }
@@ -355,13 +396,18 @@ exports.registerUser = function(req,res){
     return true;
 }
 
+const translator = require('../public/js/translator.js');
 
 //SEND MESSAGE TO USER FROM APP
-exports.globe_outbound_msg = function(req, res){
+exports.globe_outbound_msg = async function(req, res){
     console.log("sending outbound message");
     console.log(req.query);
     var employee_id = req.query.employee_id;
     var message = req.query.message;
+    var translated_msg = await translator.translateText(message);
+
+    
+    console.log(translated_msg.data[0].translations[0].text);
     //GET EMPLOYEE DETAILS
     smsModel.getEmployeeDetails({key : "employee_id", value : employee_id}, function(err, employee_details){
         if(err)
@@ -374,7 +420,7 @@ exports.globe_outbound_msg = function(req, res){
                     res.send("No access token");
                 }
                 else{
-                    sendOutboundMsg(emp, message);
+                    sendOutboundMsg(emp, translated_msg.data[0].translations[0].text);
                     res.send("message sent");
                 }
             }
@@ -441,7 +487,7 @@ function getWeatherForecastMsg(employee){
                     }
                     //get weather for farm
                     var forecast_url = 'https://api.agromonitoring.com/agro/1.0/weather/forecast?lat='+lat+'&lon='+lon+'&appid='+key;
-                    request(forecast_url, { json: true }, function(err, response, forecast_body){
+                    request(forecast_url, { json: true }, async function(err, response, forecast_body){
                         if(err)
                             console.log(err);
                         else{
@@ -501,7 +547,7 @@ function getWeatherForecastMsg(employee){
 }
 
 function getIncomingWos(employee){
-    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){
+    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){ //employee.employee_id
         if(err)
             console.log(err);
         else{
@@ -520,7 +566,7 @@ function getIncomingWos(employee){
                         },
                         order: ['work_order_table.date_start ASC']
                     };
-                    woModel.getWorkOrders(wo_query, function(err, wos){
+                    woModel.getWorkOrders(wo_query, async function(err, wos){
                         if(err)
                             throw err;
                         else{
@@ -529,10 +575,11 @@ function getIncomingWos(employee){
                             var not_completed = [];
                             for(var i = 0; i < wos.length; i++){
                                 if(wos[i].status != "Completed"){
+                                    var wo_type = await translator.translateText(wos[i].type);
                                     not_completed.push(wos[i]); 
                                     wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
                                     wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
-                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wos[i].type + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nStatus: " + wos[i].status;
+                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nKalagayan: " + wos[i].status;
                                 }
                             }
                             console.log(message);
@@ -548,15 +595,17 @@ function getIncomingWos(employee){
 }
 
 
+
 //SEND LIST OF PD SYMPTOMS
 function sendPDSymptoms(emp){
     var msg = "PEST/DISEASE SYMPTOMS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
-    pestdiseaseModel.getAllSymptoms(function(err, symptoms){
+    pestdiseaseModel.getAllSymptoms( async function(err, symptoms){
         if(err)
             throw err;
         else{
             for(var i = 0; i < symptoms.length; i++){
-                msg = msg + symptoms[i].symptom_id + " - " + symptoms[i].symptom_name + "\n";
+                var name = await translator.translateText(symptoms[i].symptom_name);
+                msg = msg + symptoms[i].symptom_id + " - " + name.data[0].translations[0].text + "\n";
             }
 
             //Send to user
@@ -640,7 +689,7 @@ exports.incomingWO = function(req, res){
 }
 
 function sendSMSActions(employee){
-    var msg = 'Below are the list of actions that can be performed.\n\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS<space>Word order ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
+    var msg = 'Below are the list of actions that can be performed.\n\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543\n\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
 
     sendOutboundMsg(employee, msg);
 }
@@ -681,8 +730,44 @@ exports.sendSMS = function(emp, message){
     });
 }
 
+const axios = require('axios').default;
+const { v4: uuidv4 } = require('uuid');
 
+//TRANSLATION TEST
+exports.testTranslation = function(req, res){
 
+    var key = "85f608a71b654ef8bbdef5dbaaa0c416";
+    var endpoint = "https://api.cognitive.microsofttranslator.com";
+    
+
+    // Add your location, also known as region. The default is global.
+    // This is required if using a Cognitive Services resource.
+    var location = "southeastasia";
+
+    axios({
+        baseURL: endpoint,
+        url: '/translate',
+        method: 'post',
+        headers: {
+            'Ocp-Apim-Subscription-Key': key,
+            'Ocp-Apim-Subscription-Region': location,
+            'Content-type': 'application/json',
+            'X-ClientTraceId': uuidv4().toString()
+        },
+        params: {
+            'api-version': '3.0',
+            'from': 'en',
+            'to': 'fil'
+        },
+        data: [{
+            'text': 'Good morning!'
+        }],
+        responseType: 'json'
+    }).then(function(response){
+        console.log(JSON.stringify(response.data, null, 4));
+    });
+
+}
 
 
 

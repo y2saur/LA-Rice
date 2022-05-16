@@ -59,9 +59,13 @@
             {{!-- <p class="d-inline-flex m-0 font-weight-bold" style="color: rgb(255,255,255);">Active Crop Calendar</p> --}}
             {{!-- <button onclick='window.location="/crop_calendar/add"' class="btn btn-primary d-inline-flex float-right shadow" type="button" style="border-radius: 20px;padding: 5px 18px;background: #EDD172;border-style: none;color: rgb(51,44,31);font-size: 12px;"><span>Create Crop Calendar<i class="fa fa-plus-circle" style="margin-left: 5px;"></i></span></button> --}}
             <div class="dropdown no-arrow" style="padding-top: 5px">
+
                         <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                             <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                         </button>
+                        {{#if deficient_count}}
+                        <span class="badge bg-danger badge-counter" style="position: absolute; transform: scale(0.7); transform-origin: top right; right: -0.3rem; margin-top: -0.25rem;">{{deficient_count}}</span>
+                        {{/if}}
                         <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in" style="vertical-align: top;">
                             
                             {{#if writeable}}

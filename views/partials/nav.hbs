@@ -20,10 +20,13 @@
             </li>
 
             <li class="nav-item dropdown no-arrow mx-1" style="padding-top: 7px;">
-                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="color: #584c33;"><span class="badge bg-danger badge-counter">{{notifs.length}}</span><i class="fas fa-bell fa-fw"></i></a>
+                <div class="nav-item dropdown no-arrow"><a  id="notifToggle" class="dropdown-toggle nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#" style="color: #584c33;"><span class="badge bg-danger badge-counter" id="notifCounter">{{notifs.new.length}}</span><i class="fas fa-bell fa-fw"></i></a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-list animated--grow-in" style="background-color: #7D7D7D !important; overflow:auto !important; max-height: 450px">
                         <h6 class="dropdown-header" style="background: #7D7D7D;border-style: none;">Notifications</h6>
-                            {{#each notifs}}
+
+                            {{#if notifs.disaster}}
+                            <div class="dropdown-header" style="background: #7D7D7D;border-style: none;">Disaster Warnings</div>
+                            {{#each notifs.disaster}}
                                 <a class="w-100 dropdown-item d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}">
                                     <div class="mr-3">
                                         <div class="bg-{{this.color}} icon-circle" style="color: white !important;"><i class="fas fa-{{this.icon}} text-white" style="color: white !important;"></i></div>
@@ -36,31 +39,44 @@
                                 </a>
                                 <div class="dropdown-divider"></div>
                             {{/each}}
-                            {{!-- <a class="dropdown-item d-flex align-items-center" href="#" style="background: #ffffff;">
-                                <div class="mr-3">
-                                    <div class="bg-primary icon-circle"><i class="fas fa-file-alt text-white"></i></div>
-                                </div>
-                                <div>
-                                    <span class="small text-gray-500">December 12, 2019</span>
-                                    <p class="small text-dark">A new monthly report is ready to download!</p>
-                                </div>
-                            </a>
-                            <a class="dropdown-item d-flex align-items-center" href="#" style="background: #ffffff;">
-                                <div class="me-3">
-                                    <div class="bg-success icon-circle"><i class="fas fa-donate text-white"></i></div>
-                                </div>
-                                <div><span class="small text-gray-500">December 7, 2019</span>
-                                    <p class="small text-dark">$290.29 has been deposited into your account!</p>
-                                </div>
-                            </a>
-                        <a class="dropdown-item d-flex align-items-center" href="#" style="background: #ffffff;">
-                            <div class="me-3">
-                                <div class="bg-warning icon-circle"><i class="fas fa-exclamation-triangle text-white"></i></div>
-                            </div>
-                            <div><span class="small text-gray-500">December 2, 2019</span>
-                                <p class="small text-dark">Spending Alert: We've noticed unusually high spending for your account.</p>
-                            </div>
-                        </a> --}}
+                            {{/if}}
+
+                            <div class="dropdown-header" style="background: #7D7D7D;border-style: none;" id="new_notif_lbl">New</div>
+                            {{#if notifs.new}}
+                            {{#each notifs.new}}
+                                <a class="w-100 dropdown-item d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}">
+                                    <div class="mr-3">
+                                        <div class="bg-{{this.color}} icon-circle" style="color: white !important;"><i class="fas fa-{{this.icon}} text-white" style="color: white !important;"></i></div>
+                                    </div>
+                                    <div class="" style="max-width: 80% !important;">
+                                        <span class="w-100 small text-gray-500" style="color: #EEEEEE !important;">{{this.date}}</span>
+                                        <p class="w-100 small text-dark" style="color: white !important; font-weight:bold">{{this.notification_title}}</p>
+                                        <div class="text-truncate d-block w-100" style="">{{this.notification_desc}}</div>
+                                    </div>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            {{/each}}
+                            {{else}}
+                            <div class="w-100 dropdown-item align-items-center notification text-center mx-auto" style="background: #7D7D7D !important;border-style: none;" id="new_notif_na">N/A</div>
+                            {{/if}}
+
+                            {{#if notifs.earlier}}
+                            <div class="dropdown-header" style="background: #7D7D7D;border-style: none;">Earlier</div>
+                            {{#each notifs.earlier}}
+                                <a class="w-100 dropdown-item d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}">
+                                    <div class="mr-3">
+                                        <div class="bg-{{this.color}} icon-circle" style="color: white !important;"><i class="fas fa-{{this.icon}} text-white" style="color: white !important;"></i></div>
+                                    </div>
+                                    <div class="" style="max-width: 80% !important;">
+                                        <span class="w-100 small text-gray-500" style="color: #EEEEEE !important;">{{this.date}}</span>
+                                        <p class="w-100 small text-dark" style="color: white !important; font-weight:bold">{{this.notification_title}}</p>
+                                        <div class="text-truncate d-block w-100" style="">{{this.notification_desc}}</div>
+                                    </div>
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            {{/each}}
+                            {{/if}}
+
                         <a class="dropdown-item text-center small text-white-500 notifShowAlerts" href="/notifications">Show All Notifications</a>
                     </div>
                 </div>
@@ -174,5 +190,37 @@ $("#userNav").on("click", ".dropdown-toggle", function(e) {
     $(this).attr("aria-expanded", "true");
     $(this).next().addClass("show"); 
   });
+
+$('#notifToggle').on('click', function() {
+    $.get('/update_user_notif_seen', {  }, function(result) {
+        $('#notifCounter').html('0');
+    });
+});
+
+$(document).ready(function() {
+    window.setInterval(function() {
+        $.get('/ajax_notif_list', {}, function(result) {
+            var append_str = '';
+            result.forEach(function(item) {
+                append_str += `<a id="ajax_new_notif" class="w-100 dropdown-item d-flex align-items-center notification" id="${item.notification_id}" href="${item.url}"> <div class="mr-3"> <div class="bg-${item.color} icon-circle" style="color: white !important;"><i class="fas fa-${item.icon} text-white" style="color: white !important;"></i></div> </div> <div class="" style="max-width: 80% !important;"> <span class="w-100 small text-gray-500" style="color: #EEEEEE !important;">${item.date}</span> <p class="w-100 small text-dark" style="color: white !important; font-weight:bold">${item.notification_title}</p> <div class="text-truncate d-block w-100" style="">${item.notification_desc}</div> </div> </a> <div class="dropdown-divider" id="ajax_new_notif_divider"></div>`
+            })
+
+            $('#new_notif_lbl').after(append_str);
+
+            if (result.length > 0)
+                $('#new_notif_na').remove();
+
+
+            if ($('#notifToggle').attr('aria-expanded') == true) {
+                $.get('/update_user_notif_seen', {  }, function(result) {
+                    $('#notifCounter').html('0');
+                });
+            }
+            else {
+                $('#notifCounter').html(result.length);
+            }
+        });
+    }, 5000);
+})
 
 </script>

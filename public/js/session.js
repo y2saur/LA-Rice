@@ -18,86 +18,186 @@ exports.init_session = function(obj, role, name, username, tab, session) {
 	else if (role === 2)
 		obj['purchasing_role'] = true;
 
-	if (tab === 'dashboard')
+	if (tab === 'dashboard') {
 		obj['home_tab'] = true;
-	else if (tab === 'farms') 
+		obj['title'] = `Dashboard | LA Rice Mill`;
+	}
+	else if (tab === 'farms') {
 		obj['farm_tab'] = true;
-	else if (tab === 'monitor_farms')
+		obj['farms_mgt_tab'] = true
+		obj['title'] = `Work Orders | LA Rice Mill`;
+	}
+	else if (tab === 'monitor_farms') {
 		obj['monitor_farms_tab'] = true;
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Farm Monitoring | LA Rice Mill`;
+	}
 	// Crop Calendar Tab
-	else if (tab === 'crop_calendar') 
+	else if (tab === 'crop_calendar') {
 		obj['calendar_tab'] = true;
-	else if (tab === 'detailed_crop_calendar') 
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Crop Calendars | LA Rice Mill`;
+	}
+	else if (tab === 'detailed_crop_calendar') {
 		obj['calendar_tab'] = true;
-	else if (tab === 'add_crop_calendar') 
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Crop Calendar Details | LA Rice Mill`;
+	}
+	else if (tab === 'add_crop_calendar') {
 		obj['calendar_tab'] = true;
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Create Crop Calendar | LA Rice Mill`;
+	}
 
-	else if (tab === 'harvest_cycle') 
+	else if (tab === 'harvest_cycle') {
 		obj['harvest_cycle_tab'] = true;
-	else if (tab === 'sms_subcription') 
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Harvest | LA Rice Mill`;
+	}
+	else if (tab === 'sms_subcription') {
 		obj['sms_tab'] = true;
-	else if (tab === 'pest_and_disease') 
+		obj['title'] = `SMS Subscriptions | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease') {
 		obj['pest_and_disease_tab'] = true;
-	else if (tab === 'nutrient_mgt_diagnose') 
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'nutrient_mgt_diagnose') {
 		obj['nutrient_diagnose_tab'] = true;
-	else if (tab === 'user_mgt') 
+		obj['nutrient_mgt_tab'] = true
+		obj['title'] = `Nutrient Management | LA Rice Mill`;
+	}
+	else if (tab === 'user_mgt') {
 		obj['user_tab'] = true;
-	else if (tab === 'analytics') 
+		obj['title'] = `User Management | LA Rice Mill`;
+	}
+	else if (tab === 'analytics') {
 		obj['analytics_tab'] = true;
-	else if (tab === 'inventory_tab')
+		obj['title'] = `Analytics | LA Rice Mill`;
+	}
+	else if (tab === 'inventory_tab') {
 		obj['inventory_tab'] = true;
-	else if (tab === 'orders_tab')
+		obj['material_mgt_tab'] = true;
+		obj['title'] = `Inventory | LA Rice Mill`;
+	}
+	else if (tab === 'orders_tab') {
 		obj['orders_tab'] = true;
-	else if (tab === 'add_crop_calendar') 
+		obj['material_mgt_tab'] = true;
+		obj['title'] = `Material Requests | LA Rice Mill`;
+	}
+	else if (tab === 'add_crop_calendar') {
 		obj['farm_tab'] = true;
-	else if (tab === 'add_farm') 
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Create Crop Calendar | LA Rice Mill`;
+	}
+	else if (tab === 'add_farm') {
 		obj['monitor_farms_tab'] = true;
-	else if (tab === 'disaster') 
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Create Farm | LA Rice Mill`;
+	}
+	else if (tab === 'disaster') {
 		obj['disaster'] = true;
+		obj['farms_mgt_tab'] = true;
+		obj['title'] = `Disaster Warnings | LA Rice Mill`;
+	}
 
 	// Nutrient Management Tab
-	else if (tab === 'nutrient_mgt_discover') 
+	else if (tab === 'nutrient_mgt_discover') {
 		obj['nutrient_mgt_discover'] = true;
-	else if (tab === 'nutrient_mgt_plan') 
+		obj['nutrient_mgt_tab'] = true;
+		obj['title'] = `Nutrient Management | LA Rice Mill`;
+	}
+	else if (tab === 'nutrient_mgt_plan') {
 		obj['nutrient_mgt_plan'] = true;
-	else if (tab === 'nutrient_mgt_reco') 
+		obj['nutrient_mgt_tab'] = true;
+		obj['title'] = `Nutrient Management | LA Rice Mill`;
+	}
+	else if (tab === 'nutrient_mgt_reco') {
 		obj['nutrient_mgt_reco'] = true;
+		obj['nutrient_mgt_tab'] = true;
+		obj['title'] = `Nutrient Management | LA Rice Mill`;
+	}
 
 	// Pest and Disease Diagnose Tab
-	else if (tab === 'pest_and_disease_discover') 
+	else if (tab === 'pest_and_disease_discover') {
 		obj['pest_and_disease_discover'] = true;
-	else if (tab === 'pest_and_disease_diagnoses') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_diagnoses') {
 		obj['pest_and_disease_diagnoses'] = true;
-	else if (tab === 'pest_and_disease_frequency') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_frequency') {
 		obj['pest_and_disease_frequency'] = true;
-	else if (tab === 'pest_and_disease_add_diagnosis') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_add_diagnosis') {
 		obj['pest_and_disease_diagnoses'] = true;
-	else if (tab === 'pest_and_disease_add_pest') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_add_pest') {
 		obj['pest_and_disease_diagnoses'] = true;
-	else if (tab === 'pest_and_disease_add_disease') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_add_disease') {
 		obj['pest_and_disease_diagnoses'] = true;
-	else if (tab === 'pest_and_disease_detailed_diagnosis') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_detailed_diagnosis') {
 		obj['pest_and_disease_diagnoses'] = true;
-	else if (tab === 'pest_and_disease_detailed_pest') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_detailed_pest') {
 		obj['pest_and_disease_diagnoses'] = true;
-	else if (tab === 'pest_and_disease_detailed_disease') 
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
+	else if (tab === 'pest_and_disease_detailed_disease') {
 		obj['pest_and_disease_diagnoses'] = true;
+		obj['pd_mgt_tab'] = true;
+		obj['title'] = `Pest & Disease | LA Rice Mill`;
+	}
 
 	// SMS Management Tab
-	else if (tab === 'sms_subscriptions') 
+	else if (tab === 'sms_subscriptions') {
 		obj['subscriptions_tab'] = true;
-	else if (tab === 'sms_add_subscription') 
+		obj['sms_mgt_tab'] = true;
+		obj['title'] = `SMS Management | LA Rice Mill`;
+	}
+	else if (tab === 'sms_add_subscription') {
 		obj['subscriptions_tab'] = true;
-	else if (tab === 'sms_messages') 
+		obj['sms_mgt_tab'] = true;
+		obj['title'] = `SMS Management | LA Rice Mill`;
+	}
+	else if (tab === 'sms_messages') {
 		obj['messages_tab'] = true;
+		obj['sms_mgt_tab'] = true;
+		obj['title'] = `SMS Management | LA Rice Mill`;
+	}
 
 	// User Management
-	else if (tab === 'user_management') 
+	else if (tab === 'user_management') {
 		obj['users_tab'] = true;
+		obj['title'] = `User Management | LA Rice Mill`;
+	}
 
 	// Reports
-	else if (tab === 'reports') 
-	obj['reports_tab'] = true;
+	else if (tab === 'reports') {
+		obj['reports_tab'] = true;
+		obj['title'] = `Farm Productivity Reports | LA Rice Mill`;
+	}
+
+	// Reports
+	else if (tab === 'notification_tab') {
+		obj['title'] = `Notifications | LA Rice Mill`;
+	}
 	
 	return obj;
 }
