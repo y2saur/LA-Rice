@@ -371,12 +371,12 @@ exports.get14DWeatherForecast = function(req, res) {
 							if (err)
 								throw err;
 							else {
-								disasterModel.getDisasterLogs({ status: 1, type: 'Heavy Rainfall Alert' }, function(err, disaster_records) {
+								disasterModel.getDisasterLogs({ status: 1, type: ['"Heavy Rainfall Alert"'] }, function(err, disaster_records) {
 									if (err)
 										throw err;
 									else {
 										// Set all previously recorded disaster warnings to inactive
-										disasterModel.updateLog({ status: 0, type: 'Heavy Rainfall Alert' }, null, function(err, update_status) {
+										disasterModel.updateLog({ status: 0, type: ['"Heavy Rainfall Alert"'] }, null, function(err, update_status) {
 											if (err)
 												throw err;
 											else {
@@ -446,7 +446,7 @@ exports.get14DWeatherForecast = function(req, res) {
 						});
 					}
 					else {
-						disasterModel.updateLog({ status: 0, type: 'Heavy Rainfall Alert' }, null, function(err, update_status) {
+						disasterModel.updateLog({ status: 0, type: ['"Heavy Rainfall Alert"'] }, null, function(err, update_status) {
 							if (err)
 								throw err;
 							else {
