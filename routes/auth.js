@@ -303,7 +303,8 @@ router.get('/getWeather', materialController.getWeather);
 
 
 
-router.get("/test_sample", globe.incomingWO);
+// router.get("/test_sample", globe.sampleUpdateWO);
+
 
 //Globe
 // router.get('/globe_api', globe.test_globe);

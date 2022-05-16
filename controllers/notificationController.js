@@ -1,7 +1,10 @@
 const notifModel = require('../models/notificationModel.js');
 const workOrderModel = require('../models/workOrderModel.js');
+const employeeModel = require('../models/employeeModel.js');
 const dataformatter = require('../public/js/dataformatter.js');
+const smsModel = require('../models/smsModel.js');
 const js = require('../public/js/session.js');
+const globe = require('../controllers/smsController.js');
 var request = require('request');
 
 
@@ -25,6 +28,11 @@ exports.getNotification = function(req, res, next) {
             // LOOKS FOR WORKORDERS THAT ARE OVERDUE, DUE SOON OR DUE IN A WEEK
             for (var i = 0; i < wo_list.length; i++) {
                 switch (wo_list[i].notif_type) {
+                    case "Due Today" : 
+                    title = `"Due today work order: ${wo_list[i].work_order_id}"`;
+                    desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} Due today"`;
+                    color = `"warning"`;
+                    break;
                     case 'Overdue':
                     title = `"Overdue work order: ${wo_list[i].work_order_id}"`;
                     desc = `"Overdue ${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id}"`;
@@ -95,6 +103,35 @@ exports.getNotification = function(req, res, next) {
                         
                         //CODE OSMS5
                         //CHECK FOR WOS DUE TODAY
+                        //Get list of all farmers
+                        smsModel.getSMSEmployees({position: "Farmer"}, function(err, farmers){
+                            if(err)
+                                throw err;
+                            else{
+                                console.log("TEST SEND SMS --------------------------------------");
+                                //look for workerorders due today
+                                for(var i = 0; i < notif_query.length; i++){
+                                    console.log(notif_query[i].notification_title);
+                                    if(notif_query[i].notification_title.includes("Due today")){
+                                        console.log("entered");
+                                        console.log(farmers);
+                                        var wo_id = notif_query[i].url.split("=");
+                                        
+                                        var msg = "Work Order " + wo_id[1].replace('"', "") + " Due Today\n\n" + notif_query[i].notification_desc + "\n\nTapos na ba ang work order na ito?\n\nMagreply ng 'OO' o 'HINDI'";
+                                        //Loop through farmer with same farm
+                                        for(var x = 0; x < farmers.length; x++){
+                                            if(farmers[x].farm_id == notif_query[i].farm_id){
+                                                //SEND SMS
+                                                console.log("SEND SMS --------------------------------------");
+                                                globe.sendSMS(farmers[x], msg);
+
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        });
 
                     }
 

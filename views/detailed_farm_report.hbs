@@ -16,7 +16,9 @@
         left: 0;
         top: 0;
     }
-    html, body {
+    
+    /* Removes Extra Page */
+	html, body {
       height:100vh; 
       margin: 0 !important; 
       padding: 0 !important;
@@ -43,7 +45,7 @@
             </div>
 
             <div class="col" style="margin-right: 650px; padding-top: 5px"> 
-                <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Farm 1 Productivity Report (PALAY 2021)</h6> <!-- Change to handlebar later -->
+                <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">{{farm.farm_name}} Productivity Report ({{calendar.crop_plan}})</h6> <!-- Change to handlebar later -->
             </div>
         <i class="fas fa-print" type="button" value="print" id="print" style="color: rgb(255,255,255);"></i>
          
@@ -279,10 +281,10 @@
 		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">LA Rice Mill</h1>
 		            </div>
 		            <div>
-		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Farm Productivity Report</h1>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Farm Productivity Report for {{farm.farm_name}}</h1>
 		            </div>
 		            <div>
-		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle on October 2021 - March 2022</h1>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle in {{calendar.crop_plan}}</h1>
 		            </div>
 		        </div>
 		    </div>

@@ -1268,7 +1268,7 @@ exports.getPDProbabilityPercentage = function(weather, season, farmtype, stage, 
 
 exports.getDiagnosisDetails = function(diagnosis_id, next){
 	var sql = "";
-	var pest_diagnosis = 'SELECT * FROM (SELECT d.*, pt.pest_name as name, pt.pest_desc as description, cct.crop_plan, ft.farm_name FROM diagnosis d INNER JOIN pest_table pt ON pt.pest_id = d.pd_id  LEFT JOIN crop_calendar_table cct ON d.calendar_id = cct.calendar_id INNER JOIN farm_table ft ON ft.farm_id = d.farm_id WHERE type = "Pest" ';
+	var pest_diagnosis = 'SELECT * FROM (SELECT d.*, pt.pest_name as name, pt.pest_desc as description, cct.crop_plan, ft.farm_name, FROM diagnosis d INNER JOIN pest_table pt ON pt.pest_id = d.pd_id  LEFT JOIN crop_calendar_table cct ON d.calendar_id = cct.calendar_id INNER JOIN farm_table ft ON ft.farm_id = d.farm_id WHERE type = "Pest" ';
 	var disease_diagnosis = ' SELECT d.*, pt.disease_name as name, pt.disease_desc as description, cct.crop_plan, ft.farm_name FROM diagnosis d INNER JOIN disease_table pt ON pt.disease_id = d.pd_id LEFT JOIN crop_calendar_table cct ON d.calendar_id = cct.calendar_id INNER JOIN farm_table ft ON ft.farm_id = d.farm_id WHERE type = "Disease") a';
 	sql = pest_diagnosis + " UNION " + disease_diagnosis + " WHERE diagnosis_id = ?;";
 	sql = mysql.format(sql, diagnosis_id);

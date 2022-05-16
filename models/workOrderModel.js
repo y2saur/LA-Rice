@@ -28,7 +28,7 @@ exports.createWorkOrderResources = function(query, next) {
 exports.getDetailedWorkOrder = function(query, next) {
 	var sql = "select wot.date_completed, cct.crop_plan, wot.work_order_id, wot.type, wot.crop_calendar_id, date_created, date_due, date_start, wot.status, wot.desc, notes, cct.harvest_yield, ft.farm_id, ft.farm_name, ft.farm_desc from work_order_table as wot join crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id join farm_table ft using(farm_id) where ?;";
 	sql = mysql.format(sql, query);
-
+	console.log(sql);
 	mysql.query(sql, next);
 }
 
@@ -68,7 +68,7 @@ exports.getGroupedWO = function(type, filter, next) {
 }
 
 exports.getWorkOrders = function(query, next) {
-	var sql = 'select case when now() > date_due then "Overdue" when date_add(now(), interval 3 day) >= date_due then "Due soon" else  "Due in a week" end as notif_type, crop_plan, work_order_table.*, case when notes is null then "N/A" else notes end as wo_notes , farm_table.farm_name, farm_table.farm_id from work_order_table join crop_calendar_table on crop_calendar_id = calendar_id join farm_table using (farm_id) ';
+	var sql = 'select case when DATE(now()) = date_due then "Due Today" when now() > date_due then "Overdue" when date_add(now(), interval 3 day) >= date_due then "Due soon" else  "Due in a week" end as notif_type, crop_plan, work_order_table.*, case when notes is null then "N/A" else notes end as wo_notes , farm_table.farm_name, farm_table.farm_id from work_order_table join crop_calendar_table on crop_calendar_id = calendar_id join farm_table using (farm_id) ';
 	if (JSON.stringify(query) != '{ }') {
 		if (query.hasOwnProperty('where') && query.where != null) {
 			for (var i = 0; i < query.where.key.length; i++) {
@@ -142,6 +142,7 @@ exports.updateWorkOrder = function(query, filter, next) {
 	var sql = "update work_order_table set ? where ?"
 	sql = mysql.format(sql, query);
 	sql = mysql.format(sql, filter);
+	console.log(sql);
 	mysql.query(sql, next);
 }
 

@@ -189,6 +189,7 @@ exports.ajaxGetActiveCNRPlans = function(req, res) {
 
 exports.getNutrientMgtDiscover = function(req, res) {
 	var html_data = {};
+	html_data["title"] = "Nutrient Management > Discover";
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'nutrient_mgt_discover', req.session);
 	html_data["notifs"] = req.notifs;
 
@@ -198,6 +199,7 @@ exports.getNutrientMgtDiscover = function(req, res) {
 
 exports.getNutrientMgtPlan = function(req, res) {
 	var html_data = {};
+	html_data["title"] = "Nutrient Management > Nutrient Plan";
 	var farm_filter = req.query.farm_name;
 	var calendar_filter;
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'nutrient_mgt_plan', req.session);
@@ -414,6 +416,7 @@ function convertCNRItems(arr) {
 
 exports.getRecommendationSystem = function(req, res) {
 	var html_data = {};
+	html_data["title"] = "Nutrient Management > Recommendation System";
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'nutrient_mgt_reco', req.session);
 	html_data["notifs"] = req.notifs;
 

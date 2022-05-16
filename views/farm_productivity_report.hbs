@@ -26,6 +26,14 @@
 		visibility: hidden;
 	}
 
+	/* Removes Extra Page */
+	html, body {
+      height:100vh; 
+      margin: 0 !important; 
+      padding: 0 !important;
+      overflow: hidden;
+    }
+
 	#section-to-print1, #section-to-print1 *, 	#section-to-print2, #section-to-print2 * {
 		visibility: visible !important;
 		color: #332C1F;
@@ -282,18 +290,17 @@
 					<div class="col" style="padding-top: 5px;">
                     	<h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Harvest Reports</h6>
                 	</div>
-				
-					<div class="dropdown no-arrow" style="padding-top: 5px">
+
+					{{!-- Button for Summary Harvest Report --}}
+					{{!-- <div class="dropdown no-arrow" style="padding-top: 5px">
                         <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                             <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                         </button>
                         <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in" style="vertical-align: top;">
-                            {{!-- <a class="dropdown-item notSidebar" onclick='window.location="/crop_calendar/add"' style="color: white;">&nbsp;Create Crop Calendar</a>
-                            <div class="dropdown-divider"></div> --}}
                             <a class="dropdown-item notSidebar" href="#" type="button" value="print2" id="print2">&nbsp;View Summary Report</a>
 
                         </div>
-           			</div>
+           			</div> --}}
 				</div>
 				<div class="card-body">
 
@@ -530,10 +537,10 @@
 		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">LA Rice Mill</h1>
 		            </div>
 		            <div>
-		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Farm Productivity Report</h1>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Farm Productivity Summary Report for All</h1>
 		            </div>
 		            <div>
-		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle on October 2021 - March 2022</h1>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For Crop Cycles until {{currentCycle.crop_plan}}</h1>
 		            </div>
 		        </div>
 		    </div>

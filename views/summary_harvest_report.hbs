@@ -10,6 +10,14 @@
 		visibility: hidden;
 	}
 
+	/* Removes Extra Page */
+	html, body {
+      height:100vh; 
+      margin: 0 !important; 
+      padding: 0 !important;
+      overflow: hidden;
+    }
+
 	.section-to-print, .section-to-print * {
 		visibility: visible !important;
 		color: #332C1F;
@@ -34,23 +42,20 @@
     <h3 class="text-dark mb-0">Farm Productivity Reports</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
 </div>
 
-<div class="row">
-<div class="col-lg-12 col-lg-12 col-xxl-12">
-
 {{!-- CARD --}}
 <div class="card shadow mb-4" style="max-width: 1150px; margin: 0px auto;">
 
 {{!-- START CARD HEADER --}}
-<div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;color: #ffffff;">
-                    
+<div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;height: auto;padding: 16px 20px;">
+           
     <div class="col" style="max-width: 70px; padding-top: 2px">
         <button type="submit" class="btn btn-primary btn-md" id="back" onclick='window.location="/farm_productivity_report"'> <!-- Replaced the javascript back function because the page top function is also being considered in the window history -->
         	<i class="far fa-long-arrow-left d-lg-flex justify-content-lg-center" id="backIcon"></i>
         </button>        
     </div>
 
-    <div class="col" style="margin-right: 650px; padding-top: 15px">
-    	<h6>Detailed Harvest Report</h6> <!-- Change to handlebar later -->
+    <div class="col" style="margin-right: 650px; padding-top: 5px; width: auto;"> 
+    	<h6 class="font-weight-bold m-0" style="color: white;">Detailed Harvest Report ({{crop_plans.start}} to {{crop_plans.end}})</h6> <!-- Change to handlebar later -->
     </div>
 
     <i class="fas fa-print" style="color: rgb(255,255,255);" value="print" id="print" type="button"></i>
@@ -460,9 +465,6 @@
 </div>
 
 </div>
-</div>
-
-</div>
 
 {{!-- PRINT HARVEST SUMMARY REPORT --}}
 	<div class="section-to-print" style="display: none; visibility: hidden">
@@ -481,10 +483,10 @@
                 <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">LA Rice Mill</h1>
             </div>
             <div>
-                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Harvest Report</h1>
+                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Harvest Report for All Farms</h1>
             </div>
             <div>
-                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle on October 2021 - March 2022</h1>
+                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle on {{crop_plans.start}} to {{crop_plans.end}}</h1>
             </div>
         </div>
     	</div>
@@ -492,7 +494,7 @@
 
     <div class="row">
         <div class="col" style="background-color:#212529;margin-top: 15px; height: auto">
-            <h4 style="color:white; font-weight: bold; margin-bottom: 15px">Crop Plan Name</h4>
+            <h4 style="color:white; font-weight: bold; margin-bottom: 15px">{{crop_plans.start}} to {{crop_plans.end}}</h4>
         </div>
     </div>
     <div class="row">
