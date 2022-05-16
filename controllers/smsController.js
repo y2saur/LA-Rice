@@ -487,7 +487,7 @@ function getWeatherForecastMsg(employee){
                     }
                     //get weather for farm
                     var forecast_url = 'https://api.agromonitoring.com/agro/1.0/weather/forecast?lat='+lat+'&lon='+lon+'&appid='+key;
-                    request(forecast_url, { json: true }, function(err, response, forecast_body){
+                    request(forecast_url, { json: true }, async function(err, response, forecast_body){
                         if(err)
                             console.log(err);
                         else{
@@ -531,7 +531,8 @@ function getWeatherForecastMsg(employee){
                             //SET MESSAGE LAYOUT
                             message = "WEATHER FORECAST\nFarm: " + farm_name;
                             for(var i = 0 ; i < daily_weather.length; i++){
-                                message = message + "\n\nDate: " + daily_weather[i].date + "\nWeather: " + daily_weather[i].weather + "\nTemp: " + daily_weather[i].temp.toFixed(2) + " C";
+                                var weather_desc = await translator.translateText(daily_weather[i].weather);
+                                message = message + "\n\nPetsa: " + daily_weather[i].date + "\nPanahon: " + weather_desc.data[0].translations[0].text + "\nTemp: " + daily_weather[i].temp.toFixed(2) + " C";
                             }
                             console.log(message);
                             
@@ -578,7 +579,7 @@ function getIncomingWos(employee){
                                     not_completed.push(wos[i]); 
                                     wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
                                     wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
-                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nStatus: " + wos[i].status;
+                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nKalagayan: " + wos[i].status;
                                 }
                             }
                             console.log(message);
@@ -598,12 +599,13 @@ function getIncomingWos(employee){
 //SEND LIST OF PD SYMPTOMS
 function sendPDSymptoms(emp){
     var msg = "PEST/DISEASE SYMPTOMS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
-    pestdiseaseModel.getAllSymptoms(function(err, symptoms){
+    pestdiseaseModel.getAllSymptoms( async function(err, symptoms){
         if(err)
             throw err;
         else{
             for(var i = 0; i < symptoms.length; i++){
-                msg = msg + symptoms[i].symptom_id + " - " + symptoms[i].symptom_name + "\n";
+                var name = await translator.translateText(symptoms[i].symptom_name);
+                msg = msg + symptoms[i].symptom_id + " - " + name.data[0].translations[0].text + "\n";
             }
 
             //Send to user
