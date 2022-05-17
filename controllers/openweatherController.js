@@ -359,16 +359,16 @@ exports.get14DWeatherForecast = function(req, res) {
 						date_recorded: '"'+dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')+'"',
 						target_date: '"'+weather_obj.date+'"'
 					});
-				}
-				//CREATE AND SEND SMS TO FARMERS
-				var message = "MALAKAS NA ULAN\n\nSa susunod na dalawang linggo, asahan ang malakas na pag-ulan sa iba't ibang bahagi ng Mindoro.\n\nPosibleng mag-ani ng maaga upang mabawasan ang pagkawala. Makipag-ugnayan sa Farm manager sa maaaring gawin."
-				smsModel.getSMSEmployees({isActive : "1"}, function(err, employees){
-					//For each employee, send message
-					for(var i = 0; i < employees.length; i++){
-						globe.sendSMS(employees[i], message);
-					}
-				});
 
+					//CREATE AND SEND SMS TO FARMERS
+					var message = "MALAKAS NA ULAN\n\nSa susunod na dalawang linggo, asahan ang malakas na pag-ulan sa iba't ibang bahagi ng Mindoro.\n\nPosibleng mag-ani ng maaga upang mabawasan ang pagkawala. Makipag-ugnayan sa Farm manager sa maaaring gawin."
+					smsModel.getSMSEmployees({isActive : "1"}, function(err, employees){
+						//For each employee, send message
+						for(var i = 0; i < employees.length; i++){
+							globe.sendSMS(employees[i], message);
+						}
+					});
+				}
 				weather_obj = {};
 			}
 			weatherForecastModel.saveForecastResults(query, function(err, status) {
