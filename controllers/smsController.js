@@ -112,7 +112,7 @@ exports.globe_inbound_msg = function(req, res){
                             if(last_message[0].includes("Due Today")){ //Checks if last message is due today
                                 dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
                             }
-                            else if(last_message[0].includes("PEST/DISEASE SYMPTOMS")){
+                            else if(last_message[0].includes("PESTE/SAKIT SINTOMAS")){
                                 //FOR PD SYMPTOMS
 
                                 //CREATE NOTIF WITH CUSTOM URL
@@ -598,14 +598,14 @@ function getIncomingWos(employee){
 
 //SEND LIST OF PD SYMPTOMS
 function sendPDSymptoms(emp){
-    var msg = "PEST/DISEASE SYMPTOMS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
+    var msg = "PESTE/SAKIT SINTOMAS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
     pestdiseaseModel.getAllSymptoms( async function(err, symptoms){
         if(err)
             throw err;
         else{
             for(var i = 0; i < symptoms.length; i++){
-                var name = await translator.translateText(symptoms[i].symptom_name);
-                msg = msg + symptoms[i].symptom_id + " - " + name.data[0].translations[0].text + "\n";
+                // var name = await translator.translateText(symptoms[i].symptom_name);
+                msg = msg + symptoms[i].symptom_id + " - " + symptoms[0].tagalog_name + "\n";
             }
 
             //Send to user
