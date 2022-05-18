@@ -34,7 +34,8 @@ function processOverviewFilter(data) {
 }
 
 exports.getUpcomingWOByStatus = function(data, next) {
-	var sql = `select count(*) as count, wot.status, wot.crop_calendar_id  from work_order_table wot join crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id where cct.status != 'Completed' and (yearweek(date('${data.date}'), 0) >= yearweek(wot.date_start, 0)) and (yearweek(date('${data.date}'), 0)-yearweek(wot.date_start, 0) <= 1 and yearweek(date('${data.date}'), 0)-yearweek(wot.date_start, 0)  >= -1) group by wot.crop_calendar_id, wot.status`;
+	var sql = `SELECT ft.farm_name, COUNT(*) AS count, wot.status, case when (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1) then 'Normal' else 'Overdue' end as type,wot.crop_calendar_id FROM work_order_table wot JOIN crop_calendar_table cct ON wot.crop_calendar_id = cct.calendar_id join farm_table ft using(farm_id) WHERE (cct.status != 'Completed' AND (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1)) or (cct.status != 'Completed' and datediff(DATE('${data.date}'), wot.date_due) >= 0) GROUP BY wot.crop_calendar_id, wot.status, case when (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1) then 'Normal' else 'Overdue' end `;
+
 	mysql.query(sql, next);
 }
 
@@ -176,7 +177,7 @@ exports.getInputResourcesUsed = function(data, next) {
 		}
 	}
 	sql += "and wot.status = 'Completed' group by calendar_id, item_id";
-
+	
 	mysql.query(sql, next);
 }
 

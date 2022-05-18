@@ -99,8 +99,10 @@ router.get('/logout', userController.logout);
 
 
 /*** Page Navigation Start ***/
-router.get('/', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,workOrderController.getWorkOrdersDashboard); 
-router.get('/home', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,workOrderController.getWorkOrdersDashboard); 
+router.get('/', (req,res) => {
+	res.redirect('/home');
+}); 
+router.get('/home', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,workOrderController.getWorkOrdersDashboard_v2); 
 
 router.get('/farms', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,workOrderController.getWorkOrdersPage); 
 router.get('/farms/add', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,farmController.getAddFarm);
@@ -218,9 +220,9 @@ router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
 
 //Report
-router.get('/farm_productivity_report', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,reportController.getFarmProductivityReport);
+router.get('/farm_productivity_report', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , reportController.getBenchmarkCharts, reportController.getFarmProductivityReport);
 router.get('/farm_productivity/detailed', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,reportController.getDetailedReport);
-router.get('/harvest_report/:crop_plan/summary', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,reportController.getSummaryHarvestReport);
+router.get('/harvest_report/:crop_plan/summary', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , reportController.getSummaryHarvestReport);
 router.get('/harvest_report/:crop_plan/detailed', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,reportController.getDetailedHarvestReport);
 
 

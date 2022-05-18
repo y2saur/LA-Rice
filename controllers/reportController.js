@@ -151,6 +151,75 @@ function calculateSPI(spi_data, month, n) {
 
 }
 
+exports.getBenchmarkCharts = function(req, res, next) {
+	farmModel.getAllFarms(function(err, farm_list) {
+		if (err)
+			throw err;
+		else {
+			// Change active filters as needed
+			farm_list.forEach(function(item, index) {
+					farm_list[index]['checked'] = true;
+			});
+			req.farm_list = { lowland: farm_list.filter(e=>e.land_type=='Lowland'), upland: farm_list.filter(e=>e.land_type=='Upland') };
+
+			cropCalendarModel.getCropPlans(function(err, crop_plans) {
+				if (err)
+					throw err;
+				else {
+					const unique_cycles = [...new Set(crop_plans.map(e => e.crop_plan).map(item => item))];
+					const unique_farms = [...new Set(farm_list.map(e => e.farm_id).map(item => item))];
+
+					var cycle_cont = [], checked;
+					unique_cycles.forEach(function(item, index) {
+						if (index <= 5)
+							checked = true;
+						else
+							checked = false;
+
+						cycle_cont.push({ cycle_name: unique_cycles[index], checked: checked });
+					});
+					req.crop_plans = cycle_cont;
+
+					if (unique_cycles.length != 0) {
+						reportModel.getProductionOverview({ farm_id: unique_farms, cycles: unique_cycles }, function(err, production_chart_data) {
+							if (err)
+								throw err;
+							else {
+								var production_chart = chart_formatter.formatProductionChart(production_chart_data);
+								req.production_chart = JSON.stringify(production_chart);
+
+								reportModel.getFertilizerConsumption({ farm_id: unique_farms, cycles: unique_cycles }, function(err, nutrient_consumption_data) {
+									if (err)
+										throw err;
+									else {
+										var nutrient_consumption_chart = chart_formatter.formatConsumptionChart(nutrient_consumption_data);
+										req.consumption_chart = JSON.stringify(nutrient_consumption_chart);
+
+										reportModel.getPDOverview({ farm_id: unique_farms, cycles: unique_cycles }, function(err, pd_overview_data) {
+											if (err)
+												throw err;
+											else {
+												var pd_overview = chart_formatter.formatPDOverview(pd_overview_data);
+												req.pd_overview_chart = { stage: JSON.stringify(pd_overview.stage), trend: JSON.stringify(pd_overview.trend) };
+											
+												return next();
+											}
+										});
+									}
+								});
+
+							}
+						});
+					}
+					else {
+						return next();
+					}	
+				}
+			});
+		}
+	});
+}
+
 exports.ajaxWeatherChart = function(req, res) {
 	var start_date = new Date(req.query.start_date), end_date = new Date(req.query.end_date);
 	var diff = Math.abs(end_date - start_date);
@@ -264,6 +333,12 @@ exports.getDetailedReport = function(req, res) {
 exports.getFarmProductivityReport = function(req, res) {
 	var html_data = {};
 	html_data = js.init_session(html_data, 'role', 'name', 'username', 'reports', req.session);
+
+	html_data['farm_list'] = req.farm_list;
+	html_data['crop_plans'] = req.crop_plans;
+	html_data['production_chart'] = req.production_chart;
+	html_data['consumption_chart'] = req.consumption_chart;
+
 	reportModel.getFarmProductivity(function(err, fp_overview) {
 		if (err)
 			throw err;

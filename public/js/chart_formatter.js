@@ -1,3 +1,59 @@
+exports.formatWOStatusChart = function(data) {
+	var obj_data = { labels: [], datasets: [] };
+	var color, lbl, data2, data1;
+	// N, P, K
+	var color_arr = ['#2b6588', '#489740', "#fccb35", '#2b6588', '#489740', "#fccb35"];
+
+	const unique_cycles = [...new Set(data.map(e => e.farm_name).map(item => item))];
+	const unique_status = ['Completed', 'Pending (Regular)', 'Pending (Overdue)', 'In-Progress (Regular)', 'In-Progress (Overdue)', 'Cancelled'];
+	var filtered, nutrient_sum;
+
+	obj_data.labels = unique_cycles;
+
+	for (var x = 0; x < unique_status.length; x++) {
+		arr = [];
+		lbl = unique_status[x];
+		data1 = [];
+
+		for (var i = 0; i < unique_cycles.length; i++) {
+			nutrient_sum = 0;
+
+			if (unique_status[x] == 'Pending (Regular)') {
+				filtered = data.filter(e=> e.farm_name == unique_cycles[i] && e.status == 'Pending' && e.type == 'Normal');
+			}
+			else if (unique_status[x] == 'Pending (Overdue)') {
+				filtered = data.filter(e=> e.farm_name == unique_cycles[i] && e.status == 'Pending' && e.type == 'Overdue');
+			}
+			else if (unique_status[x] == 'In-Progress (Regular)') {
+				filtered = data.filter(e=> e.farm_name == unique_cycles[i] && e.status == 'In-Progress' && e.type == 'Normal');
+			}
+			else if (unique_status[x] == 'In-Progress (Overdue)') {
+				filtered = data.filter(e=> e.farm_name == unique_cycles[i] && e.status == 'In-Progress' && e.type == 'Overdue');
+			}
+			else {
+				filtered = data.filter(e=> e.farm_name == unique_cycles[i] && e.status == unique_status[x] && e.type == 'Normal');
+			}
+
+			filtered.forEach(function(item) {
+				nutrient_sum += item.count;
+			});
+
+			data1.push(nutrient_sum);
+		}
+
+		obj_data.datasets.push({
+			label: lbl,
+			yAxisID: `bar-stack`,
+			stack: 'harvested',
+			backgroundColor: color_arr[x],
+			data: data1
+		});
+
+	}
+
+	return obj_data;
+} 
+
 exports.formatProductionChart = function(data) {
 	var obj_data = { labels: [], datasets: [] };
 	var color, lbl, data2, data1;
