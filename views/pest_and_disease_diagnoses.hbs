@@ -58,11 +58,11 @@
                                     <div class="card shadow mb-4">
                                         {{#if writeable}}
                                         <div class="card-header" role="tab" style="background: #EDD172 !important; padding: 16px 20px;height: auto;">
-                                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="accordion-diagnosis .item-diagnosis" href="#accordion-diagnosis .item-diagnosis" style="font-size: 16px;color: #584C33!important;font-weight: bold;">Create New Diagnosis</a></h5>
+                                            <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="accordion-diagnosis .item-diagnosis" href="#accordion-diagnosis .item-diagnosis" style="font-size: 16px;color: #584C33!important;font-weight: bold;">Create New Diagnosis</a></h5>
 
                                         </div>
                                         {{/if}}
-                                        <div class="collapse item-diagnosis" role="tabpanel" data-parent="#accordion-diagnosis">
+                                        <div class="collapse item-diagnosis show" role="tabpanel" data-parent="#accordion-diagnosis">
                                             
                                         <div class="card-body" style="color: #332c1f;">
                                             {{!-- START FORM --}}
@@ -88,7 +88,7 @@
 
                                                         <div class="col">
                                                                 <label for="date_diagnosed">Date Diagnosed <span style="color: #CA4E0C;">*</span></label>
-                                                                <input type="date" class="form-control" id="date_diagnosed" name="date_diagnosed" form="add_diagnosis_form">
+                                                                <input type="date" value="{{cur_date}}" class="form-control" id="date_diagnosed" name="date_diagnosed" form="add_diagnosis_form">
                                                         </div>     
 
                                                         </div>

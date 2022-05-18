@@ -1161,9 +1161,16 @@ exports.getCurrentSoilData = function(req, res){
 	   //      		body[i].dt = dataformatter.formatDate(dataformatter.unixtoDate(body[i].dt), 'YYYY-MM-DD');
 	   //      		body[i]['date'] = dataformatter.unixtoDate(body[i].dt);
 	   //      	}
-	  			body.dt = dataformatter.unixtoDate(body.dt);
-				body.moisture *= 100;
-				body = dataformatter.kelvinToCelsius(body, 'Soil');
+
+	   			if (body == 'undefined' || body == undefined) {
+	   				body = { dt: 'N/A', moisture: 'N/A' }; 
+	   			}
+	   			else {
+	   				body.dt = dataformatter.unixtoDate(body.dt);
+					body.moisture *= 100;
+					body = dataformatter.kelvinToCelsius(body, 'Soil');
+	   			}
+		  			
 
 	        	res.send(body);
 	        }

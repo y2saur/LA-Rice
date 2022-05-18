@@ -272,9 +272,10 @@ exports.getDetailedWO = function(req, res) {
 											})
 											
 											html_data['stage'] = crop_calendar.filter(e => e.calendar_id == details.crop_calendar_id)[0].stage2;
+
 											html_data['status_editable'] = wo_list[0].status == 'Completed' ? true : false;
 											html_data['harvest_details'] = harvest_details;
-											
+
 											html_data["notifs"] = req.notifs;
 											res.render('detailed_work_order', html_data);
 										}
@@ -1172,7 +1173,7 @@ exports.editWorkOrder = function(req, res) {
 				var filtered_mats;
 				query_arr.forEach(function(item) {
 					filtered_mats = farm_materials.filter(e => e.item_id == parseInt(item.item_id) && e.item_type == item.type)[0];
-					console.log(filtered_mats);
+
 					if (parseInt(filtered_mats.current_amount) < parseInt(item.qty)) {
 						inventory_control = false;
 					}

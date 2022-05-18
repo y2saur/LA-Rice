@@ -162,7 +162,7 @@ exports.updateWeatherData = function(req, res, next) {
 					else {
 
 						body = body.result.filter(e => (e.month == month && (e.day > day && e.day <= day_end) ) || (e.month == month_end && (e.day <= day_end && e.day > day) ) );
-
+						console.log(body);
 						if (body.length != 0) {
 							var temp_date;
 							body.forEach(function(item) {

@@ -547,16 +547,16 @@ $(document).ready(function() {
 	var farm_list, seed_list;
 	var wo_arr = [];
 	var calendar_id;
-	var now = new Date();
-	var first_season_range = [new Date('2022-06-01'), new Date('2022-10-01')];
+	var now = new Date(system_date);
+	//var first_season_range = [new Date('2022-06-01'), new Date('2022-10-01')];
+	var first_season_range = ['5', '10'];
 	var season_name;
 
-	console.log(first_season_range[0].getMonth() >= now.getMonth());
-	if (first_season_range[0].getMonth() >= now.getMonth() && now.getMonth() < first_season_range[1].getMonth()) {
+	if (first_season_range[0] >= now.getMonth() && now.getMonth() < first_season_range[1]) {
 		season_name = `Early ${now.getFullYear()}`;
 	}
 	else {
-		season_name = `Late ${now.getFullYear()+1}`;
+		season_name = `Late ${now.getFullYear()}`;
 	}
 
 	console.log(season_name);

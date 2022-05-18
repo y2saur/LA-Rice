@@ -61,23 +61,23 @@ exports.getCropCalendarNutrientRecommendations = function(data, next) {
 
 exports.getProductionOverview = function(data, next) {
 	var str = processOverviewFilter(data);
-	
 	var sql = `select ft.farm_area, ft.land_type, cct.calendar_id, ft.farm_name, st.seed_name, cct.crop_plan, case when fy.harvested is null then 0 else fy.harvested end as harvested, case when fy.forecast = -1 then 0 else fy.forecast end as forecasted from crop_calendar_table cct join forecasted_yield fy using(calendar_id) join seed_table st using(seed_id) join farm_table ft using(farm_id) ${str}`;
-	
+	sql += ` ORDER BY substring(crop_plan, -4, 4), crop_plan`;
+
 	mysql.query(sql, next);
 }
 
 exports.getFertilizerConsumption = function(data, next) {
 	var str = processOverviewFilter(data);
 	var sql = `select N, P, K, cct.crop_plan, cct.calendar_id, ft.farm_name, fet.fertilizer_name, sum(wrt.qty) as qty, ft.farm_area from crop_calendar_table cct join work_order_table wot on cct.calendar_id = wot.crop_calendar_id join wo_resources_table wrt using (work_order_id) join fertilizer_table fet on wrt.item_id = fet.fertilizer_id join farm_table ft using(farm_id) ${str} group by crop_plan, farm_name, fertilizer_name`;
-	
+	sql += ` ORDER BY substring(crop_plan, -4, 4), crop_plan`;
 	mysql.query(sql, next);
 }
 
 exports.getPDOverview = function(data, next) {
 	var str = processOverviewFilter(data);
 	var sql = `select cct.crop_plan, count(*) as count, d.type, d.stage_diagnosed, ft.farm_id, case when d.type = 'Pest' then (select pest_name from pest_table where pd_id = pest_id) else (select disease_name from disease_table where pd_id = disease_id) end as pd_name from crop_calendar_table cct join diagnosis d using(calendar_id) join farm_table ft on cct.farm_id = ft.farm_id  ${str} group by crop_plan, stage_diagnosed, pd_name`;
-	
+	sql += ` ORDER BY substring(crop_plan, -4, 4), crop_plan`;
 	mysql.query(sql, next);
 }
 

@@ -43,7 +43,7 @@ function getNumLowStocks() {
 $(document).ready(function() {
 
     if (view == 'home') {
-		jQuery.ajaxSetup({async: false });
+		jQuery.ajaxSetup({async: true });
         var geojson;
         var coordinates = [];
 
@@ -77,37 +77,62 @@ $(document).ready(function() {
                         
                         // Get other farm details
                         $.get("/ajax_farm_detailsDashboard", {farm_id : farms[i].farm_id}, function(farm_details){
-                        
-                        // Load environment details
-                        $.get('/agroapi/soil/current', { polyid: polygons[j].id }, function(soil) {
                             
-                        for (var k = 0; k < farm_details.length; k++) {
+                            for (var k = 0; k < farm_details.length; k++) {
 
-                        var farm_manager = farm_details[k].first_name + " " + farm_details[k].last_name;
+                                var farm_manager = farm_details[k].first_name + " " + farm_details[k].last_name;
 
-                        coordinates.push(polygons[j].geo_json.geometry.coordinates[0]);
-                     
-                        geojson.features.push   ({ "type": "Feature",
-                                                "geometry": {
-                                                    "type": "Polygon","coordinates": coordinates
-                                                },
-                                                'properties': {
-                                                    'name': '<strong>' + farms[i].farm_name + "</strong>", //alternative html text
-                                                    'description': 
-                                                    '<strong style="color: #939C1F; font-size: 16px">' + farms[i].farm_name + '</strong><br>'
-                                                        + '<strong> Area Size: </strong>' + farms[i].farm_area + 'ha<br>'
-                                                        + '<strong> Land Type: </strong>' + farms[i].land_type + '<br>'
-                                                        + '<strong> Farm Manager: </strong>' + farm_manager + '<br>'
-                                                        + '<strong> Soil Moisture: </strong>' + Math.round(soil.moisture * 100) / 100 + '%' + '<br>',
-                                                    },
-                                                
-                                                });
+                                coordinates.push(polygons[j].geo_json.geometry.coordinates[0]);
+                             
+                                geojson.features.push   ({ "type": "Feature",
+                                                        "geometry": {
+                                                            "type": "Polygon","coordinates": coordinates
+                                                        },
+                                                        'properties': {
+                                                            'name': '<strong>' + farms[i].farm_name + "</strong>", //alternative html text
+                                                            'description': 
+                                                            '<strong style="color: #939C1F; font-size: 16px">' + farms[i].farm_name + '</strong><br>'
+                                                                + '<strong> Area Size: </strong>' + farms[i].farm_area + 'ha<br>'
+                                                                + '<strong> Land Type: </strong>' + farms[i].land_type + '<br>'
+                                                                + '<strong> Farm Manager: </strong>' + farm_manager + '<br>'
+                                                            },
+                                                        
+                                                        });
 
-                        // Empty coordinates array at the end of the loop to filter coordinates per farm and feature on every push
-                        coordinates = [];
-                    }
+                                // Empty coordinates array at the end of the loop to filter coordinates per farm and feature on every push
+                                coordinates = [];
+                            }
 
-                    });
+                            // // Load environment details
+                            // $.get('/agroapi/soil/current', { polyid: polygons[j].id }, function(soil) {
+                                
+                            //     for (var k = 0; k < farm_details.length; k++) {
+
+                            //         var farm_manager = farm_details[k].first_name + " " + farm_details[k].last_name;
+
+                            //         coordinates.push(polygons[j].geo_json.geometry.coordinates[0]);
+                                 
+                            //         geojson.features.push   ({ "type": "Feature",
+                            //                                 "geometry": {
+                            //                                     "type": "Polygon","coordinates": coordinates
+                            //                                 },
+                            //                                 'properties': {
+                            //                                     'name': '<strong>' + farms[i].farm_name + "</strong>", //alternative html text
+                            //                                     'description': 
+                            //                                     '<strong style="color: #939C1F; font-size: 16px">' + farms[i].farm_name + '</strong><br>'
+                            //                                         + '<strong> Area Size: </strong>' + farms[i].farm_area + 'ha<br>'
+                            //                                         + '<strong> Land Type: </strong>' + farms[i].land_type + '<br>'
+                            //                                         + '<strong> Farm Manager: </strong>' + farm_manager + '<br>'
+                            //                                         + '<strong> Soil Moisture: </strong>' + Math.round(soil.moisture * 100) / 100 + '%' + '<br>',
+                            //                                     },
+                                                            
+                            //                                 });
+
+                            //         // Empty coordinates array at the end of the loop to filter coordinates per farm and feature on every push
+                            //         coordinates = [];
+                            //     }
+
+                            // });
                     // END OF GET FARM DETAILS AJAX
 
                     });
