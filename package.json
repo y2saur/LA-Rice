@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@handlebars/allow-prototype-access": "^1.0.5",
+    "axios": "^0.27.2",
     "bcrypt": "^5.0.1",
     "brain.js": "^1.6.1",
     "chart.js": "^3.6.2",

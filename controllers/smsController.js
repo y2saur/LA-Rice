@@ -123,15 +123,15 @@ exports.globe_inbound_msg = function(req, res){
 
                                     //Check if symptom is in db
 
-                                    
+
                                     if(i != symptoms_from_user.length - 1)
                                         url = url + "-";
                                 }
 
-                                url = url + "&farm=" + farm_id; 
+                                url = url + "&farm=" + employee_details[0].farm_id; 
                                 //Create notif
                                 var notif = {
-                                    date : new Date(),
+                                    date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
                                     farm_id : employee_details[0].farm_id,
                                     notification_title : "Symptoms Reported",
                                     url : url,
@@ -396,13 +396,18 @@ exports.registerUser = function(req,res){
     return true;
 }
 
+const translator = require('../public/js/translator.js');
 
 //SEND MESSAGE TO USER FROM APP
-exports.globe_outbound_msg = function(req, res){
+exports.globe_outbound_msg = async function(req, res){
     console.log("sending outbound message");
     console.log(req.query);
     var employee_id = req.query.employee_id;
     var message = req.query.message;
+    var translated_msg = await translator.translateText(message);
+
+    
+    console.log(translated_msg.data[0].translations[0].text);
     //GET EMPLOYEE DETAILS
     smsModel.getEmployeeDetails({key : "employee_id", value : employee_id}, function(err, employee_details){
         if(err)
@@ -415,7 +420,7 @@ exports.globe_outbound_msg = function(req, res){
                     res.send("No access token");
                 }
                 else{
-                    sendOutboundMsg(emp, message);
+                    sendOutboundMsg(emp, translated_msg.data[0].translations[0].text);
                     res.send("message sent");
                 }
             }
@@ -482,7 +487,7 @@ function getWeatherForecastMsg(employee){
                     }
                     //get weather for farm
                     var forecast_url = 'https://api.agromonitoring.com/agro/1.0/weather/forecast?lat='+lat+'&lon='+lon+'&appid='+key;
-                    request(forecast_url, { json: true }, function(err, response, forecast_body){
+                    request(forecast_url, { json: true }, async function(err, response, forecast_body){
                         if(err)
                             console.log(err);
                         else{
@@ -526,7 +531,8 @@ function getWeatherForecastMsg(employee){
                             //SET MESSAGE LAYOUT
                             message = "WEATHER FORECAST\nFarm: " + farm_name;
                             for(var i = 0 ; i < daily_weather.length; i++){
-                                message = message + "\n\nDate: " + daily_weather[i].date + "\nWeather: " + daily_weather[i].weather + "\nTemp: " + daily_weather[i].temp.toFixed(2) + " C";
+                                var weather_desc = translator.localTranslate(daily_weather[i].weather);
+                                message = message + "\n\nPetsa: " + daily_weather[i].date + "\nPanahon: " + weather_desc + "\nTemp: " + daily_weather[i].temp.toFixed(2) + " C";
                             }
                             console.log(message);
                             
@@ -541,7 +547,7 @@ function getWeatherForecastMsg(employee){
 }
 
 function getIncomingWos(employee){
-    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){
+    employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){ //employee.employee_id
         if(err)
             console.log(err);
         else{
@@ -560,7 +566,7 @@ function getIncomingWos(employee){
                         },
                         order: ['work_order_table.date_start ASC']
                     };
-                    woModel.getWorkOrders(wo_query, function(err, wos){
+                    woModel.getWorkOrders(wo_query, async function(err, wos){
                         if(err)
                             throw err;
                         else{
@@ -569,10 +575,11 @@ function getIncomingWos(employee){
                             var not_completed = [];
                             for(var i = 0; i < wos.length; i++){
                                 if(wos[i].status != "Completed"){
+                                    var wo_type = await translator.translateText(wos[i].type);
                                     not_completed.push(wos[i]); 
                                     wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
                                     wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
-                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wos[i].type + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nStatus: " + wos[i].status;
+                                    message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nKalagayan: " + wos[i].status;
                                 }
                             }
                             console.log(message);
@@ -588,15 +595,17 @@ function getIncomingWos(employee){
 }
 
 
+
 //SEND LIST OF PD SYMPTOMS
 function sendPDSymptoms(emp){
     var msg = "PEST/DISEASE SYMPTOMS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
-    pestdiseaseModel.getAllSymptoms(function(err, symptoms){
+    pestdiseaseModel.getAllSymptoms( async function(err, symptoms){
         if(err)
             throw err;
         else{
             for(var i = 0; i < symptoms.length; i++){
-                msg = msg + symptoms[i].symptom_id + " - " + symptoms[i].symptom_name + "\n";
+                var name = await translator.translateText(symptoms[i].symptom_name);
+                msg = msg + symptoms[i].symptom_id + " - " + name.data[0].translations[0].text + "\n";
             }
 
             //Send to user
@@ -721,8 +730,44 @@ exports.sendSMS = function(emp, message){
     });
 }
 
+const axios = require('axios').default;
+const { v4: uuidv4 } = require('uuid');
 
+//TRANSLATION TEST
+exports.testTranslation = function(req, res){
 
+    var key = "85f608a71b654ef8bbdef5dbaaa0c416";
+    var endpoint = "https://api.cognitive.microsofttranslator.com";
+    
+
+    // Add your location, also known as region. The default is global.
+    // This is required if using a Cognitive Services resource.
+    var location = "southeastasia";
+
+    axios({
+        baseURL: endpoint,
+        url: '/translate',
+        method: 'post',
+        headers: {
+            'Ocp-Apim-Subscription-Key': key,
+            'Ocp-Apim-Subscription-Region': location,
+            'Content-type': 'application/json',
+            'X-ClientTraceId': uuidv4().toString()
+        },
+        params: {
+            'api-version': '3.0',
+            'from': 'en',
+            'to': 'fil'
+        },
+        data: [{
+            'text': 'Good morning!'
+        }],
+        responseType: 'json'
+    }).then(function(response){
+        console.log(JSON.stringify(response.data, null, 4));
+    });
+
+}
 
 
 
