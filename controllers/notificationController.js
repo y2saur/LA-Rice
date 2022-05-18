@@ -62,7 +62,7 @@ exports.getNotification = function(req, res, next) {
                     color: color,
                     status: 1,
                     type: "'WO_REMINDER'",
-                    time: "'" + time + "'"
+                    time: `"${time}"`
                 });
             }
             notifModel.getAllNotifs(function(err, notif_list) {
@@ -111,7 +111,7 @@ exports.getNotification = function(req, res, next) {
                                 console.log("TEST SEND SMS --------------------------------------");
                                 //look for workerorders due today
                                 for(var i = 0; i < notif_query.length; i++){
-                                    console.log(notif_query[i].notification_title);
+                                    //console.log(notif_query[i].notification_title);
                                     if(notif_query[i].notification_title.includes("Due today")){
                                         console.log("entered");
                                         console.log(farmers);
@@ -146,7 +146,7 @@ exports.getNotification = function(req, res, next) {
                             notif_obj.earlier = user_notif_list.filter(e => e.isSeen == 1);
                             notif_obj.earlier = notif_obj.earlier.slice(0, 10);
                             notif_obj.disaster = user_notif_list.filter(e => e.isSeen == 1 && e.type == 'DISASTER_WARNING' && dataformatter.dateDiff(req.session.cur_date, e.date) >=0 && dataformatter.dateDiff(req.session.cur_date, e.date) <= 30);
-                            //console.log(notif_obj.disaster);
+
                             req.notifs = notif_obj;
 
                             return next();

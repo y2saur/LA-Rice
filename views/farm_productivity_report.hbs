@@ -327,6 +327,113 @@
 									<div class="col-4 text-right" style="margin: 0px;padding: 5px 10px;"><a href="#" data-toggle="modal" data-target="#tablehelpModal"><i class="fa fa-question-circle" data-toggle="tooltip" data-placement="top" title="Custom Sort Details" aria-hidden="true" style="padding: 5px 15px;margin: 2px;"></i></a></div>
 								</div> --}}
 
+								<div class="row mb-3">
+									<div class="d-flex flex-column">
+							            <div class="form-row ">
+
+							                {{#if crop_plans}}
+							                <div class="form-group ml-2">
+							                  <label class="ml-1" for="farm_filter">Farms</label>
+							                    <div class="dropdown">
+							                      <button class="btn btn-default dropdown-toggle" type="button" 
+							                              id="dropdownMenu1" data-toggle="dropdown" 
+							                              aria-haspopup="true" aria-expanded="false">
+							                        Crop Cycles
+							                      </button>
+							                      <ul class="dropdown-menu checkbox-menu allow-focus farm_dropdown" aria-labelledby="dropdownMenu1">
+							                      {{#each crop_plans}}
+							                        <li >
+							                          <label>
+							                            <input type="checkbox" name="overview_cycle_filter" value="{{this.cycle_name}}" {{#if this.checked}}checked{{/if}}>{{cycle_name}}
+							                          </label>
+							                        </li>
+							                      {{/each}}
+							                      </ul>
+							                    </div>
+							                </div>
+							                {{/if}}
+
+							                <div class="form-group mx-3">
+							                    <label class="ml-1" for="farm_filter">Farms</label>
+							                    <div class="dropdown">
+							                      <button class="btn btn-default dropdown-toggle" type="button" 
+							                              id="dropdownMenu1" data-toggle="dropdown" 
+							                              aria-haspopup="true" aria-expanded="false">
+							                        Farms...
+							                      </button>
+							                      <ul class="dropdown-menu checkbox-menu allow-focus farm_dropdown" aria-labelledby="dropdownMenu1">
+							                        {{#if farm_list.lowland}}
+							                          <h6 class="dropdown-header">Lowland</h6>
+							                          {{#each farm_list.lowland}}
+							                            <li >
+							                              <label>
+							                                <input type="checkbox" name="overview_farm_filter" value="{{this.farm_id}}" {{#if this.checked}}checked{{/if}}>{{this.farm_name}}
+							                              </label>
+							                            </li>
+							                          {{/each}}
+							                        {{else}}
+
+							                        {{/if}}
+
+							                        {{#if farm_list.upland}}
+							                          <h6 class="dropdown-header">Upland</h6>
+							                          {{#each farm_list.upland}}
+							                            <li >
+							                              <label>
+							                                <input type="checkbox" name="overview_farm_filter" value="{{this.farm_id}}" {{#if this.checked}}checked{{/if}}>{{this.farm_name}}
+							                              </label>
+							                            </li>
+							                          {{/each}}
+							                        {{else}}
+
+							                        {{/if}}
+							                      </ul>
+							                    </div>
+							                </div>
+
+							                <div class="form-group align-bottom ml-3">
+							                    <div class="h-100 align-bottom align-text-bottom mt-2">
+							                        <button class="btn btn-primary mt-4" id="overview_filter_btn" type="button">Filter</button> 
+							                    </div>
+							                </div>
+							            </div>
+							            <span class="text-danger" id="overview_filter_err"></span>
+
+							            <div class="d-flex">
+							            	{{#if production_chart}}
+
+								            <div class="w-75 mr-4 d-flex flex-column rounded" style="">
+								                <div class="text-white w-100 py-2 text-center  bg-dark">
+								                    <div>
+								                        Crop Production <small>(in cavans/ha)</small>
+								                    </div>
+								                    <!-- <small>actual vs forecasted</small> -->
+								                </div>
+								                <div>
+								                    <canvas id="crop_production" style="height: 250px;"></canvas>
+								                </div>
+								            </div>
+								            {{/if}}
+
+								            {{#if consumption_chart}}
+							                <div class="w-25 ml-3 d-flex flex-column rounded" style="">
+							                    <div class="text-white w-100 py-2 text-center bg-dark">
+							                        Fertilizer Consumption <small>(in grams/ha)</small>
+							                    </div>
+							                    <div class="w-100">
+							                        <canvas id="fertilizer_consumption" style="height: 250px;"></canvas>
+							                    </div>
+							                </div>
+							                {{/if}}
+							            </div>
+
+								            
+
+							        </div>
+
+
+								</div>
+
 								<div class="row">
 									<div class="col-12">
 										<div style="width: auto;">
@@ -738,6 +845,8 @@
 
 	</div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.2/chart.min.js" integrity="sha512-tMabqarPtykgDtdtSqCL3uLVM0gS1ZkUAVhRFu1vSEFgvB73niFQWJuvviDyBGBH22Lcau4rHB5p2K2T0Xvr6Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 <script>
 	var view = "farm_productivity_report";
 
@@ -748,11 +857,147 @@
 	});
 
 	
-	document.querySelector("#print2").addEventListener("click", function() {
-	$('#section-to-print2').toggle(); //removes the display:none
-    window.print();
-    $('#section-to-print2').hide(); //brings back the display:none    
-	});
+	// document.querySelector("#print2").addEventListener("click", function() {
+	// $('#section-to-print2').toggle(); //removes the display:none
+ //    window.print();
+ //    $('#section-to-print2').hide(); //brings back the display:none    
+	// });
+
+	$(document).ready(function() {
+        $('#overview_filter_btn').on('click', function() {
+            var selected_cycles = [], selected_farms = [], err_str = '';
+            $('input:checked[name="overview_cycle_filter"]').each(function() {
+                selected_cycles.push($(this).attr('value'));
+            });
+            $('input:checked[name="overview_farm_filter"]').each(function() {
+                selected_farms.push($(this).attr('value'));
+            });
+            if (selected_cycles.length == 0) {
+                err_str += `Selected crop cycles cannot be empty!`;
+            }
+            if (selected_farms.length == 0) {
+                err_str += `Selected farms cannot be empty!`;
+            }
+
+            $('#overview_filter_err').html(err_str);
+            if (err_str == '') {
+                $.get('/ajax_filter_dashboard', { selected_cycles: selected_cycles, selected_farms: selected_farms }, function(result) {
+                    console.log(result);
+                    productionChart.data = result.production_chart;
+                    productionChart.update();
+
+                    consumptionChart.data = result.consumption_chart;
+                    consumptionChart.update();
+
+                    pdTrendChart.data = result.pd_overview_chart.trend;
+                    pdTrendChart.update();
+
+                    pdByStageChart.data = result.pd_overview_chart.stage;
+                    pdByStageChart.update();
+                });
+            }
+        });
+        console.log('dasdas');
+        {{#if production_chart}}
+        
+        var production_data = {{{production_chart}}};
+        var productionChart = new Chart(document.getElementById("crop_production"), {
+          type: 'bar',
+          data: production_data,
+            options: {
+            plugins: {
+
+            },
+            tooltips: {
+              displayColors: true,
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+            }
+          }
+        })
+        {{/if}}
+
+        {{#if consumption_chart}}
+        var consumption_data = {{{consumption_chart}}};
+        console.log(consumption_data);
+        var consumptionChart = new Chart(document.getElementById("fertilizer_consumption"), {
+          type: 'bar',
+          data: consumption_data,
+            options: {
+            indexAxis: 'y',
+            plugins: {
+
+            },
+            tooltips: {
+              displayColors: true,
+
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    type: 'linear',
+                    display: true,
+                }
+            }
+          }
+        });
+        {{/if}}
+
+        {{#if pd_overview_chart.trend}}
+        var pd_trend = {{{pd_overview_chart.trend}}};
+        var pdTrendChart = new Chart(document.getElementById("pd_trend"), {
+          type: 'line',
+          data: pd_trend,
+            options: {
+            plugins: {
+
+            },
+            tooltips: {
+              displayColors: true,
+
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMin: 0
+                    }
+                }
+            }
+          }
+        });
+        {{/if}}
+
+        {{#if pd_overview_chart.stage}}
+        var pd_stage = {{{pd_overview_chart.stage}}};
+        var pdByStageChart = new Chart(document.getElementById("pd_stage"), {
+          type: 'bar',
+          data: pd_stage,
+            options: {
+            indexAxis: 'y',
+            plugins: {
+
+            },
+            tooltips: {
+              displayColors: true,
+
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+
+                }
+            }
+          }
+        });
+        {{/if}}
+    })
 
 </script>
 

@@ -258,7 +258,7 @@ exports.getFarmMaterials = function(farm_id, next){
 		sql = sql + farm;
 		sql = mysql.format(sql, farm_id);
 	}
-
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 

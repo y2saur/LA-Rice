@@ -102,7 +102,8 @@ $(document).ready(function() {
 				console.log(forecast_records);
 				$('#forecast_yield').html('N/A');
 				if (forecast_records.length != 0) {
-					$('#forecast_yield').html((Math.round(forecast_records[0].forecast))+' sacks/ha');
+					var str = forecast_records[0].forecast != -1 ? (Math.round(forecast_records[0].forecast))+' sacks/ha' : 'N/A';
+					$('#forecast_yield').html(str);
 				}
 			});
 		}
@@ -126,7 +127,8 @@ $(document).ready(function() {
 					console.log(forecast_records);
 					$('#forecast_yield').html('N/A');
 					if (forecast_records.length != 0) {
-						$('#forecast_yield').html((Math.round(forecast_records[0].forecast))+' sacks/ha');
+						var str = forecast_records[0].forecast != -1 ? (Math.round(forecast_records[0].forecast))+' sacks/ha' : 'N/A';
+						$('#forecast_yield').html(str);
 					}
 				});
 			}
@@ -147,7 +149,8 @@ $(document).ready(function() {
 				console.log(forecast_records);
 				$('#forecast_yield').html('N/A');
 				if (forecast_records.length != 0) {
-					$('#forecast_yield').html((Math.round(forecast_records[0].forecast))+' sacks/ha');
+					var str = forecast_records[0].forecast != -1 ? (Math.round(forecast_records[0].forecast))+' sacks/ha' : 'N/A';
+					$('#forecast_yield').html(str);
 				}
 			});
 		});

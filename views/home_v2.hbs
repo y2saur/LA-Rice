@@ -82,165 +82,6 @@
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="d-flex flex-column">
-            <div class="form-row ml-3 mt-3">
-
-                {{#if crop_plans}}
-                <div class="form-group ml-2">
-                  <label class="ml-1" for="farm_filter">Farms</label>
-                    <div class="dropdown">
-                      <button class="btn btn-default dropdown-toggle" type="button" 
-                              id="dropdownMenu1" data-toggle="dropdown" 
-                              aria-haspopup="true" aria-expanded="false">
-                        Crop Cycles
-                      </button>
-                      <ul class="dropdown-menu checkbox-menu allow-focus farm_dropdown" aria-labelledby="dropdownMenu1">
-                      {{#each crop_plans}}
-                        <li >
-                          <label>
-                            <input type="checkbox" name="overview_cycle_filter" value="{{this.cycle_name}}" {{#if this.checked}}checked{{/if}}>{{cycle_name}}
-                          </label>
-                        </li>
-                      {{/each}}
-                      </ul>
-                    </div>
-                </div>
-                {{/if}}
-
-                <div class="form-group mx-3">
-                    <label class="ml-1" for="farm_filter">Farms</label>
-                    <div class="dropdown">
-                      <button class="btn btn-default dropdown-toggle" type="button" 
-                              id="dropdownMenu1" data-toggle="dropdown" 
-                              aria-haspopup="true" aria-expanded="false">
-                        Farms...
-                      </button>
-                      <ul class="dropdown-menu checkbox-menu allow-focus farm_dropdown" aria-labelledby="dropdownMenu1">
-                        {{#if farm_list.lowland}}
-                          <h6 class="dropdown-header">Lowland</h6>
-                          {{#each farm_list.lowland}}
-                            <li >
-                              <label>
-                                <input type="checkbox" name="overview_farm_filter" value="{{this.farm_id}}" {{#if this.checked}}checked{{/if}}>{{this.farm_name}}
-                              </label>
-                            </li>
-                          {{/each}}
-                        {{else}}
-
-                        {{/if}}
-
-                        {{#if farm_list.upland}}
-                          <h6 class="dropdown-header">Upland</h6>
-                          {{#each farm_list.upland}}
-                            <li >
-                              <label>
-                                <input type="checkbox" name="overview_farm_filter" value="{{this.farm_id}}" {{#if this.checked}}checked{{/if}}>{{this.farm_name}}
-                              </label>
-                            </li>
-                          {{/each}}
-                        {{else}}
-
-                        {{/if}}
-                      </ul>
-                    </div>
-                </div>
-
-                <div class="form-group align-bottom ml-3">
-                    <div class="h-100 align-bottom align-text-bottom mt-2">
-                        <button class="btn btn-primary mt-4" id="overview_filter_btn" type="button">Filter</button> 
-                    </div>
-                </div>
-            </div>
-            <span class="text-danger" id="overview_filter_err"></span>
-        </div>
-
-        <div class="col-lg-7 col-xl-8">
-            {{#if production_chart}}
-            <div class="w-100 border border-secondary d-flex flex-column rounded" style="">
-                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                    <div>
-                        Crop Production <small>(in cavans/ha)</small>
-                    </div>
-                    <!-- <small>actual vs forecasted</small> -->
-                </div>
-                <div>
-                    <canvas id="crop_production" style="width: 500px;"></canvas>
-                </div>
-            </div>
-            {{/if}}
-
-            <div class="d-flex my-3 w-100">
-                {{#if consumption_chart}}
-                <div class="w-50 border border-secondary d-flex flex-column rounded" style="">
-                    <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                        Fertilizer Consumption <small>(in grams/ha)</small>
-                    </div>
-                    <div class="w-100">
-                        <canvas id="fertilizer_consumption" style=""></canvas>
-                    </div>
-                </div>
-                {{/if}}
-
-                {{#if pd_overview_chart.trend}}
-                <div class="w-50 border border-secondary d-flex flex-column rounded" style="">
-                    <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                        Pest Disease Trend
-                    </div>
-                    <div class="w-100">
-                        <canvas id="pd_trend" style=""></canvas>
-                    </div>
-                </div>
-                {{/if}}
-            </div>
-
-            <!-- <div class="w-100 border border-secondary d-flex flex-column rounded" style="height: 425px !important">
-                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                    Precipitation Data
-                </div>
-                <div class="h-100 w-100">
-                     <canvas id="precip_chart" style="width: 500px; height: 100% !important;"></canvas>     
-                </div>
-               
-            </div> -->
-
-        </div>
-
-        <div class="col-lg-5 col-xl-4">
-            {{#if pd_overview_chart.stage}}
-            <div class="w-100 h-100 border border-secondary d-flex flex-column rounded" style="height: 800px !important;">
-                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                    Pest Disease By Stage
-                </div>
-                <div class="h-100">
-                    <canvas id="pd_stage" style="width: 500px; max-height: 760px !important;"></canvas>
-                </div>
-            </div>
-            {{/if}}
-
-            <div class="mt-3 w-100 border border-secondary d-flex flex-column rounded" style="">
-                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                    Weather Outlook
-                </div>
-                <div class="px-3 my-3" style="min-height: 180px;">
-                    <div class="d-flex">
-                        <div><small>Weather Assessment:</small> </div>
-                        <div class="ml-3 font-weight-bold">{{outlook.classification}}</div>
-                    </div>
-                    <div class="d-flex flex-column">
-                        <div class="text-muted"><small>Note</small></div>
-                        <span class="my-2">{{outlook.drought_summary}}</span>
-                        <span class="">{{outlook.weather_forecast}}</span>
-                    </div>
-                    <div>
-                        <span>Date Recorded: {{outlook.last_update}}</span>
-                    </div>
-                </div>
-                    
-            </div>
-        </div>
-    </div>
-
     <div class="row my-3" style="">
         <div class="col-lg-7 col-xl-8">
             <div class="card shadow mb-4">
@@ -304,35 +145,29 @@
         </div>
 
         <div class="col-lg-5 col-xl-4">
-            <!-- <div class="w-100 border border-secondary d-flex flex-column rounded" style="">
-                <div class="text-white w-100 py-2 text-center rounded-top bg-dark">
-                    Weather Data
+            <div class="card shadow mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
+                    <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Weather Outlook</h6>
                 </div>
-                <div class="w-100 d-flex">
-                    <div class="form-row ml-3 mt-2">
-                        <div class="form-group">
-                            <label class="form-check-label">From: </label>
-                            <div class="">
-                              <input class="form-control " type="date" id="weather_start" name="weather_start" value="">
-                            </div>
+                <div class="card-body">
+                    <div class="px-3 py-3" style="min-height: 180px;">
+                        <div class="d-flex">
+                            <div><small>Weather Assessment:</small> </div>
+                            <div class="ml-3 font-weight-bold">{{outlook.classification}}</div>
                         </div>
-                        <div class="form-group ml-2">
-                            <label class="form-check-label">To: </label>
-                            <div class="">
-                              <input class="form-control " type="date" id="weather_end" name="weather_end" value="">
-                            </div>
+                        <div class="d-flex flex-column">
+                            <div class="text-muted"><small>Note</small></div>
+                            <span class="my-2">{{outlook.drought_summary}}</span>
+                            <span class="">{{outlook.weather_forecast}}</span>
                         </div>
-                        <div class="form-group align-bottom ml-3">
-                            <div class="h-100 align-bottom align-text-bottom mt-2">
-                                <button type="button" id="weather_filter" class="btn btn-primary float-right mt-3">Filter</button>
-                            </div>
+                        <div class="d-flex">
+                            <span>Date Recorded: {{outlook.last_update}}</span>
+                            <a href="/disaster_management" class="ml-auto font-weight-bold mt-3">View more</a>
                         </div>
-                        
                     </div>
                 </div>
-                    
-                <canvas id="weather_chart" style="width: 500px; max-height: 350px;"></canvas>
-            </div> -->
+            </div>
+            
         </div>
     </div>
 
@@ -343,222 +178,23 @@
                             <div class="row">
                                 <div class="col-lg-12 col-xl-12">
                                     
+                                    <div class="card shadow mb-4">
+                                        <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
+                                            <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Weekly WO <small>(by status)</small></h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="w-100">
+                                                {{#if wo_status_data}}
+                                                <canvas id="weekly_wo" style=""></canvas>
+                                                {{else}}
+                                                <div class="font-weight-bold text-center mb-5">No applicable work orders!</div>
+                                                {{/if}}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <!-- PEST AND DISEASE FREQUENCY CHART -->
+                                
                                 <div class="col-lg-12 col-xl-12">
-
-                                    <!-- <div class="card shadow mb-4"  style=" margin: 0px auto;">
-
-                                        <div class="card-header d-flex justify-content-between align-items-center" style="height:auto">
-
-                                            <ul class="nav nav-tabs card-header-tabs" id="nav-tab" role="tablist">
-                                                <li class="nav-item"><a id="all-tab" class="nav-link active" data-toggle="tab" href="#diagnoses"role="tab" aria-controls="diagnoses" aria-selected="true" 
-                                                    style="background: #F0F0F0;">All</a></li>
-
-                                                <li class="nav-item"><a id="pests-tab" class="nav-link" data-toggle="tab" href="#pests"role="tab" aria-controls="pests" aria-selected="false" 
-                                                    style="background: #F0F0F0;">Pests</a></li>
-
-                                                <li class="nav-item"><a id="diseases-tab" class="nav-link" data-toggle="tab" href="#diseases"role="tab" aria-controls="diseases" aria-selected="false" 
-                                                    style="background: #F0F0F0;">Diseases</a></li>
-                                            </ul>
-
-                                            </div>
-
-                                            <div class="card-body ">
-                                                    
-                                                    {{!-- TAB CONTENT --}}
-
-                                                <div class="tab-content" id="nav-tabContent">
-                                                    {{!-- TAB 1 --}}
-                                                    <div class="tab-pane fade show active" id="diagnoses" role="tabpanel" aria-labelledby="diagnoses-tab">
-
-                                                    <div style="margin-bottom: 20px;">
-                                                        
-                                                    </div>
-                                                    <div class="d-flex" style="margin-bottom: 20px;">
-                                                        <div class="d-flex flex-row" style="margin-bottom: 5px; width: 30%">
-                                                            <label style="padding-right: 10px; margin-top: 5px">Farm:</label>
-                                                            <select class="form-select form-select-sm" id="farm_selected" style="width : 60%;">
-                                                                <option value="all">All</option>
-                                                                {{#each farms}}
-                                                                    <option value="{{this.farm_id}}">{{this.farm_name}}</option>
-                                                                {{/each}}   
-                                                            </select>
-                                                        </div>
-                                                        <div class="d-flex flex-row" style="margin-bottom: 5px; width: 30%">
-                                                            <label style="padding-right: 10px; margin-top: 5px">Year:</label>
-                                                            <select class="form-select form-select-sm" id="year_selected" style="width : 60%;">
-                                                                <option value="">Past 5 Years</option>
-                                                                <option value="all">All</option>
-                                                                <option value="2022">2022</option> 
-                                                                <option value="2021">2021</option> 
-                                                                <option value="2020">2020</option> 
-                                                                <option value="2019">2019</option> 
-                                                                <option value="2018">2018</option> 
-                                                                <option value="2017">2017</option> 
-                                                                <option value="2016">2016</option> 
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div style="width: 100%;">
-                                                        <center>
-                                                            <h4 style="color: gray;" id="all_chart_title">Pest/Disease Frequency</h4>
-                                                            <h6 style="color: gray;">Occurrences x Month</h6>
-                                                        
-                                                        <div class="chart" style="width: 70%;">
-                                                            <ul class="numbers" id="all_numbers">
-                                                                <li><span>{{highest}}</span></li>
-                                                                <li><span>{{middle}}</span></li>
-                                                            </ul>
-                                                            <ul class="bars" id="all_monthly_frequency">
-                                                                {{#each month_frequency}}
-                                                                    <li><div class="bar" value="{{this.frequency}}" data-percentage="{{this.percent}}"></div><span style="margin-left: -30px;">{{this.month_label}}</span></li>
-
-                                                                    {{else}}
-                                                                    <li><div class="bar" value="0" data-percentage="0"></div><span>None</span></li>
-                                                                {{/each}}
-                                                            </ul>
-                                                        </div>
-                                                        </center>
-                                                        {{!-- <table class="table table-striped table-bordered tablesorter" id="allTable" style="width : 50%;" hidden>
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Pest/Disease</th>
-                                                                    <th>Type</th>
-                                                                    <th class="totalOccurences">Total Occurrences</th>
-                                                                    <th>Common Stage</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="all_frequency">
-                                                                {{#each total}}
-                                                                    <tr>
-                                                                        <td>{{this.pd_name}}</td>
-                                                                        <td>{{this.type}}</td>
-                                                                        <td class="totalOccurences">{{this.total}}</td>
-                                                                        <td>{{this.frequent_stage}}</td>
-                                                                    </tr>
-
-                                                                {{/each}}
-                                                            </tbody>
-                                                        </table> --}}
-                                                    </div> 
-                                                    </div>
-                                                    {{!-- END OF TAB 1 --}}
-
-                                                    {{!-- TAB 2 --}}
-                                                    <div class="tab-pane fade" id="pests" role="tabpanel" aria-labelledby="pests-tab">
-                                                    
-                                                    <div style="margin-bottom: 20px;">
-                                                        
-                                                    </div>
-
-                                                        <div style="display: flex; flex-flow: row">
-                                                            <div>
-                                                                <center>
-                                                                    <h4 style="color: gray;"  id="pest_chart_title">Pest/Disease Frequency</h4>
-                                                                    <h6 style="color: gray;">Occurrences x Month</h6>
-                                                                </center>
-                                                                <div class="chart">
-                                                                    <ul class="numbers" id="pest_numbers">
-                                                                        <li><span>100%</span></li>
-                                                                        <li><span>50%</span></li>
-                                                                        <li><span>0%</span></li>
-                                                                    </ul>
-                                                                    <ul class="bars" id="pest_monthly_frequency">
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                            <table class="table table-striped table-bordered tablesorter" id="pestsTable" style="width : 50%; margin-left: auto; margin-right: auto;">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Pest/Disease</th>
-                                                                    <th>Type</th>
-                                                                    <th class="totalOccurences">Total Occurrences</th>
-                                                                    <th>Common Stage</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="pest_frequency">
-                                                                {{#each pest}}
-                                                                    <tr>
-                                                                        <td>{{this.pd_name}}</td>
-                                                                        <td>{{this.type}}</td>
-                                                                        <td class="totalOccurences">{{this.total}}</td>
-                                                                        <td>{{this.frequent_stage}}</td>
-                                                                    </tr>
-                                                                {{/each}}
-                                                            </tbody>
-                                                        </table>
-                                                        </div>  
-                                                    </div>
-                                                    {{!-- END OF TAB 2 --}}
-
-                                                    {{!-- TAB 3 --}}
-                                                    <div class="tab-pane fade" id="diseases" role="tabpanel" aria-labelledby="diseases-tab">
-
-                                                    <div style="margin-bottom: 20px;">
-                                                        
-                                                    </div>
-                                                    {{!-- <button class="btn btn-primary d-flex float-end" role="button" style="background: #EDD172;border-style: none;color: #332c1f;border-radius: 20px;" onclick='window.location="/pest_and_disease/diagnose_add_disease"'>Add Disease</button> --}}
-                                                        <div style="display: flex; flex-flow: row">
-                                                            <div>
-                                                                <center>
-                                                                    <h4 style="color: gray;"  id="disease_chart_title">Pest/Disease Frequency</h4>
-                                                                    <h6 style="color: gray;">Occurrences x Month</h6>
-                                                                </center>
-                                                                <div class="chart">
-                                                                    <ul class="numbers" id="disease_numbers">
-                                                                        <li><span>100%</span></li>
-                                                                        <li><span>50%</span></li>
-                                                                        <li><span>0%</span></li>
-                                                                    </ul>
-                                                                    <ul class="bars" id="disease_monthly_frequency">
-                                                                        <li><div class="bar" value="69" data-percentage="5"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="20"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="60"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="40"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="50"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="50"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="50"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="9"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="95"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="95"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="95"></div><span>Option 1</span></li>
-                                                                        <li><div class="bar" value="69" data-percentage="95"></div><span>Option 1</span></li>
-                                                                    </ul>
-                                                                </div>
-                                                            </div>
-                                                            <table class="table table-striped table-bordered tablesorter" id="diseasesTable" style="width : 50%; margin-left: auto; margin-right: auto;">
-                                                            <thead class="thead-dark">
-                                                                <tr>
-                                                                    <th>Pest/Disease</th>
-                                                                    <th>Type</th>
-                                                                    <th class="totalOccurences">Total Occurrences</th>
-                                                                    <th>Common Stage</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="disease_frequency">
-                                                                {{#each disease}}
-                                                                    <tr>
-                                                                        <td>{{this.pd_name}}</td>
-                                                                        <td>{{this.type}}</td>
-                                                                        <td class="totalOccurences">{{this.total}}</td>
-                                                                        <td>{{this.frequent_stage}}</td>
-                                                                    </tr>
-                                                                
-                                                                {{/each}}
-                                                                
-                                                            </tbody>
-                                                        </table>
-                                                        </div> 
-                                                    </div>
-                                                    
-                                                    {{!-- END OF TAB 3 --}}
-
-                                                </div>
-                                                {{!-- END OF TAB CONTENT --}}
-
-                                            </div>
-                                        </div> -->
                                     
                                     <div class="card shadow mb-4">
                                         <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
@@ -575,67 +211,6 @@
                             </div>
                         </div>
                         <div class="col-lg-5 col-xl-4" style="height: 100%;">
-                            <!-- <div class="card shadow mb-4" style="height: 100%; ">
-                                <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;height: auto;padding: 16px 20px;">
-                                    <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Activity Log</h6>
-                                </div>
-                                <div class="card-body" style="height: 70%; max-width: inherit; max-height: 950px; overflow-y: auto;" id="recentActivity">
-                                   <ul class="list-group" style="width: 100%;">
-                                        {{#each completedWoList}}
-                                        <li class="list-group-item">
-                                            <div>
-                                            <span style="font-weight: bold;">{{this.farm_name}}</span>
-                                            <span>has completed {{this.type}} </span>
-                                            <span>
-                                                    {{!-- <div class="dropdown no-arrow" style="display:inline-block; float: right">
-                                                            <button id="more" class="btn btn-primary btn-sm dropdown-toggle dropdown no-arrow" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                                                                <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                                                            </button>
-                                                            <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                                                                <a class="dropdown-item notSidebar"href="/farms/work_order&id={{this.work_order_id}}">View Details</a>
-                                                            </div>
-                                                        </div> --}}
-                                            </span>
-                                            
-                                            </div>
-                                            <span style="font-size: 14px;">{{this.date_completed}}</span><br>
-                                            <span>
-                                                <a class="viewDetails" href="/farms/work_order&id={{this.work_order_id}}">View Details</a>  
-                                            </span>
-                                        </li>
-                                        <li class="list-group-item">
-                                            <div>
-                                            <span style="font-weight: bold;">{{this.farm_name}}</span>
-                                            <span>has completed {{this.type}} </span>
-                                            <span>
-                                                    {{!-- <div class="dropdown no-arrow" style="display:inline-block; float: right">
-                                                            <button id="more" class="btn btn-primary btn-sm dropdown-toggle dropdown no-arrow" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                                                                <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                                                            </button>
-                                                            <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                                                                <a class="dropdown-item notSidebar"href="/farms/work_order&id={{this.work_order_id}}">View Details</a>
-                                                            </div>
-                                                        </div> --}}
-                                            </span>
-                                            
-                                            </div>
-                                            <span style="font-size: 14px;">{{this.date_completed}}</span><br>
-                                            <span>
-                                                <a class="viewDetails" href="/farms/work_order&id={{this.work_order_id}}">View Details</a>  
-                                            </span>
-                                        </li>
-
-                                        {{else}}
-                                        <li class="list-group-item">
-                                            <div>
-                                            <center>No recent activity</center>
-                                            </div>
-                                    
-                                        </li>
-                                        {{/each}}
-                                    </ul>
-                                </div>
-                            </div> -->
 
                             <div class="card shadow mb-4">
                                 <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
@@ -689,65 +264,12 @@
     var view = "home";
 
     $(document).ready(function() {
-        $('#overview_filter_btn').on('click', function() {
-            var selected_cycles = [], selected_farms = [], err_str = '';
-            $('input:checked[name="overview_cycle_filter"]').each(function() {
-                selected_cycles.push($(this).attr('value'));
-            });
-            $('input:checked[name="overview_farm_filter"]').each(function() {
-                selected_farms.push($(this).attr('value'));
-            });
-            if (selected_cycles.length == 0) {
-                err_str += `Selected crop cycles cannot be empty!`;
-            }
-            if (selected_farms.length == 0) {
-                err_str += `Selected farms cannot be empty!`;
-            }
 
-            $('#overview_filter_err').html(err_str);
-            if (err_str == '') {
-                $.get('/ajax_filter_dashboard', { selected_cycles: selected_cycles, selected_farms: selected_farms }, function(result) {
-                    console.log(result);
-                    productionChart.data = result.production_chart;
-                    productionChart.update();
-
-                    consumptionChart.data = result.consumption_chart;
-                    consumptionChart.update();
-
-                    pdTrendChart.data = result.pd_overview_chart.trend;
-                    pdTrendChart.update();
-
-                    pdByStageChart.data = result.pd_overview_chart.stage;
-                    pdByStageChart.update();
-                });
-            }
-        });
-
-        {{#if production_chart}}
-        var production_data = {{{production_chart}}};
-        var productionChart = new Chart(crop_production, {
+        {{#if wo_status_data}}
+        var weekly_wo_data = {{{wo_status_data}}};
+        var weeklyWOChart = new Chart(document.getElementById("weekly_wo"), {
           type: 'bar',
-          data: production_data,
-            options: {
-            plugins: {
-
-            },
-            tooltips: {
-              displayColors: true,
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-            }
-          }
-        })
-        {{/if}}
-
-        {{#if consumption_chart}}
-        var consumption_data = {{{consumption_chart}}};
-        var consumptionChart = new Chart(document.getElementById("fertilizer_consumption"), {
-          type: 'bar',
-          data: consumption_data,
+          data: weekly_wo_data,
             options: {
             indexAxis: 'y',
             plugins: {
@@ -768,57 +290,7 @@
           }
         });
         {{/if}}
-
-        {{#if pd_overview_chart.trend}}
-        var pd_trend = {{{pd_overview_chart.trend}}};
-        var pdTrendChart = new Chart(document.getElementById("pd_trend"), {
-          type: 'line',
-          data: pd_trend,
-            options: {
-            plugins: {
-
-            },
-            tooltips: {
-              displayColors: true,
-
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    ticks: {
-                        beginAtZero: true,
-                        suggestedMin: 0
-                    }
-                }
-            }
-          }
-        });
-        {{/if}}
-
-        {{#if pd_overview_chart.stage}}
-        var pd_stage = {{{pd_overview_chart.stage}}};
-        var pdByStageChart = new Chart(document.getElementById("pd_stage"), {
-          type: 'bar',
-          data: pd_stage,
-            options: {
-            indexAxis: 'y',
-            plugins: {
-
-            },
-            tooltips: {
-              displayColors: true,
-
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-
-                }
-            }
-          }
-        });
-        {{/if}}
     })
+
+
 </script>

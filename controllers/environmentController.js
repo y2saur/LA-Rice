@@ -1829,9 +1829,6 @@ exports.updatePDDetails = function(req,res){
 
 // Pest and Disease Diagnosis Part (Temporary)
 exports.getDiagnoses = function(req, res) {
-	console.log(req.query.symptoms);
-	console.log(req.query.farm);
-
 	if(req.query.farm != null)
 		var farm_id = req.query.farm;
 	else

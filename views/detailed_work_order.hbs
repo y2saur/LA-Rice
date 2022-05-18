@@ -210,125 +210,126 @@
 </div>
 
 <script type="text/javascript">
-    var resource = '{{resources.lbl.name}}';
-    var status_editable = {{status_editable}};
-    var harvest = {{harvest_editable}};
-    var stage = '{{stage}}';
-    var farm_area = {{farm_area}};
-    var true_harvest;
-    console.log(`${resource} - ${status_editable} - ${harvest}`);
-    function addHarvestDetails() {
-        var last = $("[name='harvest_type']").last();
-        var parent = $('#harvest_details_row');
-        var opts = ['...','Full Harvest','Early Harvest'];
-        var sack_inp, select_inp, option, div;
-        var sack_attr = {
-            type: 'number',
-            id: 'dummy_id',
-            name: 'sacks_harvested',
-            form: 'edit_wo_form'
-        }
-        var select_attr = {
-            name: 'harvest_type',
-            id: 'dummy_id',
-            form: 'edit_wo_form'
-        }
+    $(document).ready(function() {
 
-        var opt_attr = {
-            value: null
-        };
-
-        div = createDOM({ type: 'div', class: 'd-flex', style: 'max-width: 919.97px !important;', html: '' });
-        sack_inp = createDOM({ type: 'input', class: 'mt-2 form-control', style: 'max-width: 221.77px !important; margin-right: 10px;', html: '', attr: sack_attr });
-        select_inp = createDOM({ type: 'select', class: 'mt-2 form-control', style: 'max-width: 135.1px !important;', html: '', attr: select_attr });
-
-        for (var i = 0; i < opts.length; i++) {
-            if (i != 0)
-                opt_attr.value = opts[i]
-            option = createDOM({ type: 'option', class: '', style: '', html: opts[i], attr: opt_attr });
-            select_inp.appendChild(option);
-        }
-
-        div.appendChild(sack_inp);
-        div.appendChild(select_inp);
-
-        parent.append(div);
-    }
-
-    function createDOM(obj) {
-        var ele;
-
-        ele = document.createElement(obj.type);
-        ele.setAttribute('class', obj.class);
-        ele.setAttribute('style', obj.style);
-        ele.innerHTML = obj.html;
-
-        for (prop in obj.attr) {
-            if (Object.prototype.hasOwnProperty.call(obj.attr, prop)) {
-                ele.setAttribute(prop, obj.attr[prop]);
-            }
-        }
-
-        return ele;
-    }
-
-    function addHarvestDetailButton(show) {
-        if (show) {
+        var resource = '{{resources.lbl.name}}';
+        var status_editable = {{status_editable}};
+        var harvest = {{harvest_editable}};
+        var stage = '{{stage}}';
+        var farm_area = {{farm_area}};
+        var true_harvest;
+        console.log(`${resource} - ${status_editable} - ${harvest}`);
+        console.log(stage);
+        function addHarvestDetails() {
             var last = $("[name='harvest_type']").last();
-            var parent = $($(last).parent()).parent();
-            var btn = createDOM({ type: 'i', class: 'fas fa-plus-circle ml-3 fa-2x add_details', style: 'margin-top: 35px', html: '' });
-
-            parent.append(btn);
-        }
-        else {
-            $('.add_details').remove();
-            $('#dummy_id[name="sacks_harvested"]').remove();
-            $('#dummy_id[name="harvest_type"]').remove();
-        }
-    }
-
-    function toggleEditState(show) {
-        var editable = ['#status', '#date_due', '#notes', '#'+resource+'_qty'];
-        if (!status_editable)
-            editable = editable.filter(ele => ele != '#status');
-
-        if (harvest) {
-            editable.push('#sacks_harvested');
-            editable.push('#harvest_type');
-            //addHarvestDetailButton(show);
-        }
-
-        var eles = $(editable.join()).attr('readonly', !show);
-
-        if (show) {
-
-            //Create save button
-            var target = $('#btn_cont');
-            var cont, btn_submit, btn_cancel;
-            var btn_attr = {
-                type: 'submit',
-                id: 'btn_submit',
+            var parent = $('#harvest_details_row');
+            var opts = ['...','Full Harvest','Early Harvest'];
+            var sack_inp, select_inp, option, div;
+            var sack_attr = {
+                type: 'number',
+                id: 'dummy_id',
+                name: 'sacks_harvested',
                 form: 'edit_wo_form'
             }
-            var btn_cancel_attr = {
-                type: 'button',
-                id: 'btn_cancel'
+            var select_attr = {
+                name: 'harvest_type',
+                id: 'dummy_id',
+                form: 'edit_wo_form'
             }
 
-            cont = createDOM({ type: 'div', class: 'mr-5 mt-5', style: '', html: '', attr: null });
-            btn_submit = createDOM({ type: 'button', class: 'btn round btn-primary float-right', style: '', html: 'Save', attr: btn_attr });
-            btn_cancel = createDOM({ type: 'button', class: 'btn round btn-secondary float-right mr-2', style: '', html: 'Cancel', attr: btn_cancel_attr });
+            var opt_attr = {
+                value: null
+            };
 
-            cont.appendChild(btn_submit);
-            cont.appendChild(btn_cancel);
-            target.append(cont);
-        }
-        else {
-            $('#btn_cont').empty();
-        }
-    }
+            div = createDOM({ type: 'div', class: 'd-flex', style: 'max-width: 919.97px !important;', html: '' });
+            sack_inp = createDOM({ type: 'input', class: 'mt-2 form-control', style: 'max-width: 221.77px !important; margin-right: 10px;', html: '', attr: sack_attr });
+            select_inp = createDOM({ type: 'select', class: 'mt-2 form-control', style: 'max-width: 135.1px !important;', html: '', attr: select_attr });
 
-    $(document).ready(function() {
+            for (var i = 0; i < opts.length; i++) {
+                if (i != 0)
+                    opt_attr.value = opts[i]
+                option = createDOM({ type: 'option', class: '', style: '', html: opts[i], attr: opt_attr });
+                select_inp.appendChild(option);
+            }
+
+            div.appendChild(sack_inp);
+            div.appendChild(select_inp);
+
+            parent.append(div);
+        }
+
+        function createDOM(obj) {
+            var ele;
+
+            ele = document.createElement(obj.type);
+            ele.setAttribute('class', obj.class);
+            ele.setAttribute('style', obj.style);
+            ele.innerHTML = obj.html;
+
+            for (prop in obj.attr) {
+                if (Object.prototype.hasOwnProperty.call(obj.attr, prop)) {
+                    ele.setAttribute(prop, obj.attr[prop]);
+                }
+            }
+
+            return ele;
+        }
+
+        function addHarvestDetailButton(show) {
+            if (show) {
+                var last = $("[name='harvest_type']").last();
+                var parent = $($(last).parent()).parent();
+                var btn = createDOM({ type: 'i', class: 'fas fa-plus-circle ml-3 fa-2x add_details', style: 'margin-top: 35px', html: '' });
+
+                parent.append(btn);
+            }
+            else {
+                $('.add_details').remove();
+                $('#dummy_id[name="sacks_harvested"]').remove();
+                $('#dummy_id[name="harvest_type"]').remove();
+            }
+        }
+
+        function toggleEditState(show) {
+            var editable = ['#status', '#date_due', '#notes', '#'+resource+'_qty'];
+            if (!status_editable)
+                editable = editable.filter(ele => ele != '#status');
+
+            if (harvest) {
+                editable.push('#sacks_harvested');
+                editable.push('#harvest_type');
+                //addHarvestDetailButton(show);
+            }
+
+            var eles = $(editable.join()).attr('readonly', !show);
+
+            if (show) {
+
+                //Create save button
+                var target = $('#btn_cont');
+                var cont, btn_submit, btn_cancel;
+                var btn_attr = {
+                    type: 'submit',
+                    id: 'btn_submit',
+                    form: 'edit_wo_form'
+                }
+                var btn_cancel_attr = {
+                    type: 'button',
+                    id: 'btn_cancel'
+                }
+
+                cont = createDOM({ type: 'div', class: 'mr-5 mt-5', style: '', html: '', attr: null });
+                btn_submit = createDOM({ type: 'button', class: 'btn round btn-primary float-right', style: '', html: 'Save', attr: btn_attr });
+                btn_cancel = createDOM({ type: 'button', class: 'btn round btn-secondary float-right mr-2', style: '', html: 'Cancel', attr: btn_cancel_attr });
+
+                cont.appendChild(btn_submit);
+                cont.appendChild(btn_cancel);
+                target.append(cont);
+            }
+            else {
+                $('#btn_cont').empty();
+            }
+        }
 
         $('tr').on('click', '.add_details', function() {
             addHarvestDetails();
@@ -359,13 +360,16 @@
             true_harvest = ($('#sacks_harvested').val() / farm_area);
             $('#true_harvest_lbl').html(`${true_harvest.toFixed(2)} cavans/ha`);
         });
-
-        if (stage != 'Harvesting') {
-            $('#harvest_type option[value="Full Harvest"]').remove();
+        console.log(stage);
+        if (stage != 'Completed') {
+            if (stage != 'Harvesting') {
+                $('#harvest_type option[value="Full Harvest"]').remove();
+            }
+            else {
+                $('#harvest_type option[value="Early Harvest"]').remove();
+            }
         }
-        else {
-            $('#harvest_type option[value="Early Harvest"]').remove();
-        }
+            
 
         $('#edit_wo_form').on('submit', function(e) {
             e.preventDefault();

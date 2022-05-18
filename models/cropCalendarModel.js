@@ -92,18 +92,25 @@ exports.getCropCalendarByID = function(query, id, next){
 	mysql.query(sql, next);
 }
 exports.getRequiredMaterials = function(query, next) {
-	var sql1 = "select t3.*, case when max(current_amount) is null then 0 else max(current_amount) end as inventory  from (select *, case when type = 'Fertilizer' then (select fertilizer_name from fertilizer_table where fertilizer_id = item_id) when type = 'Seed' then (select seed_name from seed_table where seed_id = item_id) when type = 'Pesticide' then (select pesticide_name from pesticide_table where pesticide_id = item_id) end as item_name, case when (current_amount - qty ) < 0 then abs(current_amount - qty )  ELSE case when (current_amount is null) then qty else 'N/A' end end as deficient_qty from ( select farm_id, type, qty, item_id, max(current_amount) as current_amount from ( select cct.farm_id, wort.type, sum(wort.qty) as qty, wort.item_id, null as current_amount from crop_calendar_table cct join work_order_table wot on cct.calendar_id = wot.crop_calendar_id join wo_resources_table wort using(work_order_id) where ";
+	var sql1 = "select t3.*, case when max(current_amount) is null then 0 else (current_amount) end as inventory  from (select *, case when type = 'Fertilizer' then (select fertilizer_name from fertilizer_table where fertilizer_id = item_id) when type = 'Seed' then (select seed_name from seed_table where seed_id = item_id) when type = 'Pesticide' then (select pesticide_name from pesticide_table where pesticide_id = item_id) end as item_name, case when (current_amount - qty ) < 0 then abs(current_amount - qty )  ELSE case when (current_amount is null) then qty else 'N/A' end end as deficient_qty from ( select farm_id, type, qty, item_id, max(current_amount) as current_amount from ( select cct.farm_id, wort.type, sum(wort.qty) as qty, wort.item_id, null as current_amount from crop_calendar_table cct join work_order_table wot on cct.calendar_id = wot.crop_calendar_id join wo_resources_table wort using(work_order_id) where wot.status != 'Completed' and ";
 	var sql2 = " group by farm_id, wort.type, wort.item_id union select farm_id, fm.item_type, null, fm.item_id, fm.current_amount from crop_calendar_table cct join farm_materials fm using(farm_id) where ";
 	var sql3 = " and isActive = 1 ) as t1 group by farm_id, t1.type, t1.item_id ) as t2 join farm_table ft using(farm_id) where t2.qty is not null ) as t3 group by farm_id,type"
 	for (var i = 0; i < query.calendar_id.length; i++) {
+		if (i == 0) {
+			sql1 += " (";
+		}
+		
 		if (i > 0 && i <= query.calendar_id.length - 1) {
 			sql1 += ' or ';
 			sql2 += ' or ';
 		}
 		sql1 += ' cct.calendar_id = '+query.calendar_id[i];
 		sql2 += ' cct.calendar_id = '+query.calendar_id[i];
+		if (i == query.calendar_id.length - 1) {
+			sql1 += " )";
+		}
 	}
 	sql1 = sql1 + sql2 + sql3;
-	//console.log(sql1);
+
 	mysql.query(sql1, next);
 }

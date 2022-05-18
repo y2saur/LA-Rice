@@ -34,7 +34,8 @@ function processOverviewFilter(data) {
 }
 
 exports.getUpcomingWOByStatus = function(data, next) {
-	var sql = `select count(*) as count, wot.status, wot.crop_calendar_id  from work_order_table wot join crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id where cct.status != 'Completed' and (yearweek(date('${data.date}'), 0) >= yearweek(wot.date_start, 0)) and (yearweek(date('${data.date}'), 0)-yearweek(wot.date_start, 0) <= 1 and yearweek(date('${data.date}'), 0)-yearweek(wot.date_start, 0)  >= -1) group by wot.crop_calendar_id, wot.status`;
+	var sql = `SELECT ft.farm_name, COUNT(*) AS count, wot.status, case when (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1) then 'Normal' else 'Overdue' end as type,wot.crop_calendar_id FROM work_order_table wot JOIN crop_calendar_table cct ON wot.crop_calendar_id = cct.calendar_id join farm_table ft using(farm_id) WHERE (cct.status != 'Completed' AND (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1)) or (cct.status != 'Completed' and datediff(DATE('${data.date}'), wot.date_due) >= 0) GROUP BY wot.crop_calendar_id, wot.status, case when (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1) then 'Normal' else 'Overdue' end `;
+
 	mysql.query(sql, next);
 }
 
@@ -61,23 +62,23 @@ exports.getCropCalendarNutrientRecommendations = function(data, next) {
 
 exports.getProductionOverview = function(data, next) {
 	var str = processOverviewFilter(data);
-	
 	var sql = `select ft.farm_area, ft.land_type, cct.calendar_id, ft.farm_name, st.seed_name, cct.crop_plan, case when fy.harvested is null then 0 else fy.harvested end as harvested, case when fy.forecast = -1 then 0 else fy.forecast end as forecasted from crop_calendar_table cct join forecasted_yield fy using(calendar_id) join seed_table st using(seed_id) join farm_table ft using(farm_id) ${str}`;
-	
+	sql += ` ORDER BY substring(crop_plan, -4, 4), crop_plan`;
+
 	mysql.query(sql, next);
 }
 
 exports.getFertilizerConsumption = function(data, next) {
 	var str = processOverviewFilter(data);
 	var sql = `select N, P, K, cct.crop_plan, cct.calendar_id, ft.farm_name, fet.fertilizer_name, sum(wrt.qty) as qty, ft.farm_area from crop_calendar_table cct join work_order_table wot on cct.calendar_id = wot.crop_calendar_id join wo_resources_table wrt using (work_order_id) join fertilizer_table fet on wrt.item_id = fet.fertilizer_id join farm_table ft using(farm_id) ${str} group by crop_plan, farm_name, fertilizer_name`;
-	
+	sql += ` ORDER BY substring(crop_plan, -4, 4), crop_plan`;
 	mysql.query(sql, next);
 }
 
 exports.getPDOverview = function(data, next) {
 	var str = processOverviewFilter(data);
 	var sql = `select cct.crop_plan, count(*) as count, d.type, d.stage_diagnosed, ft.farm_id, case when d.type = 'Pest' then (select pest_name from pest_table where pd_id = pest_id) else (select disease_name from disease_table where pd_id = disease_id) end as pd_name from crop_calendar_table cct join diagnosis d using(calendar_id) join farm_table ft on cct.farm_id = ft.farm_id  ${str} group by crop_plan, stage_diagnosed, pd_name`;
-	
+	sql += ` ORDER BY substring(crop_plan, -4, 4), crop_plan`;
 	mysql.query(sql, next);
 }
 
@@ -88,8 +89,8 @@ exports.getPDOccurence = function(data1, next) {
 		if (i < data1.calendar_id.length - 1)
 			sql += ' or ?';
 	}
-	sql += " group by calendar_id";
-
+	// sql += " group by calendar_id";
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 
@@ -113,7 +114,7 @@ exports.getNutrientChart = function(data1, data2, next) {
 			sql += ' or ?';
 	}
 	sql += ") as t group by crop_calendar_id, application_type, date_completed, nutrient_type";
-	
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 
@@ -139,8 +140,8 @@ exports.getSeedChart = function(farm,data, next) {
 			}
 		}
 	}
-
-	sql += 'and crop_calendar_table.status = "Completed" order by harvest_date asc, calendar_id asc';
+	sql += ' order by harvest_date asc, calendar_id asc';
+	//sql += 'and crop_calendar_table.status = "Completed" order by harvest_date asc, calendar_id asc';
 
 	
 	mysql.query(sql, next);
@@ -176,7 +177,7 @@ exports.getInputResourcesUsed = function(data, next) {
 		}
 	}
 	sql += "and wot.status = 'Completed' group by calendar_id, item_id";
-
+	
 	mysql.query(sql, next);
 }
 

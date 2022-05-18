@@ -28,7 +28,7 @@ exports.createWorkOrderResources = function(query, next) {
 exports.getDetailedWorkOrder = function(query, next) {
 	var sql = "select wot.date_completed, cct.crop_plan, wot.work_order_id, wot.type, wot.crop_calendar_id, date_created, date_due, date_start, wot.status, wot.desc, notes, cct.harvest_yield, ft.farm_id, ft.farm_name, ft.farm_desc from work_order_table as wot join crop_calendar_table cct on wot.crop_calendar_id = cct.calendar_id join farm_table ft using(farm_id) where ?;";
 	sql = mysql.format(sql, query);
-	console.log(sql);
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 
@@ -55,7 +55,7 @@ exports.getResourceDetails = function(query, type, next) {
 	sql = "select max(wo_resources_id) as wo_resources_id, max(work_order_id) as work_order_id, max(type) as type, max(units) as units, case when isnull(max(qty)) then 0 else max(qty) end as qty, max(item_id) as item_id, max(material_name) as material_name, max(material_desc) as material_desc from ( SELECT *, null as material_name, null as material_desc FROM wo_resources_table where ? union select null, null, null, null, null, "+column_names+" from "+table_name+") as t group by item_id order by item_id asc";
 
 	sql = mysql.format(sql, query);
-	
+	//console.log(sql);
 	mysql.query(sql, next);
 }
 
