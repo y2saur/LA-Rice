@@ -43,7 +43,7 @@ function getNumLowStocks() {
 $(document).ready(function() {
 
     if (view == 'home') {
-		jQuery.ajaxSetup({async: true });
+		jQuery.ajaxSetup({async: false });
         var geojson;
         var coordinates = [];
 
