@@ -389,7 +389,7 @@ exports.registerUser = function(req,res){
                     }
                     else{
                         var msg = "Sorry, hindi po kayo naka-register sa LA Rice Mill. Makipagugnayan sa nasa office. Maraming salamat.";
-                        sendOutboundMsg({phone_number : req.query.subscriber_number, access_token : req.query.access_token}, msg);
+                        sendUnregisteredOutboundMsg({phone_number : req.query.subscriber_number, access_token : req.query.access_token}, msg);
                     }
                 }
             });
@@ -456,6 +456,28 @@ function sendOutboundMsg(emp, message){
                 });
         }
     });
+}
+
+function sendUnregisteredOutboundMsg(emp, message){
+
+    console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+    var last = new Date();
+    var send_message = { method: 'POST',
+                    url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
+                    qs: { 'access_token': emp.access_token },
+                    headers: 
+                    { 'Content-Type': 'application/json' },
+                    body: 
+                    { 'outboundSMSMessageRequest': 
+                        { 'clientCorrelator': last,
+                        'senderAddress': shortcode,
+                        'outboundSMSTextMessage': { 'message': message },
+                        'address': emp.phone_number } },
+                    json: true };
+    request(send_message, function (error, response, body) {
+        if (error) throw new Error(error);
+        console.log(body);
+        });
 }
 
 
