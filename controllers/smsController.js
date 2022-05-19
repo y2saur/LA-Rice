@@ -777,8 +777,17 @@ exports.getReportedSymptoms = function(req, res){
         if(err)
             throw err;
         else{
-            console.log(reported.length);
-            res.send({symptoms : reported});
+            //process
+            var symptoms = [];
+            for(var i = 0; i < reported.length; i++){
+                var temp = reported[i].url.split("=");
+                var temp2 = temp[1].replace("&farm", "");
+                var temp3 = temp2.split("-");
+                for(var x =0; x < temp3.length; x++){
+                    symptoms.push(temp3[x]);
+                }
+            }
+            res.send({symptoms : symptoms});
         }
     });
 
