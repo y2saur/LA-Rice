@@ -15,7 +15,7 @@ const map = new mapboxgl.Map({
 
 map.addControl(new mapboxgl.FullscreenControl());
 
-// Return number of active farms
+// Return number of farms
 function getNumFarms() {
     var numFarms = 0;
     $.get('/get_farm_list', { group: 'farm_id' }, function(farms) {
@@ -25,6 +25,18 @@ function getNumFarms() {
     });
 
     return numFarms;
+}
+
+// Return number of active farms
+function getNumActiveFarms() {
+    var numActive = 0;
+    $.get('/get_crop_plans', { status: ['Active', 'In-Progress'], unique: true}, function(plans) {
+        for (var i = 0; i < plans.length; i++) {
+            numActive++;
+        }
+    });
+
+    return numActive;
 }
 
 // Return number of low stock items
@@ -49,6 +61,9 @@ $(document).ready(function() {
 
         // Get Number of Farms
         document.getElementById("numFarms").innerHTML = getNumFarms();
+
+        // Get Number of Active Farms
+        document.getElementById("numActive").innerHTML = getNumActiveFarms();
 
         // Get Number of Low Stocks
         document.getElementById("numLowStocks").innerHTML = getNumLowStocks();
