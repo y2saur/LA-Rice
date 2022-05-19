@@ -340,8 +340,6 @@ function updateWO(emp, message){
 
 
 //RUNS WHEN USER REGISTERS THROUGH SMS
-
-
 exports.registerUser = function(req,res){
     console.log(req.query);
     //PROCESS
@@ -388,6 +386,10 @@ exports.registerUser = function(req,res){
                         //         sendOutboundMsg(message);
                         //     }
                         // });
+                    }
+                    else{
+                        var msg = "Sorry, hindi po kayo naka-register sa LA Rice Mill. Makipagugnayan sa nasa office. Maraming salamat.";
+                        sendOutboundMsg({phone_number : req.query.subscriber_number, access_token : req.query.access_token}, msg);
                     }
                 }
             });
