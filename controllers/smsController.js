@@ -770,7 +770,19 @@ exports.testTranslation = function(req, res){
 }
 
 
+//GET NUMBER OF REPORTED SYMPTOMS FOR THE PAST 7 DAYS
+exports.getReportedSymptoms = function(req, res){
+    //Get notifications on reported symptoms
+    smsModel.getReportedSymptoms(7,0, function(err, reported){
+        if(err)
+            throw err;
+        else{
+            console.log(reported.length);
+            res.send({symptoms : reported});
+        }
+    });
 
+}
 
 
 

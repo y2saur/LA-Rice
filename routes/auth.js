@@ -316,6 +316,6 @@ router.get('/globe_inbound', globe.registerUser); //WHEN REGISTERING THROUGH SMS
 router.get('/userConvos', globe.getUserConversation); //Gets conversation per user
 router.get('/employeeDetails', userController.getEmployeeDetails);
 router.get("/sendSMS", globe.globe_outbound_msg);
-
+router.get("/get_reported_symptoms", globe.getReportedSymptoms);
 
 module.exports = router;

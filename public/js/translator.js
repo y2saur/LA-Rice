@@ -38,6 +38,6 @@ exports.localTranslate = function(text){
         case "medium rain" : return "katamtamang ulan";
         case "clear" : return "walang ulan";
         case "heavy rain" : return "malakas na ulan";
-        default :
+        default : return text;
     }
 }

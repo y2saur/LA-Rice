@@ -15,6 +15,18 @@ const map = new mapboxgl.Map({
 
 map.addControl(new mapboxgl.FullscreenControl());
 
+// Return Reported Symptoms for the last 7 days
+function getReportedSymptoms(){
+    var total = 0;
+    $.get("/get_reported_symptoms", {}, function(num){
+        for(var i = 0; i < num.symptoms.length; i++){
+            total++;
+        }
+    });
+    return total;
+}
+
+
 // Return number of farms
 function getNumFarms() {
     var numFarms = 0;
@@ -58,6 +70,9 @@ $(document).ready(function() {
 		jQuery.ajaxSetup({async: false });
         var geojson;
         var coordinates = [];
+
+        // Get number of reported symptoms for the last 7 days
+        document.getElementById("reported_symptoms").innerHTML = getReportedSymptoms();
 
         // Get Number of Farms
         document.getElementById("numFarms").innerHTML = getNumFarms();
