@@ -209,6 +209,8 @@ router.get('/farms/work_order&id=:work_order_id', isPrivate, openWeatherControll
 router.post('/create_work_order', workOrderController.createWorkOrder);
 router.post('/edit_work_order', workOrderController.editWorkOrder);
 
+router.get('/ajax_wo&id=:work_order_id', workOrderController.ajaxEditWO);
+
 //User Management
 router.get('/user_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.loadRegistration);
 router.get('/registration', userController.loadRegistration);

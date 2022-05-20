@@ -454,11 +454,12 @@ exports.getRecommendationSystem = function(req, res) {
 			 									 item.farm_id))],
 											items: []
 										};
+
 										filtered.forEach(function(filtered_item) {
 											item_obj = {
 												dat: filtered_item.dat,
 												fertilizer_id: filtered_item.fertilizer_id,
-												amount_equation: convertCNRItems(filtered_item.amount_equation.split(','))
+												amount_equation: filtered_item.amount_equation != null ? convertCNRItems(filtered_item.amount_equation.split(',')) : -1
 											};
 											obj.items.push(item_obj);
 											temp_arr.push(item_obj.amount_equation.vals);
@@ -501,13 +502,10 @@ exports.ajaxCheckCNRPlans = function(req, res) {
 
 exports.updateCNRPlan = function(req, res) {
 	var { name, farms, items } = req.query;
-	nutrientModel.getCNRPlans({ cnr_name: req.query.name }, function(err, result) {
+	nutrientModel.getCNRPlan({ cnr_name: req.query.name }, function(err, result) {
 		if (err)
 			throw err;
 		else {
-			items.forEach(function(item) {
-				item['cnr_id'] = result[0].cnr_id;
-			});
 			nutrientModel.deleteCNRAssignments({ cnr_id: result[0].cnr_id }, function(err, assignment_del) {
 				if (err)
 					throw err;
@@ -520,26 +518,42 @@ exports.updateCNRPlan = function(req, res) {
 				else {
 				}
 			});
-			nutrientModel.createCNRItems(items, function(err, cnr_items) {
-				if (err)
-					throw err;
-				else {
-					if (farms.length != 0) {
-						var assignment_arr = [];
-						farms.forEach(function(item) {
-							assignment_arr.push({ cnr_id: result[0].cnr_id, farm_id: item });
-						});
-						nutrientModel.createCNRAssignments(assignment_arr, function(err, cnr_assignments) {
-							if (err)
-								throw err;
-							else {
+			// Delete CNR Plan
+			if (items == undefined || items == 'undefined') {
+				nutrientModel.deleteCNRPlan({ cnr_id: result[0].cnr_id }, function(err, cnr_del) {
+					if (err)
+						throw err;
+					else {
 
-							}
-						});
 					}
-					res.redirect('/nutrient_mgt/recommendation_system');
-				}
-			});
+				});
+			}
+			// Update CNR
+			else {
+				items.forEach(function(item) {
+					item['cnr_id'] = result[0].cnr_id;
+				});
+				nutrientModel.createCNRItems(items, function(err, cnr_items) {
+					if (err)
+						throw err;
+					else {
+						if (farms.length != 0) {
+							var assignment_arr = [];
+							farms.forEach(function(item) {
+								assignment_arr.push({ cnr_id: result[0].cnr_id, farm_id: item });
+							});
+							nutrientModel.createCNRAssignments(assignment_arr, function(err, cnr_assignments) {
+								if (err)
+									throw err;
+								else {
+
+								}
+							});
+						}
+					}
+				});
+			}
+			res.redirect('/nutrient_mgt/recommendation_system');
 		}
 	});
 }
