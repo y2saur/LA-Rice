@@ -278,6 +278,18 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 
+  {{!-- Redirects back to login page if user presses back button after logout (temporary solution) --}}
+  <script type="text/javascript">
+
+    if (view !== 'login') {
+      function disableBack() {
+         window.history.forward() 
+      }
+        window.onload = disableBack();
+        window.onpageshow = function(evt) { if (evt.persisted) disableBack() }
+    }
+  </script>
+
 <!-- This should always be placed after jquery -->
 <script type="text/javascript" src="../../../../../js/serializejson.js"></script>
 
