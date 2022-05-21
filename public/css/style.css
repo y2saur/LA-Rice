@@ -308,12 +308,12 @@ body {
 	margin-top:  10px;
 	padding: 5px;
 	width:  100%;
-	border: 2px solid #1CC88A;
+	border: 2px solid green;
 	border-radius: 4px;
 	line-height: 1;
 	padding: 2px 0 6px 6px;
 	background: #d9ead3;
-	color:  #1CC88A;
+	color:  green;
 	font-weight:  bold;
 }
 

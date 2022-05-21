@@ -143,7 +143,7 @@ exports.resetPassword = function(req, res) {
 				if (err)
 					throw err;
 				else if (employee_details[0] == null) {
-					req.flash('error_msg', 'Invalid username. please try again');
+					req.flash('error_msg', 'Invalid username. Please try again.');
 					res.redirect('/reset_password');
 				}
 				else {
@@ -154,12 +154,12 @@ exports.resetPassword = function(req, res) {
 						console.log(employee);
 
 						if(employee[0].access_token == null){
-							req.flash("error_msg", 'You are not Subscribed. Send "INFO" to 21663543');
+							req.flash("error_msg", 'You are not subscribed. Send "INFO" to 21663543');
 							// res.redirect('/reset_password');
 						}
 						else{
 							req.flash('success_msg', 'OTP sent to: ' + employee_details[0].username);
-							globe.sendSMS(employee[0], "One Time Password:" + employee_details[0].otp);
+							globe.sendSMS(employee[0], "One Time Password: " + employee_details[0].otp);
 						}
 						res.redirect('/login');
 					});
@@ -191,8 +191,10 @@ exports.initializePassword = function(req, res) {
 						else {
 							// Update session object once matched!
 							req.session = initializeSessionInfo(req.session, user_details[0]);
+
+							req.flash('success_msg', 'Password changed for: ' + user_details[0].username);
 							
-							res.redirect('/home');	
+							res.redirect('/login');	
 						}
 					});	
 				}
@@ -200,7 +202,7 @@ exports.initializePassword = function(req, res) {
 		});
 	}
 	else {
-		req.flash('error_msg', 'Passwords do not match');
+		req.flash('error_msg', 'Passwords do not match. Please try again.');
 		res.redirect(`/initialize_account?username=${username}`);
 	}
 }
@@ -255,7 +257,7 @@ exports.loginUser = function(req, res) {
 
 				}
 				else {
-					req.flash('error_msg', 'Invalid username. please try again');
+					req.flash('error_msg', 'Invalid username. Please try again.');
 					res.redirect('/login')
 				}
 			}
