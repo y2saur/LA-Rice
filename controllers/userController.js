@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const js = require('../public/js/session.js');
 const globe = require('../controllers/smsController.js');
 const smsModel = require('../models/smsModel.js');
+const e = require('connect-flash');
 
 const saltRounds = 10;
 
@@ -141,6 +142,10 @@ exports.resetPassword = function(req, res) {
 			employeeModel.queryEmployee({ username: username }, function(err, employee_details) {
 				if (err)
 					throw err;
+				else if (employee_details[0] == null) {
+					req.flash('error_msg', 'Invalid username. please try again');
+					res.redirect('/reset_password');
+				}
 				else {
 					console.log(employee_details);
 					// Send OTP to user's phone number
@@ -149,9 +154,11 @@ exports.resetPassword = function(req, res) {
 						console.log(employee);
 
 						if(employee[0].access_token == null){
-							req.flash("error_msg", "One Time Password: " + employee_details[0].otp);
+							req.flash("error_msg", 'You are not Subscribed. Send "INFO" to 21663543');
+							// res.redirect('/reset_password');
 						}
 						else{
+							req.flash('success_msg', 'OTP sent to: ' + employee_details[0].username);
 							globe.sendSMS(employee[0], "One Time Password:" + employee_details[0].otp);
 						}
 						res.redirect('/login');
