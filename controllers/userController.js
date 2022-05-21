@@ -78,6 +78,11 @@ exports.registerUser = function(req, res) {
 	if (errors.isEmpty()) {
 		const saltRounds = 10;
 		var { register_checkbox, register_level } = req.body;
+		console.log(Array.isArray(register_checkbox));
+		if(!Array.isArray(register_checkbox)){
+			register_checkbox = [];
+			register_checkbox.push(req.body.register_checkbox);
+		}
 		userModel.createRegistrationDetails(register_checkbox, function(err, detail_result) {
 			if (err)
 				throw err;
@@ -88,12 +93,29 @@ exports.registerUser = function(req, res) {
 					detail_result[i]['password'] = null;
 				}
 				
+				console.log(detail_result);
 				userModel.registerUser(detail_result, function(err, result) {
 					if (err)
 						throw err;
 					else {
 						//Insert SMS msg of OTP for first login here
-						res.redirect('/registration');
+						smsModel.getSubscriptions(function(err, subs){
+							var otp_msg = "";
+							for(var i = 0; i < detail_result.length; i++){
+								var subscribed = false;
+								for(var x = 0; x < subs.length; x++)
+									if(subs[x].employee_id == detail_result[i].employee_id && subs[x].access_token != null){
+										//send sms
+										globe.sendSMS(subs[x], "One Time Password: " + detail_result[i].otp);//add opt
+										console.log(detail_result[i].employee_id + ": SEND SMS");
+										subscribed = true;
+									}
+								if(!subscribed)
+									otp_msg = otp_msg + detail_result[i].username + ": " + detail_result[i].otp + "\n";
+							}
+							req.flash('error_msg', otp_msg);
+							res.redirect('/registration');
+						});
 					}
 				});
 				
@@ -122,9 +144,15 @@ exports.resetPassword = function(req, res) {
 				else {
 					console.log(employee_details);
 					// Send OTP to user's phone number
-					smsModel.getEmployeeDetails({ key : "employee_id", value : 24}, function(err, employee){
+					//Check if subscribed
+					smsModel.getEmployeeDetails({ key : "employee_id", value : employee_details[0].employee_id}, function(err, employee){
 						console.log(employee);
-						globe.sendSMS(employee[0], employee_details[0].otp);
+						if(employee.length == 0){
+							req.flash("error_msg", "One Time Password: " + employee_details[0].otp);
+						}
+						else{
+							globe.sendSMS(employee[0], employee_details[0].otp);
+						}
 					});
 
 					res.redirect('/login');
