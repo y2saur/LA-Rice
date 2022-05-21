@@ -4,6 +4,8 @@ const { validationResult } = require('express-validator');
 const dataformatter = require('../public/js/dataformatter.js');
 const bcrypt = require('bcrypt');
 const js = require('../public/js/session.js');
+const globe = require('../controllers/smsController.js');
+const smsModel = require('../models/smsModel.js');
 
 const saltRounds = 10;
 
@@ -118,7 +120,13 @@ exports.resetPassword = function(req, res) {
 				if (err)
 					throw err;
 				else {
+					console.log(employee_details);
 					// Send OTP to user's phone number
+					smsModel.getEmployeeDetails({ key : "employee_id", value : 24}, function(err, employee){
+						console.log(employee);
+						globe.sendSMS(employee[0], employee_details[0].otp);
+					});
+
 					res.redirect('/login');
 				}
 			});

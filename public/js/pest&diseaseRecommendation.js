@@ -90,36 +90,36 @@ function update_color_meter(){
 
 $(document).ready(function() {
 	
-	// setInterval(function() {
-	// 	//Store recommendation to db
-	// 	$.get('/get_crop_plans', {status : ["Active", "In-Progress"]}, function(plans){
-	// 		//Loop through each active crop calendar
-	// 		var i; 
-	// 		$.get('/agroapi/polygon/readAll', {}, function(polygons) {
-	// 			var center = [];
-	// 			for(i =0 ; i < plans.length; i++){
-	// 				for (var x = 0; x < polygons.length; x++) {
-	// 					// console.log(polygons[x].name);
-	// 					if (plans[i].farm_name == polygons[x].name) {
-	// 						center = polygons[x].center;
-	// 						// console.log(plans[i].calendar_id);
-	// 						$.get("/getPossiblePD", {center:center, calendar_id : plans[i].calendar_id, farm_id : plans[i].farm_id}, function(possibilities){
-	// 							// alert(plans[i].farm_name);
-	// 							//Store in recommendated db
-	// 							// console.log(possibilities);
-	// 							var y; 
-	// 							for(y = 0; y < possibilities.length; y++){
-	// 								$.get("/storePDRecommendation", {calendar_id : plans[i].calendar_id, possibilities : possibilities[y], farm_id : plans[i].farm_id}, function(recommendation){
+	setInterval(function() {
+		//Store recommendation to db
+		$.get('/get_crop_plans', {status : ["Active", "In-Progress"]}, function(plans){
+			//Loop through each active crop calendar
+			var i; 
+			$.get('/agroapi/polygon/readAll', {}, function(polygons) {
+				var center = [];
+				for(i =0 ; i < plans.length; i++){
+					for (var x = 0; x < polygons.length; x++) {
+						// console.log(polygons[x].name);
+						if (plans[i].farm_name == polygons[x].name) {
+							center = polygons[x].center;
+							// console.log(plans[i].calendar_id);
+							$.get("/getPossiblePD", {center:center, calendar_id : plans[i].calendar_id, farm_id : plans[i].farm_id}, function(possibilities){
+								// alert(plans[i].farm_name);
+								//Store in recommendated db
+								// console.log(possibilities);
+								var y; 
+								for(y = 0; y < possibilities.length; y++){
+									$.get("/storePDRecommendation", {calendar_id : plans[i].calendar_id, possibilities : possibilities[y], farm_id : plans[i].farm_id}, function(recommendation){
 	
-	// 								});
-	// 							}
-	// 						});
-	// 					}
-	// 				}
-	// 			}
-	// 		});
-	// 	});
-	// }, 1000000);
+									});
+								}
+							});
+						}
+					}
+				}
+			});
+		});
+	}, 1000000);
 
 	//CROP CALENDAR CREATION
 	if (view == 'add_crop_calendar') {
@@ -149,13 +149,13 @@ $(document).ready(function() {
 									// }
 								}
 							}
-							if(probabilities[i].probability >= 35){//from 40
+							if(probabilities[i].probability >= 0){//from 40
 								// console.log("push");
 								possibilities.push(probabilities[i]);
 							}
 						}
-						// console.log("probabilities");
-						// console.log(probabilities);
+						console.log(probabilities);
+						console.log(possibilities);
 						$.get('/ajaxGetDiagnosisStageFrequency', {}, function(frequency){
 							for(i = 0; i < possibilities.length; i++){
 								var freq_stage = "N/A", stage_count = 0;

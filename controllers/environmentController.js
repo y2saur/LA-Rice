@@ -2966,7 +2966,7 @@ exports.getPDProbability = function(req, res){
 exports.storePDRecommendation = function(req, res){
 	//
 	//
-	
+	// console.log("HELLOOOO");
 	var possibility = req.query.possibilities;
 	var i;
 	date = new Date(req.session.cur_date);
