@@ -629,7 +629,7 @@ function sendPDSymptoms(emp){
         else{
             for(var i = 0; i < symptoms.length; i++){
                 // var name = await translator.translateText(symptoms[i].symptom_name);
-                msg = msg + symptoms[i].symptom_id + " - " + symptoms[0].tagalog_name + "\n";
+                msg = msg + symptoms[i].symptom_id + " - " + symptoms[i].tagalog_name + "\n";
             }
 
             //Send to user
