@@ -147,15 +147,15 @@ exports.resetPassword = function(req, res) {
 					//Check if subscribed
 					smsModel.getEmployeeDetails({ key : "employee_id", value : employee_details[0].employee_id}, function(err, employee){
 						console.log(employee);
-						if(employee.length == 0){
+
+						if(employee[0].access_token == null){
 							req.flash("error_msg", "One Time Password: " + employee_details[0].otp);
 						}
 						else{
-							globe.sendSMS(employee[0], employee_details[0].otp);
+							globe.sendSMS(employee[0], "One Time Password:" + employee_details[0].otp);
 						}
+						res.redirect('/login');
 					});
-
-					res.redirect('/login');
 				}
 			});
 		}
