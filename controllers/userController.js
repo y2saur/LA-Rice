@@ -212,7 +212,7 @@ exports.loginUser = function(req, res) {
 
 				}
 				else {
-					req.flash('error_msg', 'Invalid username please try again');
+					req.flash('error_msg', 'Invalid username. please try again');
 					res.redirect('/login')
 				}
 			}

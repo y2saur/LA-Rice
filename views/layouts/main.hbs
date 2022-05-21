@@ -13,6 +13,18 @@
     })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
 </script>
   <title> {{title}}</title>
+  
+  {{#if session}}
+  {{else}}
+  {{!-- Prevents back button to login page after login --}}
+   <script type="text/javascript">
+        window.history.forward();
+        function noBack() {
+            window.history.forward();
+        }
+    </script>
+  {{/if}}
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="../../images/image29.png" style="width: 5px;">
