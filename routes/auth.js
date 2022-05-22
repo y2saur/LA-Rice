@@ -211,6 +211,7 @@ router.post('/edit_work_order', workOrderController.editWorkOrder);
 
 //User Management
 router.get('/user_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.loadRegistration);
+router.get('/user_management&id=:user_id', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getDetailedUser);
 router.get('/registration', userController.loadRegistration);
 router.post('/account_registration', userController.registerUser);
 router.get('/reset_password', (req, res) => {

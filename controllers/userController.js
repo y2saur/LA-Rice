@@ -207,6 +207,34 @@ exports.initializePassword = function(req, res) {
 	}
 }
 
+exports.getDetailedUser = function(req, res) {
+	var query = { user_id: req.params.user_id };
+	var html_data = {};
+	html_data["title"] = "User Management";
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'user_management', req.session);
+	html_data["notifs"] = req.notifs;
+
+	employeeModel.queryEmployee(query, function(err, user_details) {
+		if (err)
+			throw err;
+		else {
+			console.log(user_details[0]);
+			html_data["user_id"] = user_details[0].user_id;
+			html_data["username"] = user_details[0].username;
+			html_data["access_level"] = user_details[0].access_level;
+			html_data["last_name"] = user_details[0].last_name;
+			html_data["first_name"] = user_details[0].first_name;
+			html_data["position"] = user_details[0].position;
+			html_data["phone_number"] = '0' + user_details[0].phone_number;
+
+
+
+			res.render('detailed_user', html_data);
+			
+		}
+	});
+}
+
 
 exports.loginUser = function(req, res) {
 	const errors = validationResult(req);

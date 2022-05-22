@@ -69,9 +69,9 @@
                                             <!-- <input type="hidden" name="register_id" value="{{this.employee_id}}"> -->
                                           </td>
                                           <td class="text-left"><div>{{this.position}}</div><div class="text-xs text-muted">{{#if this.farm_name}}{{this.farm_name}}{{else}}Unassigned{{/if}}</div></td>
-                                          <td>{{this.phone_number}}</td>
+                                          <td>0{{this.phone_number}}</td>
                                           <td>
-                                            <select name="register_level" disabled required>
+                                            <select class="form-select" name="register_level" disabled required>
                                               <option selected value="">...</option>
                                               <option value="0" {{#compareTwoValues this.access_level 0 operator='==='}}selected{{/compareTwoValues}}>Administrator</option>
                                               <option value="1" {{#compareTwoValues this.access_level 1 operator='==='}}selected{{/compareTwoValues}}>Office Worker</option>
@@ -90,7 +90,7 @@
                                                         <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                                                     </button>
                                                     <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                                                        <a class="dropdown-item notSidebar" href="#" onclick='window.location=""'>&nbsp;View Details</a>
+                                                        <a class="dropdown-item notSidebar" href="/user_management&id={{this.user_id}}">View Details</a>
                                                         {{!-- <a class="dropdown-item notSidebar" href="#">&nbsp;Update</a> --}}
                                                         
                                                         {{#compareTwoValues this.access_level 0 operator='!='}}
@@ -126,9 +126,9 @@
                                             <!-- <input type="hidden" name="register_id" value="{{this.employee_id}}"> -->
                                           </td>
                                           <td class="text-left"><div>{{this.position}}</div><div class="text-xs text-muted">{{#if this.farm_name}}{{this.farm_name}}{{else}}Unassigned{{/if}}</div></td>
-                                          <td>{{this.phone_number}}</td>
+                                          <td>0{{this.phone_number}}</td>
                                           <td>
-                                            <select name="register_level" disabled required>
+                                            <select class="form-select" name="register_level" disabled required>
                                               <option selected value="">...</option>
                                               <option value="0">Administrator</option>
                                               <option value="1">Office Worker</option>
@@ -171,7 +171,7 @@
                                             <!-- <input type="hidden" name="register_id" value="{{this.employee_id}}"> -->
                                           </td>
                                           <td class="text-left"><div>{{this.position}}</div><div class="text-xs text-muted">{{#if this.farm_name}}{{this.farm_name}}{{else}}Unassigned{{/if}}</div></td>
-                                          <td>{{this.phone_number}}</td>
+                                          <td>0{{this.phone_number}}</td>
                                           <td>
                                             <select name="register_level" disabled required>
                                               <option selected value="">...</option>
