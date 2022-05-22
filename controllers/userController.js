@@ -227,12 +227,32 @@ exports.getDetailedUser = function(req, res) {
 			html_data["position"] = user_details[0].position;
 			html_data["phone_number"] = '0' + user_details[0].phone_number;
 
-
-
 			res.render('detailed_user', html_data);
 			
 		}
 	});
+}
+
+exports.updateUserDetails = function(req, res) {
+	var { username, access_level, password, password1, user_id} = req.body
+
+	if (password == password1) {
+		bcrypt.hash(password, saltRounds, (err, hashed) => {
+			userModel.updateAccount({ username: username }, { password: hashed, access_level: access_level}, function(err, result) {
+				if (err)
+					throw err;
+				else {
+					res.redirect('/user_management');
+				}
+			});
+		});
+	}
+
+	else {
+		req.flash('error_msg', 'Passwords do not match. Please try again.');
+		res.redirect(`/user_management&id=${user_id}`);	
+	}
+	
 }
 
 

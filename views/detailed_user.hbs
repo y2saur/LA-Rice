@@ -1,6 +1,8 @@
 <div class="container-fluid" style="color: #332C1F;">
 
-    <h3 class="text-dark mb-4" style="font-weight: bold;color: #332c1f; position: sticky"></a>&nbsp;{{title}}&nbsp;</h3>
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-dark mb-0">{{title}}</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
+    </div>
 
     <div class="row">
         {{!-- <div class="col-lg-12 col-xl-12 col-xxl-12"> --}}
@@ -48,7 +50,7 @@
                 <div class="card-body">
 
                     {{!-- START FORM --}}
-                    <form action="" method="post">
+                    <form id="update_user" action="/update_user" method="post">
 
                     <div class="tab">
                     <div class="modal_body_content" id="body_step1">
@@ -92,18 +94,20 @@
 
                             <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Login Information</h5>
 
+                            {{> messages}}
+
                             <div class="form-group" style="margin-left: 5px;">
                               <div class="row">
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="username">Username <span style="color: #CA4E0C;">*</span></label>
-                                <input type="text" class="form-control" id="username" placeholder="{{username}}" name="last_name" value="{{username}}" required></input>
+                                <input type="text" class="form-control" id="username" placeholder="{{username}}" name="username" value="{{username}}" readonly></input>
 
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="access_level">Access Level <span style="color: #CA4E0C;">*</span></label>
-                                <select class="form-select" name="register_level" required>
+                                <select class="form-select" name="access_level" id="access_level" required>
                                     <option value="0" {{#compareTwoValues this.access_level 0 operator='==='}}selected{{/compareTwoValues}}>Administrator</option>
                                     <option value="1" {{#compareTwoValues this.access_level 1 operator='==='}}selected{{/compareTwoValues}}>Office Worker</option>
                                     <option value="2" {{#compareTwoValues this.access_level 2 operator='==='}}selected{{/compareTwoValues}}>Purchase Officer</option>
@@ -125,7 +129,8 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="password1">Confirm Password <span style="color: #CA4E0C;">*</span></label>
-                                 <input type="password1" class="form-control" id="password1" placeholder="Confirm Password" name="password" required></input>
+                                 <input type="password" class="form-control" id="password1" placeholder="Confirm Password" name="password1" required></input>
+                                  <input type="hidden" name="user_id" id="user_id" value="{{user_id}}">
 
                                 </div>
 
@@ -144,8 +149,8 @@
 
                     <div class="modal-footer">
                         <div class="modal_footer_content" id="_step1">
-                            <button type="button" class="btn round btn-secondary" value="create_farm_form" onclick="goBack();">Cancel</button>
-                            <button type="submit" class="btn round btn-primary" form="create_farm_form">Submit</button>
+                            <button type="button" class="btn round btn-secondary" onclick="goBack();">Cancel</button>
+                            <button type="submit" class="btn round btn-primary" form="update_user">Update</button>
                         </div>
                             
                       </div>

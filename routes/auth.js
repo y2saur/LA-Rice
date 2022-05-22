@@ -220,6 +220,8 @@ router.get('/reset_password', (req, res) => {
 router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
 
+router.post('/update_user', userController.updateUserDetails);
+
 //Report
 router.get('/farm_productivity_report', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , reportController.getBenchmarkCharts, reportController.getFarmProductivityReport);
 router.get('/farm_productivity/detailed', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,reportController.getDetailedReport);
