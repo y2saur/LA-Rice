@@ -256,6 +256,61 @@ exports.updateUserDetails = function(req, res) {
 }
 
 
+exports.getProfile = function(req, res) {
+
+	var username, query;
+	var html_data = {};
+
+	username = req.session.username;
+	query = { username: username };
+
+	html_data["title"] = "Profile";
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'profile', req.session);
+	html_data["notifs"] = req.notifs;
+
+	employeeModel.queryEmployee(query, function(err, user_details) {
+		if (err)
+			throw err;
+		else {
+			console.log(user_details[0]);
+			html_data["user_id"] = user_details[0].user_id;
+			html_data["username"] = user_details[0].username;
+			html_data["access_level"] = user_details[0].access_level;
+			html_data["last_name"] = user_details[0].last_name;
+			html_data["first_name"] = user_details[0].first_name;
+			html_data["position"] = user_details[0].position;
+			html_data["phone_number"] = '0' + user_details[0].phone_number;
+
+			res.render('profile', html_data);
+			
+		}
+	});
+}
+
+exports.updateProfile = function(req, res) {
+	var { username, access_level, password, password1, user_id} = req.body
+
+	if (password == password1) {
+		bcrypt.hash(password, saltRounds, (err, hashed) => {
+			userModel.updateAccount({ username: username }, { password: hashed }, function(err, result) {
+				if (err)
+					throw err;
+				else {
+					req.flash('success_msg', 'Profile updated.');
+					res.redirect('/profile');
+				}
+			});
+		});
+	}
+
+	else {
+		req.flash('error_msg', 'Passwords do not match. Please try again.');
+		res.redirect(`/profile`);	
+	}
+	
+}
+
+
 exports.loginUser = function(req, res) {
 	const errors = validationResult(req);
 

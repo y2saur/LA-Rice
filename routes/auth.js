@@ -222,6 +222,9 @@ router.get('/deactivateAccount', userController.deactivateAccount);
 
 router.post('/update_user', userController.updateUserDetails);
 
+router.get('/profile', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getProfile);
+router.post('/update_profile', userController.updateProfile);
+
 //Report
 router.get('/farm_productivity_report', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , reportController.getBenchmarkCharts, reportController.getFarmProductivityReport);
 router.get('/farm_productivity/detailed', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,reportController.getDetailedReport);

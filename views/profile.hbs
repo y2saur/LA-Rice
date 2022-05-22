@@ -23,7 +23,7 @@
                     </div>
 
                     <div class="col" style="margin-right: 650px; padding-top: 15px">
-                        <h6>Detailed User Information </h6>
+                        <h6>Profile: {{first_name}} {{last_name}} </h6>
             
                     </div>
 
@@ -50,7 +50,7 @@
                 <div class="card-body">
 
                     {{!-- START FORM --}}
-                    <form id="update_user" action="/update_user" method="post">
+                    <form id="update_profile" action="/update_profile" method="post">
 
                     <div class="tab">
                     <div class="modal_body_content" id="body_step1">
@@ -106,8 +106,8 @@
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
-                                <label for="access_level">Access Level <span style="color: #CA4E0C;">*</span></label>
-                                <select class="form-select" name="access_level" id="access_level" required>
+                                <label for="access_level">Access Level</label>
+                                <select class="form-select" name="access_level" id="access_level" disabled>
                                     <option value="0" {{#compareTwoValues this.access_level 0 operator='==='}}selected{{/compareTwoValues}}>Administrator</option>
                                     <option value="1" {{#compareTwoValues this.access_level 1 operator='==='}}selected{{/compareTwoValues}}>Office Worker</option>
                                     <option value="2" {{#compareTwoValues this.access_level 2 operator='==='}}selected{{/compareTwoValues}}>Purchase Officer</option>
@@ -150,7 +150,7 @@
                     <div class="modal-footer">
                         <div class="modal_footer_content" id="_step1">
                             <button type="button" class="btn round btn-secondary" onclick="goBack();">Cancel</button>
-                            <button type="submit" class="btn round btn-primary" form="update_user">Save</button>
+                            <button type="submit" class="btn round btn-primary" form="update_profile">Save</button>
                         </div>
                             
                       </div>
@@ -164,7 +164,7 @@
 </div>
 
 <script>
-    var view = "detailed_user";
+    var view = "profile";
 function goBack() {
   window.history.back();
 }
