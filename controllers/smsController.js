@@ -112,7 +112,7 @@ exports.globe_inbound_msg = function(req, res){
                             if(last_message[0].includes("Due Today")){ //Checks if last message is due today
                                 dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
                             }
-                            else if(last_message[0].includes("PEST/DISEASE SYMPTOMS")){
+                            else if(last_message[0].includes("PESTE/SAKIT SINTOMAS")){
                                 //FOR PD SYMPTOMS
 
                                 //CREATE NOTIF WITH CUSTOM URL
@@ -481,8 +481,6 @@ function updateWO(emp, message, req){
 
 
 //RUNS WHEN USER REGISTERS THROUGH SMS
-
-
 exports.registerUser = function(req,res){
     console.log(req.query);
     //PROCESS
@@ -529,6 +527,10 @@ exports.registerUser = function(req,res){
                         //         sendOutboundMsg(message);
                         //     }
                         // });
+                    }
+                    else{
+                        var msg = "Sorry, hindi po kayo naka-register sa LA Rice Mill. Makipagugnayan sa nasa office. Maraming salamat.";
+                        sendUnregisteredOutboundMsg({phone_number : req.query.subscriber_number, access_token : req.query.access_token}, msg);
                     }
                 }
             });
@@ -595,6 +597,28 @@ function sendOutboundMsg(emp, message){
                 });
         }
     });
+}
+
+function sendUnregisteredOutboundMsg(emp, message){
+
+    console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+    var last = new Date();
+    var send_message = { method: 'POST',
+                    url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
+                    qs: { 'access_token': emp.access_token },
+                    headers: 
+                    { 'Content-Type': 'application/json' },
+                    body: 
+                    { 'outboundSMSMessageRequest': 
+                        { 'clientCorrelator': last,
+                        'senderAddress': shortcode,
+                        'outboundSMSTextMessage': { 'message': message },
+                        'address': emp.phone_number } },
+                    json: true };
+    request(send_message, function (error, response, body) {
+        if (error) throw new Error(error);
+        console.log(body);
+        });
 }
 
 
@@ -739,14 +763,14 @@ function getIncomingWos(employee){
 
 //SEND LIST OF PD SYMPTOMS
 function sendPDSymptoms(emp){
-    var msg = "PEST/DISEASE SYMPTOMS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
+    var msg = "PESTE/SAKIT SINTOMAS\n\nUpang magulat ng mga sintomas ng peste at sakit, piliin ang katumbas na numero sa ilalim at lagyan ng kuwit sa pagitan nito.\nHalimbawa: 1,5,2\n\n";
     pestdiseaseModel.getAllSymptoms( async function(err, symptoms){
         if(err)
             throw err;
         else{
             for(var i = 0; i < symptoms.length; i++){
-                var name = await translator.translateText(symptoms[i].symptom_name);
-                msg = msg + symptoms[i].symptom_id + " - " + name.data[0].translations[0].text + "\n";
+                // var name = await translator.translateText(symptoms[i].symptom_name);
+                msg = msg + symptoms[i].symptom_id + " - " + symptoms[i].tagalog_name + "\n";
             }
 
             //Send to user
@@ -911,7 +935,28 @@ exports.testTranslation = function(req, res){
 }
 
 
+//GET NUMBER OF REPORTED SYMPTOMS FOR THE PAST 7 DAYS
+exports.getReportedSymptoms = function(req, res){
+    //Get notifications on reported symptoms
+    smsModel.getReportedSymptoms(7,0, function(err, reported){
+        if(err)
+            throw err;
+        else{
+            //process
+            var symptoms = [];
+            for(var i = 0; i < reported.length; i++){
+                var temp = reported[i].url.split("=");
+                var temp2 = temp[1].replace("&farm", "");
+                var temp3 = temp2.split("-");
+                for(var x =0; x < temp3.length; x++){
+                    symptoms.push(temp3[x]);
+                }
+            }
+            res.send({symptoms : symptoms});
+        }
+    });
 
+}
 
 
 

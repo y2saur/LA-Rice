@@ -35,9 +35,9 @@ exports.translateText = function(text){
 exports.localTranslate = function(text){
     switch (text.toLowerCase()) {
         case "light rain" : return "mahinang ulan";
-        case "medium rain" : return "katamtamang ulan";
+        case "moderate rain" : return "katamtamang ulan";
         case "clear" : return "walang ulan";
         case "heavy rain" : return "malakas na ulan";
-        default :
+        default : return text;
     }
 }

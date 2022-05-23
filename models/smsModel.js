@@ -105,3 +105,14 @@ exports.getLastOutboundMessage = function(data, next){
     mysql.query(sql, next);
     return sql;
 }
+
+
+exports.getReportedSymptoms = function(from, to, next){
+    var sql = "SELECT * FROM capstone_agriculture_db.notification_table WHERE notification_title = 'Symptoms Reported' AND date > DATE_SUB(NOW(), INTERVAL ? DAY) AND date < DATE_SUB(NOW(), INTERVAL ? DAY);";
+    sql = mysql.format(sql, from);
+    sql = mysql.format(sql, to);
+
+    console.log(sql);
+    mysql.query(sql, next);
+    return sql;
+}

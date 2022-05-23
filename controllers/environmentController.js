@@ -14,6 +14,7 @@ const notifModel = require('../models/notificationModel.js');
 const globe = require('../controllers/smsController.js');
 var request = require('request');
 var solver = require('javascript-lp-solver');
+const translator = require('../public/js/translator.js');
 const e = require('connect-flash');
 const { globe_inbound_msg } = require('./smsController.js');
 
@@ -2507,14 +2508,17 @@ exports.addDiagnosis = function(req,res){
 										}
 
 
-										pestdiseaseModel.getPestDetails(diagnosis.pd_id, function(err, pd){
+										pestdiseaseModel.getPestDetails({pest_id : diagnosis.pd_id}, async function(err, pd){
 											if(err)
 												throw err;
 											else{
 												message = "BAGONG PESTE/SAKIT\nPESTE: " + pd[0].pd_name + "\nPETSA: " + dataformatter.formatDate(new Date(diagnosis.date_diagnosed), "mm DD, YYYY") + "\n\nBAGONG WORK ORDERS\n";
 
 												for(var i = 0; i < workorders.length; i++){
-													message = message + "\n" + workorders[i][1] + "\n" +  workorders[i][2] + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
+													//Add translation
+													var name = await translator.translateText(workorders[i][1]);
+													var desc = await translator.translateText(workorders[i][2]);
+													message = message + "\n" + name.data[0].translations[0].text + "\n" +  desc.data[0].translations[0].text + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
 												}
 
 												console.log(diagnosis);
@@ -2522,7 +2526,7 @@ exports.addDiagnosis = function(req,res){
 												console.log(message);
 
 												//CREATE SMS FOR FARMERS WITHIN THE FARM
-												smsModel.getSMSEmployees({position : "Farmer"}, function(err, employees){
+												smsModel.getSMSEmployees({position : "Farm Manager"}, function(err, employees){
 													if(err)
 														throw err;
 													else{
@@ -2571,14 +2575,16 @@ exports.addDiagnosis = function(req,res){
 											}
 										}
 
-										pestdiseaseModel.getDiseaseDetails(diagnosis.pd_id, function(err, pd){
+										pestdiseaseModel.getDiseaseDetails({disease_id : diagnosis.pd_id}, async function(err, pd){
 											if(err)
 												throw err;
 											else{
 												message = "BAGONG PESTE/SAKIT\nSAKIT: " + pd[0].pd_name + "\nPETSA: " + dataformatter.formatDate(new Date(diagnosis.date_diagnosed), "mm DD, YYYY") + "\n\nBAGONG WORK ORDERS\n";
 
 												for(var i = 0; i < workorders.length; i++){
-													message = message + "\n" + workorders[i][1] + "\n" +  workorders[i][2] + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
+													var name = await translator.translateText(workorders[i][1]);
+													var desc = await translator.translateText(workorders[i][2]);
+													message = message + "\n" + name.data[0].translations[0].text + "\n" +  desc.data[0].translations[0].text + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
 												}
 
 												console.log(diagnosis);
@@ -2960,7 +2966,7 @@ exports.getPDProbability = function(req, res){
 exports.storePDRecommendation = function(req, res){
 	//
 	//
-	
+	// console.log("HELLOOOO");
 	var possibility = req.query.possibilities;
 	var i;
 	date = new Date(req.session.cur_date);

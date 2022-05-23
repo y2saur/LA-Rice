@@ -258,6 +258,15 @@ nav a i.fas.fa-caret-down.rotate {
     animation-duration: 0.1s !important;
 }
 
+nav a i.fas.fa-caret-up {
+    transition: 0.1s !important;
+}
+
+nav a i.fas.fa-caret-up.rotate {
+    transform: rotate(-180deg);
+    animation-duration: 0.1s !important;
+}
+
  a.dropdown-lbl.text-decoration-none.collapsed:hover > i {
      color: white !important;
  }

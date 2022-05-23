@@ -1,0 +1,222 @@
+<div class="container-fluid" style="color: #332C1F;">
+
+    <div class="d-sm-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-dark mb-0">{{title}}</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
+    </div>
+
+    <div class="row">
+        {{!-- <div class="col-lg-12 col-xl-12 col-xxl-12"> --}}
+        <div class="col-lg-12 col-lg-12 col-xxl-12">
+
+            {{!-- CARD --}}
+            <div class="card shadow mb-4"  style="max-width: 1150px; margin: 0px auto;">
+
+                      {{!-- START CARD HEADER --}}
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;color: #ffffff;">
+                    
+                    <div class="col" style="max-width: 70px; padding-top: 2px">
+
+                        <button type="submit" class="btn btn-primary btn-md" id="back" onclick='history.back()'> <!-- Replace later to window.location -->
+                            <i class="far fa-long-arrow-left d-lg-flex justify-content-lg-center" id="backIcon"></i>
+                        </button>        
+
+                    </div>
+
+                    <div class="col" style="margin-right: 650px; padding-top: 15px">
+                        <h6>Profile: {{first_name}} {{last_name}} </h6>
+            
+                    </div>
+
+
+                    {{!-- <div class="btn-group" role="group"><button class="btn btn-primary" type="button" style="background: #BDBE14;font-weight: bold;border-style: none;border-left-color: rgba(78,115,223,0);border-radius: 10px;padding: 4px 10px;">Farms</button><a class="btn btn-primary" role="button" style="margin-left: 10px;background: rgba(189,190,20,0);border-style: none;border-color: var(--bs-pink);padding: 4px 10px;" href="Materials.html">Materials</a></div> --}}
+                    {{!-- {{#if writeable}}
+                    {{#compareTwoValues this.access_level 0 operator='!='}}
+                    <div class="dropdown no-arrow" style="padding-top: 5px">
+                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
+                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
+                        </button>
+                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
+                            <a class="dropdown-item notSidebar" href="/deactivateAccount?username={{username}}&status=deactivate">&nbsp;Deactivate User</a>
+                    
+                        </div>
+                    </div>
+                    {{/compareTwoValues}}
+                    {{/if}} --}}
+                </div>
+                {{!-- END CARD HEADER --}}
+
+                {{!-- START CARD BODY --}}
+                <div class="card-body">
+
+                    {{!-- START FORM --}}
+                    <form id="update_profile" action="/update_profile" method="post">
+
+                    <div class="tab">
+                    <div class="modal_body_content" id="body_step1">
+                            <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Employee Information</h5>
+
+                            <div class="form-group" style="margin-left: 5px;">
+                              <div class="row">
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="last_name">Last Name </label>
+                                <input type="text" class="form-control" id="last_name" placeholder="{{last_name}}" name="last_name" value="{{last_name}}" disabled></input>
+
+                                </div>
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="first_name">First Name </label>
+                                <input type="text" class="form-control" id="first_name" placeholder="{{first_name}}" name="first_name" value="{{first_name}}" disabled></input>
+
+                                </div>
+
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-left: 5px;">
+                              <div class="row">
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="mobile_number">Mobile Number </label>
+                                <input type="text" class="form-control" id="mobile_number" placeholder="{{phone_number}}" name="phone_number" value="{{phone_number}}" disabled></input>
+
+                                </div>
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="position">Position </label>
+                                <input type="text" class="form-control" id="position" placeholder="{{position}}" name="position" value="{{position}}" disabled></input>
+
+                                </div>
+
+                                </div>
+                            </div>
+
+                            <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Login Information</h5>
+
+                            {{> messages}}
+
+                            <div class="form-group" style="margin-left: 5px;">
+                              <div class="row">
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="username">Username <span style="color: #CA4E0C;">*</span></label>
+                                <input type="text" class="form-control" id="username" placeholder="{{username}}" name="username" value="{{username}}" readonly></input>
+
+                                </div>
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="access_level">Access Level</label>
+                                <select class="form-select" name="access_level" id="access_level" disabled>
+                                    <option value="0" {{#compareTwoValues this.access_level 0 operator='==='}}selected{{/compareTwoValues}}>Administrator</option>
+                                    <option value="1" {{#compareTwoValues this.access_level 1 operator='==='}}selected{{/compareTwoValues}}>Office Worker</option>
+                                    <option value="2" {{#compareTwoValues this.access_level 2 operator='==='}}selected{{/compareTwoValues}}>Purchase Officer</option>
+                                </select>
+
+                                </div>
+
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-left: 5px;">
+                              <div class="row">
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="password">Password <span style="color: #CA4E0C;">*</span></label>
+                                <input type="password" class="form-control" id="password" placeholder="Password" name="password" required></input>
+
+                                </div>
+
+                                <div class="col" style="padding-top: 5px;">
+                                <label for="password1">Confirm Password <span style="color: #CA4E0C;">*</span></label>
+                                 <input type="password" class="form-control" id="password1" placeholder="Confirm Password" name="password1" required></input>
+                                  <input type="hidden" name="user_id" id="user_id" value="{{user_id}}">
+
+                                </div>
+
+                                </div>
+                            </div>
+               
+                    </div>
+                     </div>
+
+                    </form>
+                    {{!-- END FORM --}}
+
+                    <div style="text-align:center;margin-top:40px;padding-bottom:10px">
+                      
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="modal_footer_content" id="_step1">
+                            <button type="button" class="btn round btn-secondary" onclick="goBack();">Cancel</button>
+                            <button type="submit" class="btn round btn-primary" form="update_profile">Save</button>
+                        </div>
+                            
+                      </div>
+
+                </div>
+                {{!-- END CARD BODY --}}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var view = "profile";
+function goBack() {
+  window.history.back();
+}
+
+// MULTI-STEP FROM INDICATORS
+
+var currentTab = 0; // Current tab is set to be the first tab (0)
+showTab(currentTab); // Display the current tab
+
+function showTab(n) {
+  // This function will display the specified tab of the form...
+  var x = document.getElementsByClassName("tab");
+  x[n].style.display = "block";
+
+  //... and run a function that will display the correct step indicator:
+  fixStepIndicator(n);
+}
+
+function nextPrev(n) {
+  // This function will figure out which tab to display
+  var x = document.getElementsByClassName("tab");
+
+  
+  // Exit the function if any field in the current tab is invalid:
+  if (!dataValidation(currentTab+2)) return false;
+  // Hide the current tab:
+ // x[currentTab].style.display = "none";
+
+document.getElementsByClassName("step")[currentTab].className += " finish";
+
+  // Increase or decrease the current tab by 1:
+  currentTab = currentTab + n;
+
+  // if you have reached the end of the form...
+  if (currentTab >= x.length) {
+    // ... the form gets submitted:
+    document.getElementById("create_farm_form").submit();
+    return false;
+  }
+  // Otherwise, display the correct tab:
+  showTab(currentTab);
+
+}
+
+function fixStepIndicator(n) {
+  // This function removes the "active" class of all steps...
+  var i, x = document.getElementsByClassName("step");
+  for (i = 0; i < x.length; i++) {
+    x[i].className = x[i].className.replace(" active", "");
+  }
+  //... and adds the "active" class on the current step:
+  x[n].className += " active";
+
+}
+
+</script>

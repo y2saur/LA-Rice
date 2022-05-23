@@ -213,6 +213,7 @@ router.get('/ajax_wo&id=:work_order_id', workOrderController.ajaxEditWO);
 
 //User Management
 router.get('/user_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.loadRegistration);
+router.get('/user_management&id=:user_id', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getDetailedUser);
 router.get('/registration', userController.loadRegistration);
 router.post('/account_registration', userController.registerUser);
 router.get('/reset_password', (req, res) => {
@@ -220,6 +221,12 @@ router.get('/reset_password', (req, res) => {
 });
 router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
+router.get('/resendOTP', userController.resendOTP);
+
+router.post('/update_user', userController.updateUserDetails);
+
+router.get('/profile', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getProfile);
+router.post('/update_profile', userController.updateProfile);
 
 //Report
 router.get('/farm_productivity_report', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , reportController.getBenchmarkCharts, reportController.getFarmProductivityReport);
@@ -318,6 +325,6 @@ router.get('/globe_inbound', globe.registerUser); //WHEN REGISTERING THROUGH SMS
 router.get('/userConvos', globe.getUserConversation); //Gets conversation per user
 router.get('/employeeDetails', userController.getEmployeeDetails);
 router.get("/sendSMS", globe.globe_outbound_msg);
-
+router.get("/get_reported_symptoms", globe.getReportedSymptoms);
 
 module.exports = router;

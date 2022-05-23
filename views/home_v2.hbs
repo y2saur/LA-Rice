@@ -10,7 +10,7 @@
                     <div class="row d-lg-flex align-items-center justify-content-lg-center no-gutters">
                         <div class="col mr-2">
                             <div class="text-uppercase text-primary font-weight-bold text-xs" style="margin-top: -20px;"><span>Active Farms</span></div>
-                            <div class="text-dark font-weight-bold h5 mb-0"><span id="numFarms"></span></div>
+                            <div class="text-dark font-weight-bold h5 mb-0" style="color: #332C1F !important;"><span id="numActive">0</span> out of <span id="numFarms">0</span></div>
                         </div>
                         <div class="col-auto">
                             {{!-- <svg class="bi bi-house-fill fa-2x text-gray-300" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16">
@@ -30,7 +30,7 @@
                         <div class="col mr-2">
                             <div class="text-uppercase text-success font-weight-bold text-xs" style="margin-top: -20px;">
                                 <span style="color:#CA4E0C !important;">Low stock resources</span></div>
-                            <div class="text-dark font-weight-bold h5 mb-0"><span id="numLowStocks"></span></div>
+                            <div class="text-dark font-weight-bold h5 mb-0" style="color: #332C1F !important;"><span id="numLowStocks">0</span></div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-exclamation-triangle text-gray-300" style="font-size:xx-large; margin-right: 10px"></i>
@@ -48,7 +48,7 @@
                                   <div class="text-uppercase text-info font-weight-bold text-xs" style="margin-top: -20px;margin-bottom: 0px;"><span>overall farm productivity</span></div>
                     <div class="row no-gutters align-items-center">
                         <div class="col-auto" style="margin-left: 12px;">
-                           <div class="text-dark font-weight-bold h5 mb-0"><span style="margin-right: 10px;">{{fp.percentage}}%</span></div>
+                           <div class="text-dark font-weight-bold h5 mb-0" style="color: #332C1F !important;"><span style="margin-right: 10px;">{{fp.percentage}}%</span></div>
                         </div>
                         <div class="col-xl-6">
                             <div class="progress progress-sm">
@@ -70,8 +70,8 @@
                 <div class="card-body">
                     <div class="row align-items-center no-gutters">
                         <div class="col mr-2">
-                            <div class="text-uppercase text-warning font-weight-bold text-xs" style="margin-top: -20px;"><span>Farmer Queries</span></div>
-                            <div class="text-dark font-weight-bold h5 mb-0"><span>0</span></div>
+                            <div class="text-uppercase text-warning font-weight-bold text-xs" style="margin-top: -20px;"><span>Reported Queries (Past 7 days)</span></div>
+                            <div class="text-dark font-weight-bold h5 mb-0" style="color: #332C1F !important;"><span id="reported_symptoms">0</span></div>
                         </div>
                         <div class="col-auto">
                             <i class="fa fa-mobile fa-2x text-gray-300" style="font-size:xx-large; margin-right: 10px"></i>
@@ -149,8 +149,8 @@
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
                     <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Weather Outlook</h6>
                 </div>
-                <div class="card-body">
-                    <div class="px-3 py-3" style="min-height: 180px;">
+                <div class="card-body" style="color: #332C1F;">
+                    <div class="px-3 py-3" style="min-height: 300px;">
                         <div class="d-flex">
                             <div><small>Weather Assessment:</small> </div>
                             <div class="ml-3 font-weight-bold">{{outlook.classification}}</div>
@@ -160,9 +160,10 @@
                             <span class="my-2">{{outlook.drought_summary}}</span>
                             <span class="">{{outlook.weather_forecast}}</span>
                         </div>
-                        <div class="d-flex">
+                        <div class="d-flex" style="margin-top: 30px;">
                             <span>Date Recorded: {{outlook.last_update}}</span>
-                            <a href="/disaster_management" class="ml-auto font-weight-bold mt-3">View more</a>
+                            <button class="btn btn-primary float-right" type="button" style="border-radius: 20px;padding: 2px 10px;background: #EDD172;border-style: none;color: rgb(94,83,61);position: absolute; bottom: 10px; right: 10px" id="soil-data-btn" href="/disaster_management">View more</button>
+                            {{!-- <a href="/disaster_management" class="ml-auto font-weight-bold mt-3">View more</a> --}}
                         </div>
                     </div>
                 </div>
@@ -170,8 +171,6 @@
             
         </div>
     </div>
-
-
 
                     <div class="row">
                         <div class="col-lg-7 col-xl-8">
@@ -185,9 +184,9 @@
                                         <div class="card-body">
                                             <div class="w-100">
                                                 {{#if wo_status_data}}
-                                                <canvas id="weekly_wo" style=""></canvas>
+                                                <canvas id="weekly_wo" style="color: #332C1F !important;"></canvas>
                                                 {{else}}
-                                                <div class="font-weight-bold text-center mb-5">No applicable work orders!</div>
+                                                <div class="font-weight-bold text-center mb-5" style="color: #332C1F !important;">No applicable work orders!</div>
                                                 {{/if}}
                                             </div>
                                         </div>
@@ -216,10 +215,10 @@
                                 <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
                                     <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Upcoming Work Orders</h6>
                                 </div>
-                                <div class="card-body" style="height: 632px; max-width: inherit; max-height: 632px; overflow-y: auto;">
+                                <div class="card-body" style="height: 892px; max-width: inherit; max-height: 892px; overflow-y: auto; color:#332C1F !important">
                                     <ul class="list-group" style="width: 100%;">
                                     {{#each upcomingWoList}}
-                                    <li class="list-group-item">
+                                    <li class="list-group-item" style="color: #332C1F;">
                                         <div>
                                         <span>{{this.type}} for</span>
                                         <span style="font-weight: bold;">{{this.farm_name}}</span>
@@ -241,7 +240,7 @@
                                         </span>
                                     </li>
                                     {{else}}
-                                     <li class="list-group-item">
+                                     <li class="list-group-item" style="color: #332C1F;">
                                         <div>
                                         <center>No upcoming work orders</center>
                                         </div>

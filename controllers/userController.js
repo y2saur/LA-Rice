@@ -4,6 +4,9 @@ const { validationResult } = require('express-validator');
 const dataformatter = require('../public/js/dataformatter.js');
 const bcrypt = require('bcrypt');
 const js = require('../public/js/session.js');
+const globe = require('../controllers/smsController.js');
+const smsModel = require('../models/smsModel.js');
+const e = require('connect-flash');
 
 const saltRounds = 10;
 
@@ -76,6 +79,11 @@ exports.registerUser = function(req, res) {
 	if (errors.isEmpty()) {
 		const saltRounds = 10;
 		var { register_checkbox, register_level } = req.body;
+		console.log(Array.isArray(register_checkbox));
+		if(!Array.isArray(register_checkbox)){
+			register_checkbox = [];
+			register_checkbox.push(req.body.register_checkbox);
+		}
 		userModel.createRegistrationDetails(register_checkbox, function(err, detail_result) {
 			if (err)
 				throw err;
@@ -86,12 +94,29 @@ exports.registerUser = function(req, res) {
 					detail_result[i]['password'] = null;
 				}
 				
+				console.log(detail_result);
 				userModel.registerUser(detail_result, function(err, result) {
 					if (err)
 						throw err;
 					else {
 						//Insert SMS msg of OTP for first login here
-						res.redirect('/registration');
+						smsModel.getSubscriptions(function(err, subs){
+							var otp_msg = "";
+							for(var i = 0; i < detail_result.length; i++){
+								var subscribed = false;
+								for(var x = 0; x < subs.length; x++)
+									if(subs[x].employee_id == detail_result[i].employee_id && subs[x].access_token != null){
+										//send sms
+										globe.sendSMS(subs[x], "One Time Password: " + detail_result[i].otp);//add opt
+										console.log(detail_result[i].employee_id + ": SEND SMS");
+										subscribed = true;
+									}
+								if(!subscribed)
+									otp_msg = otp_msg + detail_result[i].username + ": " + detail_result[i].otp + "\n";
+							}
+							req.flash('error_msg', otp_msg);
+							res.redirect('/registration');
+						});
 					}
 				});
 				
@@ -105,6 +130,50 @@ exports.registerUser = function(req, res) {
 	}
 };
 
+exports.resendOTP = function(req, res) {
+	employeeModel.queryEmployee({username:req.query.username}, function(err, emp) {
+		if (err)
+			throw err;
+		else {
+			if (emp.length != 0) {
+				var status;
+				if (req.query.status == 'resend') {
+					status = 0;
+					smsModel.getSubscriptions(function(err, subs){
+						var otp_msg = "";
+						for(var i = 0; i < emp.length; i++){
+							var subscribed = false;
+							for(var x = 0; x < subs.length; x++)
+								if(subs[x].employee_id == emp[i].employee_id && subs[x].access_token != null){
+									//send sms
+									globe.sendSMS(subs[x], "One Time Password: " + emp[i].otp);//add opt
+									console.log(emp[i].employee_id + ": SEND SMS");
+									subscribed = true;
+									req.flash('success_msg', "OTP sent to: " + emp[i].username);
+								}
+							if(!subscribed)
+								otp_msg = otp_msg + 'User not subscribed (OTP: ' + emp[i].otp + '). ' + 'Advise User to send "INFO" to 21663543.';
+								// otp_msg = otp_msg + emp[i].username + ": " + emp[i].otp + "\n";
+						}
+						req.flash('error_msg', otp_msg);
+						res.redirect('/registration');
+					});
+				}
+				else {
+					//Err message
+					req.flash('error_msg', "User not found. Please Try Again.");
+					res.redirect('/user_management');
+				}
+			}
+			else {
+				//Err message
+				res.redirect('/user_management');
+			}	
+		}
+	});
+			
+}
+
 exports.resetPassword = function(req, res) {
 	var { username } = req.body;
 
@@ -117,9 +186,27 @@ exports.resetPassword = function(req, res) {
 			employeeModel.queryEmployee({ username: username }, function(err, employee_details) {
 				if (err)
 					throw err;
+				else if (employee_details[0] == null) {
+					req.flash('error_msg', 'Invalid username. Please try again.');
+					res.redirect('/reset_password');
+				}
 				else {
+					console.log(employee_details);
 					// Send OTP to user's phone number
-					res.redirect('/login');
+					//Check if subscribed
+					smsModel.getEmployeeDetails({ key : "employee_id", value : employee_details[0].employee_id}, function(err, employee){
+						console.log(employee);
+
+						if(employee[0].access_token == null){
+							req.flash("error_msg", 'You are not subscribed. Send "INFO" to 21663543.');
+							// res.redirect('/reset_password');
+						}
+						else{
+							req.flash('success_msg', 'OTP sent to: ' + employee_details[0].username);
+							globe.sendSMS(employee[0], "One Time Password: " + employee_details[0].otp);
+						}
+						res.redirect('/login');
+					});
 				}
 			});
 		}
@@ -148,8 +235,10 @@ exports.initializePassword = function(req, res) {
 						else {
 							// Update session object once matched!
 							req.session = initializeSessionInfo(req.session, user_details[0]);
+
+							req.flash('success_msg', 'Password changed for: ' + user_details[0].username);
 							
-							res.redirect('/home');	
+							res.redirect('/login');	
 						}
 					});	
 				}
@@ -157,9 +246,113 @@ exports.initializePassword = function(req, res) {
 		});
 	}
 	else {
-		req.flash('error_msg', 'Passwords do not match');
+		req.flash('error_msg', 'Passwords do not match. Please try again.');
 		res.redirect(`/initialize_account?username=${username}`);
 	}
+}
+
+exports.getDetailedUser = function(req, res) {
+	var query = { user_id: req.params.user_id };
+	var html_data = {};
+	html_data["title"] = "User Management";
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'user_management', req.session);
+	html_data["notifs"] = req.notifs;
+
+	employeeModel.queryEmployee(query, function(err, user_details) {
+		if (err)
+			throw err;
+		else {
+			console.log(user_details[0]);
+			html_data["user_id"] = user_details[0].user_id;
+			html_data["username"] = user_details[0].username;
+			html_data["access_level"] = user_details[0].access_level;
+			html_data["last_name"] = user_details[0].last_name;
+			html_data["first_name"] = user_details[0].first_name;
+			html_data["position"] = user_details[0].position;
+			html_data["otp"] = user_details[0].otp;
+			html_data["phone_number"] = '0' + user_details[0].phone_number;
+
+			res.render('detailed_user', html_data);
+			
+		}
+	});
+}
+
+exports.updateUserDetails = function(req, res) {
+	var { username, access_level, password, password1, user_id} = req.body
+
+	if (password == password1) {
+		bcrypt.hash(password, saltRounds, (err, hashed) => {
+			userModel.updateAccount({ username: username }, { password: hashed, access_level: access_level}, function(err, result) {
+				if (err)
+					throw err;
+				else {
+					res.redirect('/user_management');
+				}
+			});
+		});
+	}
+
+	else {
+		req.flash('error_msg', 'Passwords do not match. Please try again.');
+		res.redirect(`/user_management&id=${user_id}`);	
+	}
+	
+}
+
+
+exports.getProfile = function(req, res) {
+
+	var username, query;
+	var html_data = {};
+
+	username = req.session.username;
+	query = { username: username };
+
+	html_data["title"] = "Profile";
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'profile', req.session);
+	html_data["notifs"] = req.notifs;
+
+	employeeModel.queryEmployee(query, function(err, user_details) {
+		if (err)
+			throw err;
+		else {
+			console.log(user_details[0]);
+			html_data["user_id"] = user_details[0].user_id;
+			html_data["username"] = user_details[0].username;
+			html_data["access_level"] = user_details[0].access_level;
+			html_data["last_name"] = user_details[0].last_name;
+			html_data["first_name"] = user_details[0].first_name;
+			html_data["position"] = user_details[0].position;
+			html_data["phone_number"] = '0' + user_details[0].phone_number;
+
+			res.render('profile', html_data);
+			
+		}
+	});
+}
+
+exports.updateProfile = function(req, res) {
+	var { username, access_level, password, password1, user_id} = req.body
+
+	if (password == password1) {
+		bcrypt.hash(password, saltRounds, (err, hashed) => {
+			userModel.updateAccount({ username: username }, { password: hashed }, function(err, result) {
+				if (err)
+					throw err;
+				else {
+					req.flash('success_msg', 'Profile updated.');
+					res.redirect('/profile');
+				}
+			});
+		});
+	}
+
+	else {
+		req.flash('error_msg', 'Passwords do not match. Please try again.');
+		res.redirect(`/profile`);	
+	}
+	
 }
 
 
@@ -212,7 +405,7 @@ exports.loginUser = function(req, res) {
 
 				}
 				else {
-					req.flash('error_msg', 'Invalid username please try again');
+					req.flash('error_msg', 'Invalid username. Please try again.');
 					res.redirect('/login')
 				}
 			}
