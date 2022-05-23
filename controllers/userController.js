@@ -130,6 +130,50 @@ exports.registerUser = function(req, res) {
 	}
 };
 
+exports.resendOTP = function(req, res) {
+	employeeModel.queryEmployee({username:req.query.username}, function(err, emp) {
+		if (err)
+			throw err;
+		else {
+			if (emp.length != 0) {
+				var status;
+				if (req.query.status == 'resend') {
+					status = 0;
+					smsModel.getSubscriptions(function(err, subs){
+						var otp_msg = "";
+						for(var i = 0; i < emp.length; i++){
+							var subscribed = false;
+							for(var x = 0; x < subs.length; x++)
+								if(subs[x].employee_id == emp[i].employee_id && subs[x].access_token != null){
+									//send sms
+									globe.sendSMS(subs[x], "One Time Password: " + emp[i].otp);//add opt
+									console.log(emp[i].employee_id + ": SEND SMS");
+									subscribed = true;
+									req.flash('success_msg', "OTP sent to: " + emp[i].username);
+								}
+							if(!subscribed)
+								otp_msg = otp_msg + 'User not subscribed (OTP: ' + emp[i].otp + '). ' + 'Advise User to send "INFO" to 21663543.';
+								// otp_msg = otp_msg + emp[i].username + ": " + emp[i].otp + "\n";
+						}
+						req.flash('error_msg', otp_msg);
+						res.redirect('/registration');
+					});
+				}
+				else {
+					//Err message
+					req.flash('error_msg', "User not found. Please Try Again.");
+					res.redirect('/user_management');
+				}
+			}
+			else {
+				//Err message
+				res.redirect('/user_management');
+			}	
+		}
+	});
+			
+}
+
 exports.resetPassword = function(req, res) {
 	var { username } = req.body;
 
@@ -154,7 +198,7 @@ exports.resetPassword = function(req, res) {
 						console.log(employee);
 
 						if(employee[0].access_token == null){
-							req.flash("error_msg", 'You are not subscribed. Send "INFO" to 21663543');
+							req.flash("error_msg", 'You are not subscribed. Send "INFO" to 21663543.');
 							// res.redirect('/reset_password');
 						}
 						else{
@@ -225,6 +269,7 @@ exports.getDetailedUser = function(req, res) {
 			html_data["last_name"] = user_details[0].last_name;
 			html_data["first_name"] = user_details[0].first_name;
 			html_data["position"] = user_details[0].position;
+			html_data["otp"] = user_details[0].otp;
 			html_data["phone_number"] = '0' + user_details[0].phone_number;
 
 			res.render('detailed_user', html_data);

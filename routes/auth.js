@@ -219,6 +219,7 @@ router.get('/reset_password', (req, res) => {
 });
 router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
+router.get('/resendOTP', userController.resendOTP);
 
 router.post('/update_user', userController.updateUserDetails);
 
