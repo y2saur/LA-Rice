@@ -3,6 +3,7 @@ const chart_formatter = require('../public/js/chart_formatter.js');
 const analyzer = require('../public/js/analyzer.js');
 const js = require('../public/js/session.js');
 const workOrderModel = require('../models/workOrderModel.js');
+const woModel = require('../models/workOrderModel.js');
 const employeeModel = require('../models/employeeModel.js');
 const materialModel = require('../models/materialModel.js');
 const pestdiseaseModel = require('../models/pestdiseaseModel.js');
@@ -1006,6 +1007,94 @@ function processHarvestDetails(sacks, type, stage, id) {
 		arr.push(obj);
 	}
 	return arr;
+}
+
+exports.ajaxEditWO = function(req, res) {
+	woModel.getDetailedWorkOrder({work_order_id : req.params.work_order_id }, function(err, wo_details){
+        if(err){
+
+            throw err;
+        }
+        else{
+            //Check if same farm id
+            if(true){
+                // Data validation (stock control)
+                var success = true;
+                if (wo_details[0].type == 'Fertilizer Application' || wo_details[0].type == 'Pesticide Application' || wo_details[0].type == 'Sow Seed') {
+                    materialModel.getFarmMaterials(wo_details[0].farm_id, function(err, farm_materials) {
+                        if (err)
+                            throw err;
+                        else {
+                            var resource_type = null;
+                            if (wo_details[0].type == 'Pesticide Application') {
+                                resource_type = 'Pesticide';
+                            }
+                            else if (wo_details[0].type == 'Fertilizer Application') {
+                                resource_type = 'Fertilizer'
+                            }
+                            else if (wo_details[0].type == 'Sow Seed') {
+                                resource_type = 'Seed'
+                            }
+                            // Check work order resource needed
+                            var query = { work_order_id: wo_details[0].work_order_id };
+                            workOrderModel.getResourceDetails(query, resource_type, function(err, resource_details) {
+                            	if (err)
+                            		throw err;
+                            	else {
+									// Check if there is sufficient stock
+									var sufficient = true;
+
+									var resource_qty = [];
+                            		var resource_ids = [];
+                            		resource_details.forEach(function(item, index) {
+										filter_mats = farm_materials.filter(e => e.item_name == item.material_name)[0];
+										resource_qty.push(item.qty);
+										resource_ids.push(item.item_id);
+
+										if (!(filter_mats.current_amount >= item.qty)) {
+											sufficient = false;
+										}
+									});
+
+									if (sufficient) {
+										materialModel.subtractFarmMaterial({ qty: resource_qty }, { item_type: resource_type, farm_id: wo_details[0].farm_id, item_id: resource_ids }, function(err, subtract_result) {
+											if (err)
+												throw err;
+											else {
+												//Continue to update wo
+								                var date = dataformatter.formatDate(new Date(req.session.cur_date), "YYYY-MM-DD");
+								                woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+								                	if (err)
+								                		throw err;
+								                	else {
+								                		var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
+									                    //sendOutboundMsg(emp, msg);
+									                    res.send('');
+								                	}
+								                });
+											}
+										});
+									}
+									else {
+										var msg = "Kulang ang sinaunang items hindi maaring kumpletuhin - kontakin ang employado sa opisina";
+										console.log('Insufficient!');
+										//sendOutboundMsg(emp, msg);
+										res.send('');
+									}
+										
+                            	}
+                            });
+                        }
+                    });  
+                }
+            }
+            else{
+                var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
+                //sendOutboundMsg(emp, msg);
+                res.send('');
+            }
+        }
+    });
 }
 
 exports.editWorkOrder = function(req, res) {

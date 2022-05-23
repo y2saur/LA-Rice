@@ -95,19 +95,19 @@ exports.getPDOccurence = function(data1, next) {
 }
 
 exports.getNutrientChart = function(data1, data2, next) {
-	var sql = "select * from ( SELECT 'Applied' as application_type, case when fertilizer_name = 'Fertilizer 16-20-0' then 'P' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as nutrient_type, wot.date_completed, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ? ";
+	var sql = "select * from ( SELECT 'Applied' as application_type, case when fertilizer_name = 'Fertilizer 16-20-0' then 'P' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as nutrient_type, wot.date_completed, wot.date_start, wot.date_due, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ? ";
 	for (var i = 0; i < data1.crop_calendar_id.length; i++) {
 		sql = mysql.format(sql, { crop_calendar_id: parseInt(data1.crop_calendar_id[i]) });
 		if (i < data1.crop_calendar_id.length - 1)
 			sql += ' or ?';
 	}
-	sql += " AND wot.type = 'Fertilizer Application' union SELECT 'Applied', case when fertilizer_name = 'Fertilizer 16-20-0' then 'N' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as type, wot.date_completed, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ? ";
+	sql += " AND wot.type = 'Fertilizer Application' union SELECT 'Applied', case when fertilizer_name = 'Fertilizer 16-20-0' then 'N' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as type, wot.date_completed, wot.date_start, wot.date_due, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ? ";
 	for (var i = 0; i < data1.crop_calendar_id.length; i++) {
 		sql = mysql.format(sql, { crop_calendar_id: parseInt(data1.crop_calendar_id[i]) });
 		if (i < data1.crop_calendar_id.length - 1)
 			sql += ' or ?';
 	}
-	sql += " AND wot.type = 'Fertilizer Application' and fertilizer_name = 'Fertilizer 16-20-0' union SELECT 'Recommended', CASE WHEN fertilizer_name = 'Fertilizer 16-20-0' THEN 'P' WHEN fertilizer_name = 'Potash 0-0-60' THEN 'K' WHEN fertilizer_name = 'Urea 46-0-0' THEN 'N' END AS nutrient_type, fri.target_application_date, fri.amount, ft.fertilizer_name, N, P, K, calendar_id FROM fertilizer_recommendation_plan frp JOIN fertilizer_recommendation_items fri USING (fr_plan_id) JOIN fertilizer_table ft USING (fertilizer_id) WHERE ? ";
+	sql += " AND wot.type = 'Fertilizer Application' and fertilizer_name = 'Fertilizer 16-20-0' union SELECT 'Recommended', CASE WHEN fertilizer_name = 'Fertilizer 16-20-0' THEN 'P' WHEN fertilizer_name = 'Potash 0-0-60' THEN 'K' WHEN fertilizer_name = 'Urea 46-0-0' THEN 'N' END AS nutrient_type, fri.target_application_date, null, null, fri.amount, ft.fertilizer_name, N, P, K, calendar_id FROM fertilizer_recommendation_plan frp JOIN fertilizer_recommendation_items fri USING (fr_plan_id) JOIN fertilizer_table ft USING (fertilizer_id) WHERE ? ";
 	for (var i = 0; i < data2.calendar_id.length; i++) {
 		sql = mysql.format(sql, { calendar_id: parseInt(data2.calendar_id[i]) });
 		if (i < data2.calendar_id.length - 1)
@@ -142,15 +142,31 @@ exports.getSeedChart = function(farm,data, next) {
 	}
 	sql += ' order by harvest_date asc, calendar_id asc';
 	//sql += 'and crop_calendar_table.status = "Completed" order by harvest_date asc, calendar_id asc';
-
+	//console.log(sql);
 	
+	mysql.query(sql, next);
+}
+
+exports.getWOByCategory = function(query, next) {
+	var sql = `select case when datediff(wot.date_due, wot.date_completed) >= 0 and datediff(wot.date_start, wot.date_completed) <= 0 then 'Within Range' when datediff(wot.date_start, wot.date_completed) >= 0 then 'Early Start' when datediff(wot.date_due, wot.date_completed) <= 0 then 'Late Complete' end as category,wot.work_order_id, wot.type, wot.date_start, wot.date_due, wot.date_completed from work_order_table wot join crop_calendar_table cct on calendar_id = crop_calendar_id where (?`;
+	for (var i = 0; i < query.crop_calendar_id.length; i++) {
+		if (i < query.length - 1) {
+			sql += ' or ?';
+		}
+		else {
+			sql += ') ';
+		}
+		sql = mysql.format(sql, { crop_calendar_id: parseInt(query.crop_calendar_id[i]) });
+		if (i < query.crop_calendar_id.length - 1)
+			sql += ' or ?';
+	}
+	sql += ` and type != 'Fertilizer Application'`;
 	mysql.query(sql, next);
 }
 
 exports.getFarmProductivity = function(next) {
 	var sql = "select * from ( SELECT *, MAX(prev_calendar) AS max_prev_calendar, MAX(previous_yield) AS max_previous_yield FROM (SELECT st.seed_name, ft.farm_area, fy.forecast_yield_id, cct.calendar_id, NULL AS prev_calendar, cct.status, ft.farm_id, ft.farm_name, cct.crop_plan, fy.forecast AS forecast_yield, cct.harvest_yield AS current_yield, NULL AS previous_yield FROM crop_calendar_table cct LEFT JOIN crop_calendar_table AS cct1 ON (cct.farm_id = cct1.farm_id AND cct.harvest_date < cct1.harvest_date) JOIN seed_table st ON cct.seed_planted = st.seed_id JOIN forecasted_yield fy ON (cct.calendar_id = fy.calendar_id AND cct.seed_planted = fy.seed_id) JOIN farm_table ft ON cct.farm_id = ft.farm_id WHERE cct1.harvest_date IS NULL UNION SELECT NULL, NULL, NULL, NULL, t1.calendar_id, NULL, t1.farm_id, NULL, NULL, NULL, NULL, t1.harvest_yield FROM (SELECT *, @rn:=IF(@prev = farm_id, @rn + 1, 1) AS rn, @prev:=farm_id FROM crop_calendar_table JOIN (SELECT @prev:=NULL, @rn:=0) AS vars ORDER BY farm_id , harvest_date DESC) AS t1 WHERE rn = 2) AS t2 GROUP BY t2.farm_id ) as t3 union select st.seed_name, ft.farm_area, null, cct.calendar_id, null, cct.status, ft.farm_id, ft.farm_name, cct.crop_plan, forecast, cct.harvest_yield, null, null, null from crop_calendar_table cct join seed_table st on seed_planted = seed_id join farm_table ft using(farm_id) left join forecasted_yield fy on fy.calendar_id = cct.calendar_id where cct.status = 'Completed' and cct.farm_id not in ( SELECT farm_id FROM (SELECT st.seed_name, ft.farm_area, fy.forecast_yield_id, cct.calendar_id, NULL AS prev_calendar, cct.status, ft.farm_id, ft.farm_name, cct.crop_plan, fy.forecast AS forecast_yield, cct.harvest_yield AS current_yield, NULL AS previous_yield FROM crop_calendar_table cct LEFT JOIN crop_calendar_table AS cct1 ON (cct.farm_id = cct1.farm_id AND cct.harvest_date < cct1.harvest_date) JOIN seed_table st ON cct.seed_planted = st.seed_id JOIN forecasted_yield fy ON (cct.calendar_id = fy.calendar_id AND cct.seed_planted = fy.seed_id) JOIN farm_table ft ON cct.farm_id = ft.farm_id WHERE cct1.harvest_date IS NULL UNION SELECT NULL, NULL, NULL, NULL, t1.calendar_id, NULL, t1.farm_id, NULL, NULL, NULL, NULL, t1.harvest_yield FROM (SELECT *, @rn:=IF(@prev = farm_id, @rn + 1, 1) AS rn, @prev:=farm_id FROM crop_calendar_table JOIN (SELECT @prev:=NULL, @rn:=0) AS vars ORDER BY farm_id , harvest_date DESC) AS t1 WHERE rn = 2) AS t2 GROUP BY t2.farm_id) ";
 	
-
 	mysql.query(sql, next);
 };
 

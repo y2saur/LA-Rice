@@ -514,7 +514,6 @@ exports.getSummaryHarvestReport = function(req, res) {
 																				arr.push(obj);
 																				if (i < ranking.length) 
 																					i++;
-
 																			}
 
 																			// Clean array and indicate if object is best, worst, or target
@@ -532,7 +531,6 @@ exports.getSummaryHarvestReport = function(req, res) {
 																					throw err;
 																				}
 																				else {
-
 																					html_data['comparison'] = analyzer.prepHarvestComparison(arr, nutrient_reco_details);
 																					farmModel.filteredFarmDetails({ farm_name: req.query.farm }, function(err, farm) {
 																					if (err) {
@@ -555,7 +553,7 @@ exports.getSummaryHarvestReport = function(req, res) {
 																												throw err;
 																											else {
 																												var farm_filter2;
-																												//
+
 																												farm_list.forEach(function(e) {
 																													arr.forEach(function(item, index) {
 																														if (e.farm_name == item.farm_name) {
@@ -569,7 +567,6 @@ exports.getSummaryHarvestReport = function(req, res) {
 																													if (e.farm_name == arr[0].farm_name) {
 																														e['nutrient_check1'] = true
 																													}
-																														
 																												});
 
 																												var filter1 = all_crop_plans.filter(e => e.farm_name == arr[0].farm_name);
@@ -623,16 +620,24 @@ exports.getSummaryHarvestReport = function(req, res) {
 																																					});
 																																				}
 
-																																				html_data['farm_list'] = farm_list;
-																																				html_data['json_nutrient'] = nutrient_chart_arr.dataset;
+																																				reportModel.getWOByCategory({ crop_calendar_id: sql_filter }, function(err, wo_category) {
+																																					if (err)
+																																						throw err;
+																																					else {
+																																							html_data['farm_list'] = farm_list;
+																																							html_data['json_nutrient'] = nutrient_chart_arr.dataset;
 
-																																				html_data['nutrient_chart_legends'] = nutrient_chart_arr.legends
-																																				html_data['nutrient_chart'] = JSON.stringify(nutrient_chart_arr.dataset);
+																																							html_data['nutrient_chart_legends'] = nutrient_chart_arr.legends
+																																							html_data['nutrient_chart'] = JSON.stringify(nutrient_chart_arr.dataset);
 
-																																				html_data['nutrient_filter'] = { crop_plan1: filter1, crop_plan2: filter2, crop_plan_list: JSON.stringify(all_crop_plans) };
-																																				html_data["notifs"] = req.notifs;
+																																							html_data['nutrient_filter'] = { crop_plan1: filter1, crop_plan2: filter2, crop_plan_list: JSON.stringify(all_crop_plans) };
+																																							html_data["notifs"] = req.notifs;
 
-																																				res.render('summary_harvest_report', html_data);		
+																																							res.render('summary_harvest_report', html_data);	
+																																						}
+																																				});
+
+																																								
 																																			}
 																																		});				
 																																	}

@@ -1,6 +1,12 @@
 var mysql = require('./connectionModel');
 mysql = mysql.connection;
 
+exports.deleteCNRPlan = function(query, next) {
+	var sql = `delete from custom_nutrient_recommendation where ?`;
+	sql = mysql.format(sql, query);
+	mysql.query(sql, next);
+}
+
 exports.deleteCNRAssignments = function(query, next) {
 	var sql = `delete from custom_nutrient_recommendation_assignments where ?`;
 	sql = mysql.format(sql, query);
@@ -14,12 +20,18 @@ exports.deleteCNRItems = function(query, next) {
 }
 
 exports.getAggregatedCNR = function(next) {
-	var sql = `SELECT cnr.cnr_id, cnr.cnr_name, cnri.* FROM custom_nutrient_recommendation cnr join custom_nutrient_recommendation_items cnri on cnr.cnr_id = cnri.cnr_id order by cnr.cnr_id;`;
+	var sql = `select * from (SELECT cnr.cnr_id as true_cnr, cnr.cnr_name, cnri.* FROM custom_nutrient_recommendation cnr join custom_nutrient_recommendation_items cnri on cnr.cnr_id = cnri.cnr_id union select cnr_id, cnr_name, null, null, null, null,cnr_id from custom_nutrient_recommendation where cnr_id not in (SELECT cnr.cnr_id FROM custom_nutrient_recommendation cnr join custom_nutrient_recommendation_items cnri on cnr.cnr_id = cnri.cnr_id)) as t order by true_cnr`;
 	mysql.query(sql, next);
 }
 
 exports.getAggregatedCNRAssignment = function(next) {
-	var sql = `select cnra.*, cnr.cnr_name from custom_nutrient_recommendation cnr join custom_nutrient_recommendation_assignments cnra on cnr.cnr_id = cnra.cnr_id`;
+	var sql = `select null as cnr_assignment_id, cnr1.cnr_id, null as farm_id, cnr_name from custom_nutrient_recommendation cnr1 where cnr1.cnr_id not in (select cnr.cnr_id from custom_nutrient_recommendation cnr join custom_nutrient_recommendation_assignments cnra on cnr.cnr_id = cnra.cnr_id) union select cnra.*, cnr2.cnr_name from custom_nutrient_recommendation cnr2 join custom_nutrient_recommendation_assignments cnra on cnr2.cnr_id = cnra.cnr_id`;
+	mysql.query(sql, next);
+}
+
+exports.getCNRPlan = function(query, next) {
+	var sql = `select * from custom_nutrient_recommendation where ?`;
+	sql = mysql.format(sql, query);
 	mysql.query(sql, next);
 }
 
