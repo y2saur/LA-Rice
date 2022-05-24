@@ -651,7 +651,7 @@ function processFertilizerApplications(data1, data2, calendar, pd_data) {
 		data2[index]['report_notes'] = report_notes;
 		data2[index].date_start = dataformatter.formatDate(new Date(item.date_start), 'YYYY-MM-DD');
 		data2[index].date_due = dataformatter.formatDate(new Date(item.date_due), 'YYYY-MM-DD');
-		data2[index]['link_url'] = `/farms/work_order_id&id=${item.work_order_id}`;
+		data2[index]['link_url'] = `/farms/work_order&id=${item.work_order_id}`;
 		data2[index]['link_title'] = `WO ${item.work_order_id}`;
 		data2[index]['item_type'] = item_type;
 	});
