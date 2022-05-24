@@ -252,6 +252,9 @@ function getExistingDiagnosis(employee){
                             if(ctr == 0){
                                 message = message + "\nWalang lumalaganap na peste/sakit.";
                             }
+                            else{
+                                message = message + 'Upang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543';
+                            }
                             //Send outbound message
                             sendOutboundMsg(employee, message);
                         }
@@ -326,7 +329,7 @@ function updateWO(emp, message, req){
                                                     throw err;
                                                 else {
                                                     //Continue to update wo
-                                                    var date = dataformatter.formatDate(new Date(req.session.cur_date), "YYYY-MM-DD");
+                                                    var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
                                                     woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
                                                         if (err)
                                                             throw err;
@@ -338,7 +341,7 @@ function updateWO(emp, message, req){
                                                             time = time.toLocaleTimeString();
 
                                                             var notif = {
-                                                                date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
+                                                                date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
                                                                 farm_id : wo_details[0].farm_id,
                                                                 notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
                                                                 notification_desc: ``,
@@ -382,7 +385,7 @@ function updateWO(emp, message, req){
                     }
                     else {
                         //Continue to update wo
-                        var date = dataformatter.formatDate(new Date(req.session.cur_date), "YYYY-MM-DD");
+                        var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
                         woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
                             if (err)
                                 throw err;
@@ -394,7 +397,7 @@ function updateWO(emp, message, req){
                                 time = time.toLocaleTimeString();
 
                                 var notif = {
-                                    date : dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD'),
+                                    date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
                                     farm_id : wo_details[0].farm_id,
                                     notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
                                     notification_desc: ``,
@@ -755,7 +758,9 @@ function getIncomingWos(employee){
                                         wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
                                         message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nKalagayan: " + wos[i].status;
                                     }
-                                }
+                                }  
+
+                                message = message + '\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543';
                                 console.log(message);
 
                                 //Send outbound message
