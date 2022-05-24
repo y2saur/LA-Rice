@@ -864,7 +864,7 @@ exports.incomingWO = function(req, res){
 }
 
 function sendSMSActions(employee){
-    var msg = 'Below are the list of actions that can be performed.\n\n1 - Weather Forecast\n2 - Incoming work orders\n3 - Report Pest/Disease Symptoms\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543\n\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543\n\nTo complete action, send <number of desired action> to 21663543';
+    var msg = 'Nakalagay sa baba ang mga aksyon na pwedeng gawin.\n\n1 - Weather Forecast\n2 - Mga kailangan gawin\n3 - Mag-ulat ng mga sintomas\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543\n\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543\n\nUpang magsagawa ng aksyon, mag-send ng <numero ng aksyon> sa 21663543';
 
     sendOutboundMsg(employee, msg);
 }
