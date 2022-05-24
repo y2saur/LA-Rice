@@ -90,7 +90,7 @@ exports.getPDOccurence = function(data1, next) {
 			sql += ' or ?';
 	}
 	// sql += " group by calendar_id";
-	//console.log(sql);
+	console.log(sql);
 	mysql.query(sql, next);
 }
 

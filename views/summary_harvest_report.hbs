@@ -444,6 +444,124 @@
 										</div>
 									</div>	
 								</div>
+
+								<div class="d-flex w-100">
+									<div class=" w-50 mx-auto">
+										<table class="table" id="exception1">
+											{{#if exception1.good}}
+											<tr colspan="6" class="bg-success text-white text-center"><td>What Went Right</td></tr>
+											{{#each exception1.good}}
+
+												<tr colspan="6" data-toggle="collapse" data-target="#good{{@index}}" class="accordion-toggle">
+													<td>
+														{{#if this.row_header}}
+														<div class="font-weight-bold">{{this.row_header}}</div>
+														{{/if}}
+														{{this.row_title}}
+													</td>
+												</tr>
+												
+												<tr class="accordian-body collapse" id="good{{@index}}">
+													<td style="padding: 0px; margin: 0px;">
+														<table class="table" style="background-color: gainsboro; margin: 0px;">
+															{{#each this.row_items}}
+															<tr>
+																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
+																<td>
+																	<div class="d-flex flex-column">
+																		<div>{{this.item_type}}</div>
+																		<small>Application Range</small>
+																		<small>{{this.date_start}} to {{this.date_due}}</small>
+																		<small class="mt-2">{{this.notes}}</small>
+																	</div>
+																</td>
+																<td>{{this.report_notes}}</td>
+															</tr>
+															{{/each}}
+														</table>
+													</td>
+												</tr>
+											{{/each}}
+											{{/if}}
+
+											{{#if exception1.bad}}
+											<tr colspan="6" class="bg-danger text-white text-center"><td>What Went Wrong</td></tr>
+											{{#each exception1.bad}}
+												<tr colspan="6" data-toggle="collapse" data-target="#bad{{@index}}" class="accordion-toggle">
+													<td>
+														{{#if this.row_header}}
+														<div class="font-weight-bold">{{this.row_header}}</div>
+														{{/if}}
+														{{this.row_title}}
+													</td>
+												</tr>
+												
+												<tr class="accordian-body collapse" id="bad{{@index}}">
+													<td style="padding: 0px; margin: 0px;">
+														<table class="table" style="background-color: gainsboro; margin: 0px;">
+															{{#each this.row_items}}
+															<tr>
+																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
+																<td>
+																	<div class="d-flex flex-column">
+																		<div>{{this.item_type}}</div>
+																		<small>Application Range</small>
+																		<small>{{this.date_start}} to {{this.date_due}}</small>
+																		<small class="mt-2">{{this.notes}}</small>
+																	</div>
+																</td>
+																<td>{{this.report_notes}}</td>
+															</tr>
+															{{/each}}
+														</table>
+													</td>
+												</tr>
+											{{/each}}
+											{{/if}}
+
+											{{#if exception1.improvement}}
+											<tr colspan="6" class="bg-secondary text-white text-center"><td>What Can be Improved</td></tr>
+											{{#each exception1.improvement}}
+												<tr colspan="6" data-toggle="collapse" data-target="#improvement{{@index}}" class="accordion-toggle">
+													<td>
+														{{#if this.row_header}}
+														<div class="font-weight-bold">{{this.row_header}}</div>
+														{{/if}}
+														{{this.row_title}}
+													</td>
+												</tr>
+												
+												<tr class="accordian-body collapse" id="improvement{{@index}}">
+													<td>
+														<table class="table" style="background-color: gainsboro; margin: 0px;">
+															{{#each this.row_items}}
+															<tr>
+																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
+																<td>
+																	<div class="d-flex flex-column">
+																		<div>{{this.item_type}}</div>
+																		<small>Application Range</small>
+																		<small>{{this.date_start}} to {{this.date_due}}</small>
+																		<small class="mt-2">{{this.notes}}</small>
+																	</div>
+																</td>
+																<td>{{this.report_notes}}</td>
+															</tr>
+															{{/each}}
+														</table>
+													</td>
+												</tr>
+											{{/each}}
+											{{/if}}
+										</table>
+									</div>
+
+									<div class="w-50 mx-auto">
+										<table class="table" id="exception2">
+
+										</table>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -729,6 +847,69 @@
 	var seedChart;
 	var nutrient_chart_arr = [];
 
+	$('.accordian-body').on('show.bs.collapse', function () {
+	    $(this).closest("table")
+	        .find(".collapse.in")
+	        .not(this)
+	        //.collapse('toggle')
+	})
+
+	function appendExceptionReport(data, target) {
+		var str = ``;
+
+		if (data.good.length > 0) {
+			str += `<tr colspan="6" class="bg-success text-white text-center"><td>What Went Right</td></tr>`;
+			data.good.forEach(function(item, index) {
+				str += `<tr colspan="6" data-toggle="collapse" data-target="#good${target}${index}" class="accordion-toggle"> <td> `;
+
+				if (item.hasOwnProperty('row_header')) {
+					str += `<div class="font-weight-bold">${item.row_header}</div>`;
+				}
+				str += `${item.row_title} </td> </tr> <tr class="accordian-body collapse" id="good${target}${index}"> <td style="padding: 0px; margin: 0px;"> <table class="table" style="background-color: gainsboro; margin: 0px;">`;
+				item.row_items.forEach(function(item1, index) {
+					str += `<tr> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
+				});
+				str += ` </table> </td> </tr>`;
+			});
+		}
+
+		if (data.bad.length > 0) {
+			str += `<tr colspan="6" class="bg-danger text-white text-center"><td>What Went Wrong</td></tr>`;
+			data.bad.forEach(function(item, index) {
+				str += `<tr colspan="6" data-toggle="collapse" data-target="#bad${target}${index}" class="accordion-toggle"> <td> `;
+
+				if (item.hasOwnProperty('row_header')) {
+					str += `<div class="font-weight-bold">${item.row_header}</div>`;
+				}
+				str += `${item.row_title} </td> </tr> <tr class="accordian-body collapse" id="bad${target}${index}"> <td style="padding: 0px; margin: 0px;"> <table class="table" style="background-color: gainsboro; margin: 0px;">`;
+
+				item.row_items.forEach(function(item1, index) {
+					str += `<tr> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
+				});
+				str += ` </table> </td> </tr>`;
+			});
+		}
+
+		if (data.improvement.length > 0) {
+			str += `<tr colspan="6" class="bg-secondary text-white text-center"><td>What Can be Improved</td></tr>`;
+			data.improvement.forEach(function(item, index) {
+				str += `<tr colspan="6" data-toggle="collapse" data-target="#improvement${target}${index}" class="accordion-toggle"> <td> `;
+
+				if (item.hasOwnProperty('row_header')) {
+					str += `<div class="font-weight-bold">${item.row_header}</div>`;
+				}
+				str += `${item.row_title} </td> </tr> <tr class="accordian-body collapse" id="improvement${target}${index}"> <td style="padding: 0px; margin: 0px;"> <table class="table" style="background-color: gainsboro; margin: 0px;">`;
+
+				item.row_items.forEach(function(item1, index) {
+					str += `<tr> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
+				});
+				str += ` </table> </td> </tr>`;
+			});
+		}
+
+		$(`#${target}`).append(str);
+	}
+
 	$(document).ready(function() {
 		var view = '';
 		var seed_obj = {{{seed_chart.stringify}}};
@@ -782,6 +963,7 @@
 			else {
 				// Ajax and update chart
 				$.get('/update_nutrient_chart', { calendars: calendars, farms: farms, plans: plans }, function(result) {
+					// Update chart
 					result.obj.forEach(function(item, index) {
 						if (index == 1 && item.hasOwnProperty('yes')) {
 							$(`#nutrient_chart1_cont`).addClass('hide');
@@ -796,6 +978,14 @@
 							nutrient_chart_arr[index].update();
 						}
 					});
+					// Update exception report
+					$('#exception1').empty();
+					$('#exception2').empty();
+					appendExceptionReport(result.exception1, 'exception1');
+
+					if (result.hasOwnProperty('exception2')) {
+						appendExceptionReport(result.exception2, 'exception2');
+					}
 				});
 			}
 		});

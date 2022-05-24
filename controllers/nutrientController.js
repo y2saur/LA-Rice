@@ -247,6 +247,102 @@ exports.getNutrientMgtPlan = function(req, res) {
 	});
 }
 
+function dateDiff(date1, date2) {
+	date2 = new Date(date2);
+	date1 = new Date(date1);
+
+	const diffTime = (date2 - date1);
+	const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+	return diffDays;
+}
+
+function processFertilizerApplications(data1, data2, calendar) {
+	console.log(calendar);
+	
+	console.log('---------------------');
+	//console.log(data2.filter(e =>))
+	var type = '';
+	var ideal_range = [];
+	var dat;
+	var within_range;
+	var report_notes;
+	data2.forEach(function(item, index) {
+		if (item.record_type == 'Generated Recommendation') {
+			if (dateDiff(item.date_completed, item.date_due) >= 0 && dateDiff(item.date_completed, item.date_start) == 0) {
+				type = 'In-range';
+				report_notes = '';
+			}
+			else if (dateDiff(item.date_completed, item.date_due) < 0) {
+				type = 'Late';
+				report_notes = 'Fertilizer applied too late';
+			}
+			else if (dateDiff(item.date_completed, item.date_start) > 0) {
+				type = 'Early';
+				report_notes = 'Fertilizer applied too early';
+			}
+			else {
+				type = 'err';
+			}
+		}
+		else {
+			within_range = 0;
+			if (item.fertilizer_name == 'Urea 46-0-0') {
+				ideal_range = [[14,20], [20,35], [40,50], [60,70]];
+			}
+			else if (item.fertilizer_name == 'Fertilizer 16-20-0') {
+				ideal_range = [[-5, 0]];
+			}
+			else if (item.fertilizer_name == 'Potash 0-0-60') {
+				ideal_range = [[-5, 0]];
+			}
+			//console.log(item);
+			dat = dateDiff(calendar.sowing_date, item.date_completed);
+
+			if (calendar.method == 'Transplanting')
+				dat += 15;
+
+			ideal_range.forEach(function(item) {
+				if (dat >= item[0] && dat <= item[1]) {
+					within_range = 1;
+				}
+			})
+
+			if (within_range == 0) {
+				type = 'Manual Wrong';
+				if (item.fertilizer_name != 'Potash 0-0-60') {
+					report_notes = 'Fertilizer not applied at the ideal shedule';
+				}
+				else {
+					report_notes = '';
+				}
+			}
+			else {
+				type = 'Manual Right';
+				report_notes = '';
+			}
+
+			// console.log(within_range);
+			// console.log(`${dat}`);
+			// console.log(ideal_range);
+			// console.log(type);
+		}
+			
+		data2[index]['type'] = type;
+		data2[index]['report_notes'] = report_notes;
+	});
+
+	//console.log(data2);
+	var list_obj = { 
+		followed_recommendation_ontime: data2.filter(e => e.type == 'In-range'), 
+		followed_recommendation_late: data2.filter(e => e.type == 'Late'), 
+		unfollowed_recommendation: data2.filter(e => e.type == 'Early'),
+		manual_application_wrong_time: data2.filter(e => e.type == 'Manual Wrong' && e.fertilizer_name != 'Potash 0-0-60'), 
+		manual_application_right_time: data2.filter(e => e.type == 'Manual Right')
+	};
+
+	return list_obj;
+};
+
 exports.ajaxGetNutrientPlanView = function(req, res) {
 	var query = { farm_name: req.query.farm_name };
 	var html_data = {};
@@ -328,6 +424,7 @@ exports.ajaxGetNutrientPlanView = function(req, res) {
 																			
 																			
 																			html_data['detailed_data'] = dataformatter.processNPKValues(result, result[0].farm_area, applied, summary, wo_list);
+																			processFertilizerApplications(fr_items, wo_list, calendar_details[0]);
 																			if (forecast != 0) {
 																				html_data['yield_forecast'] = forecast[0].forecast == -1 ? `N/A` : `${forecast[0].forecast} cavans/ha`;
 																			}
