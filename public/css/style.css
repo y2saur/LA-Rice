@@ -149,6 +149,14 @@
 	transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
+tr .accordion-toggle {
+}
+
+tr.accordion-toggle:hover {
+	cursor: pointer;
+	background-color: lightgray;
+}
+
 .detailed_cont select {
 	word-wrap: normal;
 }
