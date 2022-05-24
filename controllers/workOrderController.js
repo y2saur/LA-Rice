@@ -399,7 +399,7 @@ exports.createWorkOrder = function(req, res) {
 							console.log(employees);
 							console.log(query);
 							//set message
-							var msg = "NEW WORK ORDER FOR " + selected_calendar.farm_name + "\n\nType: " + query.type + "\nStart: " + dataformatter.formatDate(new Date(req.body.start_date), "mm DD, YYYY") + "\nDue: " + dataformatter.formatDate(new Date(req.body.due_date), "mm DD, YYYY") + "\nNotes: " + query.notes;
+							var msg = "BAGONG WORK ORDER PARA SA " + selected_calendar.farm_name + "\n\nType: " + query.type + "\nStart: " + dataformatter.formatDate(new Date(req.body.start_date), "mm DD, YYYY") + "\nDue: " + dataformatter.formatDate(new Date(req.body.due_date), "mm DD, YYYY") + "\nNotes: " + query.notes;
 							//For each employee, send SMS
 							for(var i = 0; i < employees.length; i++){
 								//SEND SMS TO EMPLOYEE ID

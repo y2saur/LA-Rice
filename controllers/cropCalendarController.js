@@ -479,7 +479,7 @@ exports.ajaxCreateCropPlan = function(req, res) {
 									throw err;
 								else{
 									console.log(query);
-									var msg = "NEW CROP CYCLE FOR " + farm_name + " (" + query.crop_plan + ")" + "\n\nRice: " + seed[0].name + "\nSeed Rate: " + query.seed_rate + " units" + "\nMethod: " + query.method + "\n\nLand Preparation: " + dataformatter.formatDate(new Date(query.land_prep_date), "mm DD, YYYY") + "\nSowing: " + dataformatter.formatDate(new Date(query.sowing_date), "mm DD, YYYY") + "\nExpected Harvest: " + dataformatter.formatDate(new Date(query.harvest_date), "mm DD, YYYY");
+									var msg = "BAGONG CROP CYCLE PARA SA " + farm_name + " (" + query.crop_plan + ")" + "\n\nRice: " + seed[0].name + "\nSeed Rate: " + query.seed_rate + " kg/ha" + "\nMethod: " + query.method + "\n\nLand Preparation: " + dataformatter.formatDate(new Date(query.land_prep_date), "mm DD, YYYY") + "\nSowing: " + dataformatter.formatDate(new Date(query.sowing_date), "mm DD, YYYY") + "\nExpected Harvest: " + dataformatter.formatDate(new Date(query.harvest_date), "mm DD, YYYY");
 									console.log(msg);
 
 									//send SMS

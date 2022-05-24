@@ -283,7 +283,7 @@ exports.updateUserDetails = function(req, res) {
 
 	if (password == password1) {
 		bcrypt.hash(password, saltRounds, (err, hashed) => {
-			userModel.updateAccount({ username: username }, { password: hashed, access_level: access_level}, function(err, result) {
+			userModel.updateAccount({ username: username }, { password: hashed, access_level: access_level, otp: null}, function(err, result) {
 				if (err)
 					throw err;
 				else {
@@ -337,7 +337,7 @@ exports.updateProfile = function(req, res) {
 
 	if (password == password1) {
 		bcrypt.hash(password, saltRounds, (err, hashed) => {
-			userModel.updateAccount({ username: username }, { password: hashed }, function(err, result) {
+			userModel.updateAccount({ username: username }, { password: hashed, otp: null}, function(err, result) {
 				if (err)
 					throw err;
 				else {
