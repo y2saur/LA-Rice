@@ -445,7 +445,7 @@
 									</div>	
 								</div>
 
-								<div class="d-flex w-100">
+								<div class="d-flex w-100 mx-auto">
 									<div class=" w-50 mx-auto">
 										<table class="table" id="exception1">
 											{{#if exception1.good}}
@@ -556,7 +556,7 @@
 										</table>
 									</div>
 
-									<div class="w-50 mx-auto">
+									<div class="w-50 mx-auto hide" id="exception2_cont">
 										<table class="table" id="exception2">
 
 										</table>
@@ -984,7 +984,11 @@
 					appendExceptionReport(result.exception1, 'exception1');
 
 					if (result.hasOwnProperty('exception2')) {
+						$('#exception2_cont').removeClass('hide');
 						appendExceptionReport(result.exception2, 'exception2');
+					}
+					else {
+						$('#exception2_cont').addClass('hide');
 					}
 				});
 			}

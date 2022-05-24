@@ -434,7 +434,6 @@ exports.ajaxNutrientTimingChart = function(req, res) {
 	sql_filter.forEach(function(item, index) {
 		sql_filter[index] = parseInt(item);
 	});
-	console.log(sql_filter);
 	//
 	reportModel.getSeedChart( req.query.farms, req.query.plans, function(err, seed_chart) {
 		if (err)
@@ -579,6 +578,7 @@ function processFertilizerApplications(data1, data2, calendar, pd_data) {
 			type = 'Slow Resolution';
 		}
 		pd_data[index]['type'] = type;
+		pd_data[index]['notes'] = '';
 		pd_data[index]['report_notes'] = report_notes;
 		pd_data[index].date_start = dataformatter.formatDate(new Date(item.date_diagnosed), 'YYYY-MM-DD');
 		pd_data[index].date_due = dataformatter.formatDate(new Date(item.date_solved), 'YYYY-MM-DD');
