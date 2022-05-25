@@ -251,39 +251,45 @@ function getExistingDiagnosis(employee){
                     throw err;
                 else{
                     console.log(crop_calendar);
-                    var message = "LISTAHAN NG MGA PESTE/SAKIT\n";
-                    pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnoses){
-                        if(err)
-                            throw err;
-                        else{
-                            //Loop throgh present diagnoses
-                            var ctr = 0;
-                            for(var i = 0; i < diagnoses.length; i++){
-                                if(diagnoses[i].status == "Present"){
-                                    ctr++;
-                                    //Add to message
-                                    var type;
-                                    if(diagnoses[i].type == "Pest"){
-                                        type = "PESTE";
-                                    }
-                                    else{
-                                        type = "SAKIT";
-                                    }
-
-                                    message = message + "\nDIAGNOSE ID: " + diagnoses[i].diagnosis_id + "\n" + type + ": " + diagnoses[i].name + "\nPETSA: " + dataformatter.formatDate(diagnoses[i].date_diagnosed, "mm DD, YYYY") + "\n";
-                                }
-                            }
-                            console.log(message);
-                            if(ctr == 0){
-                                message = message + "\nWalang lumalaganap na peste/sakit.";
-                            }
+                    if(crop_calendar.length == 0){
+                        var message = "Walang aktibong crop calendar sa ngayon para sa " + farm_name + ".\n\nPara sa karagdagang impormasyon, makipag-ugnayan sa mga empleyado sa opisina.";
+                        sendOutboundMsg(employee, message);
+                    }
+                    else{
+                        var message = "LISTAHAN NG MGA PESTE/SAKIT\n";
+                        pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnoses){
+                            if(err)
+                                throw err;
                             else{
-                                message = message + 'Upang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543';
+                                //Loop throgh present diagnoses
+                                var ctr = 0;
+                                for(var i = 0; i < diagnoses.length; i++){
+                                    if(diagnoses[i].status == "Present"){
+                                        ctr++;
+                                        //Add to message
+                                        var type;
+                                        if(diagnoses[i].type == "Pest"){
+                                            type = "PESTE";
+                                        }
+                                        else{
+                                            type = "SAKIT";
+                                        }
+
+                                        message = message + "\nDIAGNOSE ID: " + diagnoses[i].diagnosis_id + "\n" + type + ": " + diagnoses[i].name + "\nPETSA: " + dataformatter.formatDate(diagnoses[i].date_diagnosed, "mm DD, YYYY") + "\n";
+                                    }
+                                }
+                                console.log(message);
+                                if(ctr == 0){
+                                    message = message + "\nWalang lumalaganap na peste/sakit.";
+                                }
+                                else{
+                                    message = message + '\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543';
+                                }
+                                //Send outbound message
+                                sendOutboundMsg(employee, message);
                             }
-                            //Send outbound message
-                            sendOutboundMsg(employee, message);
-                        }
-                    });
+                        });
+                    }
                 }
             });
         }
@@ -392,6 +398,10 @@ function updateWO(emp, message, req){
                                             
                                     }
                                 });
+                            }
+                            else if(wo_details[0].type == 'Harvest'){
+                                var msg = "Upang mag-ani, makipag-ugnayan sa opisina.";
+                                sendOutboundMsg(emp, msg);
                             }
                             else{
                                 //Continue to update wo
