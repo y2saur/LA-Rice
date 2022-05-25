@@ -2330,6 +2330,8 @@ exports.addDiagnosis = function(req,res){
 				var i, lastest, crop_plan;
 				latest = 0;
 				crop_plan = -1;
+
+				console.log(crop_calendar);
 				//  //FIX HERE
 				for(i =0; i < crop_calendar.length; i++){
 					if(crop_calendar[i].farm_name == farm_name){
@@ -2346,6 +2348,7 @@ exports.addDiagnosis = function(req,res){
 
 
 						if(diagnose_date.getTime() - i_date.getTime() >= 0){
+							console.log("greater than");
 							if(diagnose_date.getTime() - temp_harvest.getTime() <= 0){
 								crop_plan = i;
 								i = crop_calendar.length;
@@ -2354,7 +2357,6 @@ exports.addDiagnosis = function(req,res){
 								latest  = i;
 							}
 						}
-
 						// if(crop_calendar[i].land_prep_date > crop_calendar[latest].land_prep_date)
 						// 	latest  = i;
 					}
@@ -2362,8 +2364,8 @@ exports.addDiagnosis = function(req,res){
 					// if(crop_calendar[i].farm_name == farm_name)
 					// 	diagnosis["calendar_id"] = crop_calendar[i].calendar_id;
 				}
-				//
-				//
+
+				console.log("calendar index: " + latest);
 				if(crop_plan == -1){
 					diagnosis["calendar_id"] = crop_calendar[latest].calendar_id;
 					diagnosis["stage_diagnosed"] = crop_calendar[latest].stage;
