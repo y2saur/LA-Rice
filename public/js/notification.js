@@ -84,7 +84,7 @@ $(document).ready(function(){
     
                 //SEND SMS
                 $.get("/sendSMS", { employee_id : $(".active_chat").attr("id"), message : $("#text_message").val()}, function(result){
-                    alert(result);
+                    //alert(result);
                 });
                 $("#text_message").val("");
                 //Scroll to botom

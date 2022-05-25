@@ -119,7 +119,7 @@ $(document).ready(function() {
 				}
 			});
 		});
-	}, 1000000);
+	}, 6000000);
 
 	//CROP CALENDAR CREATION
 	if (view == 'add_crop_calendar') {

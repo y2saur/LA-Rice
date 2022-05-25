@@ -169,7 +169,7 @@ exports.getAllPests = function(next){
 }
 
 exports.getPestDetails = function(id,next){
-	var sql = "SELECT pest_id as pd_id, pest_name as pd_name, pest_desc as pd_desc, scientific_name FROM pest_table WHERE ?;";
+	var sql = "SELECT pest_id as pd_id, pest_name as pd_name, pest_desc as pd_desc, scientific_name, image_url FROM pest_table WHERE ?;";
 	sql = mysql.format(sql, id);
 	mysql.query(sql, next); return(sql);
 }
@@ -256,7 +256,7 @@ exports.getAllDiseases = function(next){
 exports.getDiseaseDetails = function(id,next){
 	var sql = "SELECT *, disease_id as pd_id, disease_name as pd_name, disease_desc as pd_desc FROM disease_table WHERE ?;";
 	sql = mysql.format(sql, id);
-
+	
 	mysql.query(sql, next); return(sql);
 }
 
