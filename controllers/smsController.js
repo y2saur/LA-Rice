@@ -70,11 +70,17 @@ exports.globe_inbound_msg = function(req, res){
             if(err)
                 console.log(err);
             else{
-                smsModel.insertOutboundMsg("YOU HAVE UNSUBSCRIBED", employee_details[0].employee_id, function(err, last_id){
+                systemSettingModel.getCurrentSettings(function(err, system_settings) {
                     if(err)
                         throw err;
                     else{
-                        console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                        smsModel.insertOutboundMsg("YOU HAVE UNSUBSCRIBED", employee_details[0].employee_id, system_settings[0].system_date, function(err, last_id){
+                            if(err)
+                                throw err;
+                            else{
+                                console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                            }
+                        });
                     }
                 });
             }
@@ -695,30 +701,37 @@ exports.globe_outbound_msg = async function(req, res){
 
 
 function sendOutboundMsg(emp, message){
-    smsModel.insertOutboundMsg(message, emp.employee_id, function(err, last_id){
+    systemSettingModel.getCurrentSettings(function(err, system_settings) {
         if(err)
             throw err;
         else{
-            console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
-            var last = last_id.insertId;
-            var send_message = { method: 'POST',
-                            url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
-                            qs: { 'access_token': emp.access_token },
-                            headers: 
-                            { 'Content-Type': 'application/json' },
-                            body: 
-                            { 'outboundSMSMessageRequest': 
-                                { 'clientCorrelator': last,
-                                'senderAddress': shortcode,
-                                'outboundSMSTextMessage': { 'message': message },
-                                'address': emp.phone_number } },
-                            json: true };
-            request(send_message, function (error, response, body) {
-                if (error) throw new Error(error);
-                console.log(body);
-                });
+            smsModel.insertOutboundMsg(message, emp.employee_id, system_settings[0].system_date, function(err, last_id){
+                if(err)
+                    throw err;
+                else{
+                    console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                    var last = last_id.insertId;
+                    var send_message = { method: 'POST',
+                                    url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
+                                    qs: { 'access_token': emp.access_token },
+                                    headers: 
+                                    { 'Content-Type': 'application/json' },
+                                    body: 
+                                    { 'outboundSMSMessageRequest': 
+                                        { 'clientCorrelator': last,
+                                        'senderAddress': shortcode,
+                                        'outboundSMSTextMessage': { 'message': message },
+                                        'address': emp.phone_number } },
+                                    json: true };
+                    request(send_message, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(body);
+                        });
+                }
+            });
         }
     });
+    
 }
 
 function sendUnregisteredOutboundMsg(emp, message){
@@ -1015,29 +1028,36 @@ function sendSMSActions(employee){
 //EXTERNAL SMS SEND
 exports.sendSMS = function(emp, message){
     // console.log(emp);
-    smsModel.insertOutboundMsg(message, emp.employee_id, function(err, last_id){
+
+    systemSettingModel.getCurrentSettings(function(err, system_settings) {
         if(err)
             throw err;
         else{
-            
-            var last = last_id.insertId;
-            var send_message = { method: 'POST',
-                            url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
-                            qs: { 'access_token': emp.access_token },
-                            headers: 
-                            { 'Content-Type': 'application/json' },
-                            body: 
-                            { 'outboundSMSMessageRequest': 
-                                { 'clientCorrelator': last,
-                                'senderAddress': shortcode,
-                                'outboundSMSTextMessage': { 'message': message },
-                                'address': emp.phone_number } },
-                            json: true };
-            request(send_message, function (error, response, body) {
-                if (error) throw new Error(error);
-                console.log(error);
-                console.log(body);
-                console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+            smsModel.insertOutboundMsg(message, emp.employee_id, system_settings[0].system_date, function(err, last_id){
+                if(err)
+                    throw err;
+                else{
+                    
+                    var last = last_id.insertId;
+                    var send_message = { method: 'POST',
+                                    url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
+                                    qs: { 'access_token': emp.access_token },
+                                    headers: 
+                                    { 'Content-Type': 'application/json' },
+                                    body: 
+                                    { 'outboundSMSMessageRequest': 
+                                        { 'clientCorrelator': last,
+                                        'senderAddress': shortcode,
+                                        'outboundSMSTextMessage': { 'message': message },
+                                        'address': emp.phone_number } },
+                                    json: true };
+                    request(send_message, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(error);
+                        console.log(body);
+                        console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                    });
+                }
             });
         }
     });
