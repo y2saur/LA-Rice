@@ -344,7 +344,7 @@ function updateWO(emp, message, req){
                                                 else {
                                                     //Continue to update wo
                                                     var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
-                                                    woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                                                    woModel.updateWorkOrder({status : "Completed", date_completed : system_settings[0].system_date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
                                                         if (err)
                                                             throw err;
                                                         else {
@@ -355,7 +355,7 @@ function updateWO(emp, message, req){
                                                             time = time.toLocaleTimeString();
 
                                                             var notif = {
-                                                                date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
+                                                                date : system_settings[0].system_date,
                                                                 farm_id : wo_details[0].farm_id,
                                                                 notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
                                                                 notification_desc: ``,
@@ -393,7 +393,53 @@ function updateWO(emp, message, req){
                                     }
                                 });
                             }
-                        };
+                            else{
+                                //Continue to update wo
+                                var date = system_settings[0].system_date;
+                                woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                                    if (err)
+                                        throw err;
+                                    else {
+                                        var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
+                                        
+                                        //Create notif
+                                        var time = new Date();
+                                        time = time.toLocaleTimeString();
+
+                                        var notif = {
+                                            date : date,
+                                            farm_id : wo_details[0].farm_id,
+                                            notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
+                                            notification_desc: ``,
+                                            url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
+                                            icon : "digging",
+                                            color : "primary",
+                                            type: `NEW_WO`,
+                                            time: time
+                                        };
+                                        notifModel.createNotif(notif, function(err, success){
+                                            if (err) {
+                                                throw err;
+                                            }
+                                            else {
+                                                notifModel.createUserNotif(function(err, user_notif_status) {
+                                                    if (err)
+                                                        throw err;
+                                                    else {
+                                                        
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        sendOutboundMsg(emp, msg);
+                                    }
+                                });
+                            }
+                        }
+                        else{
+                            var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
+                            sendOutboundMsg(emp, msg);
+                        }
                     }
                     // else {
                     //     //Continue to update wo
@@ -670,15 +716,14 @@ exports.registerUser = function(req,res){
 const translator = require('../public/js/translator.js');
 
 //SEND MESSAGE TO USER FROM APP
-exports.globe_outbound_msg = async function(req, res){
+exports.globe_outbound_msg = function(req, res){
     console.log("sending outbound message");
     console.log(req.query);
     var employee_id = req.query.employee_id;
     var message = req.query.message;
-    var translated_msg = await translator.translateText(message);
+    // var translated_msg = await translator.translateText(message);
 
     
-    console.log(translated_msg.data[0].translations[0].text);
     //GET EMPLOYEE DETAILS
     smsModel.getEmployeeDetails({key : "employee_id", value : employee_id}, function(err, employee_details){
         if(err)
@@ -691,7 +736,7 @@ exports.globe_outbound_msg = async function(req, res){
                     res.send("No access token");
                 }
                 else{
-                    sendOutboundMsg(emp, translated_msg.data[0].translations[0].text);
+                    sendOutboundMsg(emp, message);
                     res.send("message sent");
                 }
             }
