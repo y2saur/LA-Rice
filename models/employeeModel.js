@@ -7,6 +7,12 @@ exports.addEmployee = function(data, next) {
 	mysql.query(sql, next);
 };
 
+exports.addSingleEmployee = function(data, next) {
+	var sql = "insert into employee_table set ?";
+	sql = mysql.format(sql, data);
+	mysql.query(sql, next);
+}
+
 exports.queryEmployee = function(data, next) {
 	var str = '';
 	if (data != null)
@@ -16,6 +22,12 @@ exports.queryEmployee = function(data, next) {
 	if (data != null)
 		sql = mysql.format(sql, data);
 	//console.log(sql);
+	mysql.query(sql, next);
+}
+
+exports.aggregatedEmployeeDetail = function(data, next) {
+	var sql = `select employee_id, position, last_name, first_name, phone_number, isActive, max(access_token) as access_token, max(farm_id) as farm_id, max(fa_status) as fa_status, max(username) as username, max(password) as password, max(access_level) as access_level, max(otp) as otp, max(userActive) as userActive from ( select *, null as farm_id, null as fa_status, null as username, null as password, null as access_level, null as otp, null as userActive from employee_table union select employee_id, null, null, null, null, null, null, farm_id, status, null, null, null, null, null from farm_assignment union select employee_id, null, null, null, null, null, null, null, null, username, password, access_level, otp, isActive from user_table ) as t where ? group by employee_id`;
+	sql = mysql.format(sql, data);
 	mysql.query(sql, next);
 }
 

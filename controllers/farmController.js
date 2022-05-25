@@ -39,6 +39,16 @@ exports.ajaxGetFarmList = function(req, res) {
 	});
 }
 
+exports.ajaxGetFarmWithoutManager = function(req, res) {
+	farmModel.getFarmWithoutManager(function(err, farms) {
+		if (err)
+			throw err;
+		else {
+			res.send(farms);
+		}
+	});
+}
+
 exports.getDashboard = function(req, res) {
 	var html_data = {};
 	html_data["title"] = "Dashboard";

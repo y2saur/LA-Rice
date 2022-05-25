@@ -68,6 +68,17 @@ exports.addFarmPlot = function(data, next) {
 	mysql.query(sql, next);
 };
 
+exports.getFarmWithoutManager = function(next) {
+	var sql = `select * from farm_table where farm_id not in (select farm_id from employee_table et join farm_assignment fa using(employee_id) where et.position = 'Farm Manager' and isActive = 1 and fa.status = 'Active')`;
+	mysql.query(sql, next);
+}
+
+exports.assignFarmer = function(data, next) {
+	var sql = 'insert into farm_assignment set ?';
+	sql = mysql.format(sql, data);
+	mysql.query(sql, next);
+}
+
 exports.addAssignedFarmers = function(data, next) {
 	var sql = "insert into farm_assignment (employee_id, farm_id, status) values ?";
 	sql = mysql.format(sql, data);

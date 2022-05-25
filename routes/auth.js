@@ -29,6 +29,7 @@ router.get('/create_wo_test', (req, res) => {
 router.get('/edit_system_date', userController.editSystemDate);
 
 router.get('/get_farm_list', farmController.ajaxGetFarmList);
+router.get('/getFarmWithoutManager', farmController.ajaxGetFarmWithoutManager);
 router.post('/create_crop_plan', cropCalendarController.ajaxCreateCropPlan);
 router.get('/get_crop_plans', cropCalendarController.ajaxGetCropPlans);
 router.get('/get_active_calendar', cropCalendarController.ajaxGetCurrentCropCalendar);
@@ -212,8 +213,12 @@ router.post('/edit_work_order', workOrderController.editWorkOrder);
 router.get('/ajax_wo&id=:work_order_id', workOrderController.ajaxEditWO);
 
 //User Management
+router.post('/register_employee', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.registerEmployee);
+router.get('/user_management/add_employee', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getAddEmployee);
 router.get('/user_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.loadRegistration);
 router.get('/user_management&id=:user_id', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getDetailedUser);
+router.get('/user_management', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getDetailedEmployee);
+router.get('/user_management/employee_details&id=:employee_id', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getDetailedEmployee);
 router.get('/registration', userController.loadRegistration);
 router.post('/account_registration', userController.registerUser);
 router.get('/reset_password', (req, res) => {

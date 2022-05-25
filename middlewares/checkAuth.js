@@ -1,3 +1,5 @@
+const systemSettingModel = require('../models/systemSettingModel.js');
+
 // Access matrix following object (path) and array (read/write) format 
 // Legend: 0 - Admin, 1 - Office Worker, 2 Purchasing Officer
 // i.e '/inventory': ['02', '02'] = Only Office worker does not have access
@@ -42,7 +44,19 @@ exports.isPrivate = (req, res, next) => {
   // console.log(req.session.authority);
   // console.log(req.path);
   if (req.session.authority !== undefined) {
+    systemSettingModel.getCurrentSettings(function(err, settings) {
+      if (err)
+        throw err;
+      else {
+        systemSettingModel.createActiveSettings({ system_date: req.session.cur_date }, function(err, create_status) {
+          if (err)
+            throw err;
+          else {
 
+          }
+        });
+      }
+    });
     //Check if path belongs to special cases:
     if (!access_matrix.hasOwnProperty(path)) {
       //Check most similar from array

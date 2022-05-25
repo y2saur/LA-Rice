@@ -1,5 +1,6 @@
 const userModel = require('../models/userModel');
 const employeeModel = require('../models/employeeModel');
+const farmModel = require('../models/farmModel');
 const { validationResult } = require('express-validator');
 const dataformatter = require('../public/js/dataformatter.js');
 const bcrypt = require('bcrypt');
@@ -274,6 +275,66 @@ exports.getDetailedUser = function(req, res) {
 
 			res.render('detailed_user', html_data);
 			
+		}
+	});
+}
+
+exports.getDetailedEmployee = function(req, res) {
+	var query = { employee_id: req.params.employee_id };
+	var html_data = {};
+	html_data["title"] = "User Management";
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'user_management', req.session);
+	html_data["notifs"] = req.notifs;
+
+	employeeModel.aggregatedEmployeeDetail(query, function(err, employee_details) {
+		if (err)
+			throw err;
+		else {
+			farmModel.getAllFarms(function(err, farm_list) {
+				if (err)
+					throw err;
+				else {
+					html_data['employee_details'] = employee_details[0];
+					html_data['farm_list'] = farm_list;
+					//console.log(html_data);
+					res.render('detailed_employee', html_data);
+				}
+			});
+					
+		}
+	});
+}
+
+exports.getAddEmployee = function(req, res) {
+	var html_data = {};
+	html_data["title"] = "User Management";
+	html_data = js.init_session(html_data, 'role', 'name', 'username', 'user_management', req.session);
+	html_data["notifs"] = req.notifs;
+
+	res.render('add_employee', html_data);
+}
+
+exports.registerEmployee = function(req, res) {
+	var employee_obj = {
+		position: req.body.position,
+		last_name: req.body.last_name,
+		first_name: req.body.first_name,
+		phone_number: req.body.phone_number
+	}
+	employeeModel.addSingleEmployee(employee_obj, function(err, add_status) {
+		if (err)
+			throw err;
+		else {
+			if (req.body.farm_assignment != '...') {
+				farmModel.assignFarmer({ employee_id: add_status.insertId, farm_id: req.body.farm_assignment, status: 'Active'}, function(err, assign_status) {
+					if (err)
+						throw err;
+					else {
+						console.log(assign_status);
+					}
+				});
+			}
+			res.redirect(`/user_management/employee_details&id=${add_status.insertId}`);
 		}
 	});
 }
