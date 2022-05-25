@@ -307,9 +307,9 @@ function updateWO(emp, message, req){
                         sendOutboundMsg(emp, msg);
                         throw err;
                     }
-                    else{
+                    else {
                         //Check if same farm id
-                        if(wo_details[0].farm_id == emp.farm_id){
+                        if(wo_details[0].farm_id == emp.farm_id) {
                             // Data validation (stock control)
                             var success = true;
                             if (wo_details[0].type == 'Fertilizer Application' || wo_details[0].type == 'Pesticide Application' || wo_details[0].type == 'Sow Seed') {
@@ -388,164 +388,164 @@ function updateWO(emp, message, req){
                                     }
                                 });
                             }
-                        });  
+                        };
                     }
-                    else {
-                        //Continue to update wo
-                        var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
-                        woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
-                            if (err)
-                                throw err;
-                            else {
-                                var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
+                    // else {
+                    //     //Continue to update wo
+                    //     var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
+                    //     woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                    //         if (err)
+                    //             throw err;
+                    //         else {
+                    //             var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
                                 
-                                //Create notif
-                                var time = new Date();
-                                time = time.toLocaleTimeString();
+                    //             //Create notif
+                    //             var time = new Date();
+                    //             time = time.toLocaleTimeString();
 
-                                var notif = {
-                                    date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
-                                    farm_id : wo_details[0].farm_id,
-                                    notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
-                                    notification_desc: ``,
-                                    url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
-                                    icon : "digging",
-                                    color : "primary",
-                                    type: `NEW_WO`,
-                                    time: time
-                                };
-                                notifModel.createNotif(notif, function(err, success){
-                                    if (err) {
-                                        throw err;
-                                    }
-                                    else {
-                                        notifModel.createUserNotif(function(err, user_notif_status) {
-                                            if (err)
-                                                throw err;
-                                            else {
-                                                // Check if there is sufficient stock
-                                                var sufficient = true;
+                    //             var notif = {
+                    //                 date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
+                    //                 farm_id : wo_details[0].farm_id,
+                    //                 notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
+                    //                 notification_desc: ``,
+                    //                 url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
+                    //                 icon : "digging",
+                    //                 color : "primary",
+                    //                 type: `NEW_WO`,
+                    //                 time: time
+                    //             };
+                    //             notifModel.createNotif(notif, function(err, success){
+                    //                 if (err) {
+                    //                     throw err;
+                    //                 }
+                    //                 else {
+                    //                     notifModel.createUserNotif(function(err, user_notif_status) {
+                    //                         if (err)
+                    //                             throw err;
+                    //                         else {
+                    //                             // Check if there is sufficient stock
+                    //                             var sufficient = true;
 
-                                                var resource_qty = [];
-                                                var resource_ids = [];
-                                                resource_details.forEach(function(item, index) {
-                                                    filter_mats = farm_materials.filter(e => e.item_name == item.material_name)[0];
-                                                    resource_qty.push(item.qty);
-                                                    resource_ids.push(item.item_id);
+                    //                             var resource_qty = [];
+                    //                             var resource_ids = [];
+                    //                             resource_details.forEach(function(item, index) {
+                    //                                 filter_mats = farm_materials.filter(e => e.item_name == item.material_name)[0];
+                    //                                 resource_qty.push(item.qty);
+                    //                                 resource_ids.push(item.item_id);
 
-                                                    if (!(filter_mats.current_amount >= item.qty)) {
-                                                        sufficient = false;
-                                                    }
-                                                });
+                    //                                 if (!(filter_mats.current_amount >= item.qty)) {
+                    //                                     sufficient = false;
+                    //                                 }
+                    //                             });
 
-                                                if (sufficient) {
-                                                    materialModel.subtractFarmMaterial({ qty: resource_qty }, { item_type: resource_type, farm_id: wo_details[0].farm_id, item_id: resource_ids }, function(err, subtract_result) {
-                                                        if (err)
-                                                            throw err;
-                                                        else {
-                                                            //Continue to update wo
-                                                            var date = dataformatter.formatDate(new Date(system_settings[0].system_date), "YYYY-MM-DD");
-                                                            woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
-                                                                if (err)
-                                                                    throw err;
-                                                                else {
-                                                                    var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
+                    //                             if (sufficient) {
+                    //                                 materialModel.subtractFarmMaterial({ qty: resource_qty }, { item_type: resource_type, farm_id: wo_details[0].farm_id, item_id: resource_ids }, function(err, subtract_result) {
+                    //                                     if (err)
+                    //                                         throw err;
+                    //                                     else {
+                    //                                         //Continue to update wo
+                    //                                         var date = dataformatter.formatDate(new Date(system_settings[0].system_date), "YYYY-MM-DD");
+                    //                                         woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                    //                                             if (err)
+                    //                                                 throw err;
+                    //                                             else {
+                    //                                                 var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
                                                                     
-                                                                    //Create notif
-                                                                    var time = new Date();
-                                                                    time = time.toLocaleTimeString();
+                    //                                                 //Create notif
+                    //                                                 var time = new Date();
+                    //                                                 time = time.toLocaleTimeString();
 
-                                                                    var notif = {
-                                                                        date : dataformatter.formatDate(new Date(system_settings[0].system_date), 'YYYY-MM-DD'),
-                                                                        farm_id : wo_details[0].farm_id,
-                                                                        notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
-                                                                        notification_desc: ``,
-                                                                        url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
-                                                                        icon : "digging",
-                                                                        color : "primary",
-                                                                        type: `NEW_WO`,
-                                                                        time: time
-                                                                    };
-                                                                    notifModel.createNotif(notif, function(err, success){
-                                                                        if (err) {
-                                                                            throw err;
-                                                                        }
-                                                                        else {
-                                                                            notifModel.createUserNotif(function(err, user_notif_status) {
-                                                                                if (err)
-                                                                                    throw err;
-                                                                                else {
+                    //                                                 var notif = {
+                    //                                                     date : dataformatter.formatDate(new Date(system_settings[0].system_date), 'YYYY-MM-DD'),
+                    //                                                     farm_id : wo_details[0].farm_id,
+                    //                                                     notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
+                    //                                                     notification_desc: ``,
+                    //                                                     url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
+                    //                                                     icon : "digging",
+                    //                                                     color : "primary",
+                    //                                                     type: `NEW_WO`,
+                    //                                                     time: time
+                    //                                                 };
+                    //                                                 notifModel.createNotif(notif, function(err, success){
+                    //                                                     if (err) {
+                    //                                                         throw err;
+                    //                                                     }
+                    //                                                     else {
+                    //                                                         notifModel.createUserNotif(function(err, user_notif_status) {
+                    //                                                             if (err)
+                    //                                                                 throw err;
+                    //                                                             else {
                                                                                     
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                    });
+                    //                                                             }
+                    //                                                         });
+                    //                                                     }
+                    //                                                 });
 
-                                                                    sendOutboundMsg(emp, msg);
-                                                                }
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    var msg = "Kulang ang sinaunang items hindi maaring kumpletuhin - kontakin ang employado sa opisina";
-                                                    console.log('Insufficient!');
-                                                    sendOutboundMsg(emp, msg);
-                                                }
+                    //                                                 sendOutboundMsg(emp, msg);
+                    //                                             }
+                    //                                         });
+                    //                                     }
+                    //                                 });
+                    //                             }
+                    //                             else {
+                    //                                 var msg = "Kulang ang sinaunang items hindi maaring kumpletuhin - kontakin ang employado sa opisina";
+                    //                                 console.log('Insufficient!');
+                    //                                 sendOutboundMsg(emp, msg);
+                    //                             }
                                                     
-                                            }
-                                        });
-                                    }
-                                });  
-                            }
-                            else {
-                                //Continue to update wo
-                                var date = dataformatter.formatDate(new Date(system_settings[0].system_date), "YYYY-MM-DD");
-                                woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
-                                    if (err)
-                                        throw err;
-                                    else {
-                                        var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             });  
+                    //         }
+                    //         else {
+                    //             //Continue to update wo
+                    //             var date = dataformatter.formatDate(new Date(system_settings[0].system_date), "YYYY-MM-DD");
+                    //             woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                    //                 if (err)
+                    //                     throw err;
+                    //                 else {
+                    //                     var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
                                         
-                                        //Create notif
-                                        var time = new Date();
-                                        time = time.toLocaleTimeString();
+                    //                     //Create notif
+                    //                     var time = new Date();
+                    //                     time = time.toLocaleTimeString();
 
-                                        var notif = {
-                                            date : dataformatter.formatDate(new Date(system_settings[0].system_date), 'YYYY-MM-DD'),
-                                            farm_id : wo_details[0].farm_id,
-                                            notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
-                                            notification_desc: ``,
-                                            url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
-                                            icon : "digging",
-                                            color : "primary",
-                                            type: `NEW_WO`,
-                                            time: time
-                                        };
-                                        notifModel.createNotif(notif, function(err, success){
-                                            if (err) {
-                                                throw err;
-                                            }
-                                            else {
-                                                notifModel.createUserNotif(function(err, user_notif_status) {
-                                                    if (err)
-                                                        throw err;
-                                                    else {
+                    //                     var notif = {
+                    //                         date : dataformatter.formatDate(new Date(system_settings[0].system_date), 'YYYY-MM-DD'),
+                    //                         farm_id : wo_details[0].farm_id,
+                    //                         notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
+                    //                         notification_desc: ``,
+                    //                         url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
+                    //                         icon : "digging",
+                    //                         color : "primary",
+                    //                         type: `NEW_WO`,
+                    //                         time: time
+                    //                     };
+                    //                     notifModel.createNotif(notif, function(err, success){
+                    //                         if (err) {
+                    //                             throw err;
+                    //                         }
+                    //                         else {
+                    //                             notifModel.createUserNotif(function(err, user_notif_status) {
+                    //                                 if (err)
+                    //                                     throw err;
+                    //                                 else {
                                                         
-                                                    }
-                                                });
-                                            }
-                                        });
-                                        sendOutboundMsg(emp, msg);
-                                    }
-                                });
-                            }
-                        }
-                        else{
-                            var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
-                            sendOutboundMsg(emp, msg);
-                        }
-                    }
+                    //                                 }
+                    //                             });
+                    //                         }
+                    //                     });
+                    //                     sendOutboundMsg(emp, msg);
+                    //                 }
+                    //             });
+                    //         }
+                    //     }
+                    //     else{
+                    //         var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
+                    //         sendOutboundMsg(emp, msg);
+                    //     }
+                    // }
                 });
             }
         });
