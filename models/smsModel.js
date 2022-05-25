@@ -47,7 +47,7 @@ exports.getEmployeeDetails = function(data, next){
     return sql;
 }
 
-exports.insertInboundMsg = function(message, message_id, employee_id, next){
+exports.insertInboundMsg = function(message, message_id, employee_id, date, next){
     var sql = "INSERT INTO inbound_msg (message_id, message, employee_id, date, time) VALUES (?,?,?, DATE(NOW()), TIME(NOW()))";
     sql = mysql.format(sql, message_id);
     sql = mysql.format(sql, message);

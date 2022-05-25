@@ -94,49 +94,48 @@ exports.globe_inbound_msg = function(req, res){
                     var message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message;
                     var message_id = req.body.inboundSMSMessageList.inboundSMSMessage[0].messageId;
                     var employee_id = employee_details[0].employee_id;
-
-                    //Store message to db
-                    smsModel.insertInboundMsg(message, message_id, employee_id, function(err, success){
-                        
-                    });
-
-                    //POCESS MESSAGE
-                    var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(" ");
-                    var msg;
-
-                    //CHECK FOR PAST OUTBOUND MESSAGE FROM USER
-                    smsModel.getLastOutboundMessage({employee_id : employee_details[0].employee_id}, function(err, last_msg){
+                    systemSettingModel.getCurrentSettings(function(err, system_settings) {
                         if (err)
                             throw err;
-                        else{
-                            var last_message = last_msg[0].message.split("\n");
-                            //check last message
+                        else {
+                            //Store message to db
+                            smsModel.insertInboundMsg(message, message_id, employee_id, system_settings[0].system_date, function(err, success){
+                                
+                            });
 
-                            if(last_message[0].includes("Due Today")){ //Checks if last message is due today
-                                dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
-                            }
-                            else if(last_message[0].includes("PESTE/SAKIT SINTOMAS")){
-                                //FOR PD SYMPTOMS
+                            //POCESS MESSAGE
+                            var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(" ");
+                            var msg;
 
-                                //CREATE NOTIF WITH CUSTOM URL
-                                var symptoms_from_user = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(",");
-                                var url = "/pest_and_disease/diagnose?symptoms=";
-                                for(var i = 0; i < symptoms_from_user.length; i++){
-                                    url = url + symptoms_from_user[i];
+                            //CHECK FOR PAST OUTBOUND MESSAGE FROM USER
+                            smsModel.getLastOutboundMessage({employee_id : employee_details[0].employee_id}, function(err, last_msg){
+                                if (err)
+                                    throw err;
+                                else{
+                                    var last_message = last_msg[0].message.split("\n");
+                                    //check last message
 
-                                    //Check if symptom is in db
+                                    if(last_message[0].includes("Due Today")){ //Checks if last message is due today
+                                        dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
+                                    }
+                                    else if(last_message[0].includes("PESTE/SAKIT SINTOMAS")){
+                                        //FOR PD SYMPTOMS
+
+                                        //CREATE NOTIF WITH CUSTOM URL
+                                        var symptoms_from_user = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(",");
+                                        var url = "/pest_and_disease/diagnose?symptoms=";
+                                        for(var i = 0; i < symptoms_from_user.length; i++){
+                                            url = url + symptoms_from_user[i];
+
+                                            //Check if symptom is in db
 
 
-                                    if(i != symptoms_from_user.length - 1)
-                                        url = url + "-";
-                                }
+                                            if(i != symptoms_from_user.length - 1)
+                                                url = url + "-";
+                                        }
 
-                                url = url + "&farm=" + employee_details[0].farm_id;
+                                        url = url + "&farm=" + employee_details[0].farm_id;
 
-                                systemSettingModel.getCurrentSettings(function(err, system_settings) {
-                                    if (err)
-                                        throw err;
-                                    else {
                                         // system_settings[0].system_date
                                         //Create notif
                                         var notif = {
@@ -159,24 +158,24 @@ exports.globe_inbound_msg = function(req, res){
                                         });
                                         //SEND SMS REPLY
                                         sendOutboundMsg(employee_details[0], "Maraming Salamat!");
-                                    }
-                                });
 
-                                        
-                            }
-                            else{
-                                console.log(text_message[0].toLowerCase());
-                                switch (text_message[0]){
-                                    case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
-                                    case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
-                                    case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
-                                    case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
-                                    case "TAPOS1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
-                                    case "TAPOS2" : msg = updateDiagnosis(employee_details[0], text_message); break;
-                                    case "TULONG" : sendSMSActions(employee_details[0]); break;
-                                    default : sendOutboundMsg(employee_details[0], 'Natanggap namin ang iyong tugon.\n\nPara sa karagdagang kaalaman, magsend ng "TULONG" sa 21663543'); break; //Change to storing to db
-                                } 
-                            }
+                                                
+                                    }
+                                    else{
+                                        console.log(text_message[0].toLowerCase());
+                                        switch (text_message[0]){
+                                            case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
+                                            case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
+                                            case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
+                                            case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
+                                            case "TAPOS1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
+                                            case "TAPOS2" : msg = updateDiagnosis(employee_details[0], text_message); break;
+                                            case "TULONG" : sendSMSActions(employee_details[0]); break;
+                                            default : sendOutboundMsg(employee_details[0], 'Natanggap namin ang iyong tugon.\n\nPara sa karagdagang kaalaman, magsend ng "TULONG" sa 21663543'); break; //Change to storing to db
+                                        } 
+                                    }
+                                }
+                            });
                         }
                     });
                 }
