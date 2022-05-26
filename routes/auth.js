@@ -97,10 +97,14 @@ router.get('/login', (req, res) => {
 			throw err;
 		else {
 			var date = req.query.cur_date != undefined ? req.query.cur_date : system_settings[0].hasOwnProperty('system_date') ? system_settings[0].system_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD');
-		  res.render('login', { cur_date: date, title: 'Login | LA Rice Mill' } );
+			if(req.session.authority == null){
+				res.render('login', { cur_date : date, title: 'Login | LA Rice Mill'});
+			}
+			else{
+				res.redirect('/crop_calendar');
+			}
 		}
 	});
-			
 });
 router.get('/initialize_account', userController.getInitializePassword);
 router.post('/initialize_password', userController.initializePassword);

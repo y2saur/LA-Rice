@@ -686,7 +686,7 @@ exports.registerUser = function(req,res){
                     console.log(employee);
                     if(employee.length > 0){
                         var emp = employee[0];
-                        var msg = "Welcome to LA Rice CMS, " + emp.first_name + " " + emp.last_name + "!";
+                        var msg = "Welcome to LA Rice CMS, " + emp.first_name + " " + emp.last_name + '!\n\nPara sa karagdagang kaalaman, magsend ng "TULONG" sa 21663543';
                         console.log(msg);
                         sendOutboundMsg(emp, msg);
                         // smsModel.insertOutboundMsg(msg, emp.employee_id, function(err, last_id){
@@ -1161,24 +1161,29 @@ exports.testTranslation = function(req, res){
 //GET NUMBER OF REPORTED SYMPTOMS FOR THE PAST 7 DAYS
 exports.getReportedSymptoms = function(req, res){
     //Get notifications on reported symptoms
-    smsModel.getReportedSymptoms(7,0, function(err, reported){
+    systemSettingModel.getCurrentSettings(function(err, system_settings) {
         if(err)
             throw err;
         else{
-            //process
-            var symptoms = [];
-            for(var i = 0; i < reported.length; i++){
-                var temp = reported[i].url.split("=");
-                var temp2 = temp[1].replace("&farm", "");
-                var temp3 = temp2.split("-");
-                for(var x =0; x < temp3.length; x++){
-                    symptoms.push(temp3[x]);
+            smsModel.getReportedSymptoms(7,0, system_settings[0].system_date, function(err, reported){
+                if(err)
+                    throw err;
+                else{
+                    //process
+                    var symptoms = [];
+                    for(var i = 0; i < reported.length; i++){
+                        var temp = reported[i].url.split("=");
+                        var temp2 = temp[1].replace("&farm", "");
+                        var temp3 = temp2.split("-");
+                        for(var x =0; x < temp3.length; x++){
+                            symptoms.push(temp3[x]);
+                        }
+                    }
+                    res.send({symptoms : symptoms});
                 }
-            }
-            res.send({symptoms : symptoms});
+            });
         }
     });
-
 }
 
 
