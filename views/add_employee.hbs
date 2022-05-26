@@ -27,46 +27,6 @@
             
                     </div>
 
-
-                    {{!-- <div class="btn-group" role="group"><button class="btn btn-primary" type="button" style="background: #BDBE14;font-weight: bold;border-style: none;border-left-color: rgba(78,115,223,0);border-radius: 10px;padding: 4px 10px;">Farms</button><a class="btn btn-primary" role="button" style="margin-left: 10px;background: rgba(189,190,20,0);border-style: none;border-color: var(--bs-pink);padding: 4px 10px;" href="Materials.html">Materials</a></div> --}}
-                    {{#compareTwoValues this.access_level 0 operator='!='}}
-                    <div class="dropdown no-arrow" style="padding-top: 5px">
-                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                        </button>
-
-                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                            <a class="dropdown-item notSidebar" href="/deactivateAccount?username={{username}}&status=deactivate">&nbsp;Deactivate User</a>
-                     
-                        {{#compareTwoValues this.otp null operator='!='}}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
-                        {{/compareTwoValues}}
-                    
-                        </div>
-                    </div>
-
-                    {{else}}
-
-                    {{#compareTwoValues this.access_level 0 operator='=='}}
-                    {{#compareTwoValues this.otp null operator='!='}}
-                    <div class="dropdown no-arrow" style="padding-top: 5px">
-                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                        </button>
-
-                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                           
-                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
-            
-                    
-                        </div>
-                    </div>
-                    {{/compareTwoValues}}
-                    {{/compareTwoValues}}
-                    
-                    {{/compareTwoValues}}
-
                 </div>
                 {{!-- END CARD HEADER --}}
 
@@ -85,13 +45,13 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="last_name">Last Name </label>
-                                <input type="text" class="form-control" id="last_name" placeholder="Last name..." name="last_name" value="{{last_name}}" required></input>
+                                <input type="text" class="form-control" id="last_name" placeholder="Last Name" name="last_name" required></input>
 
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="first_name">First Name </label>
-                                <input type="text" class="form-control" id="first_name" placeholder="First name..." name="first_name" value="{{first_name}}" required></input>
+                                <input type="text" class="form-control" id="first_name" placeholder="First Name" name="first_name" required></input>
 
                                 </div>
 
@@ -103,7 +63,7 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="mobile_number">Mobile Number </label>
-                                <input type="text" class="form-control" id="mobile_number" placeholder="..." name="phone_number" value="{{phone_number}}" required></input>
+                                <input type="text" class="form-control" id="mobile_number" placeholder="e.g., 09123456789" pattern="[0]{1}[9]{1}[0-9]{9}" class="form-control" maxlength="11" required name="phone_number" required></input>
 
                                 </div>
 
@@ -201,6 +161,7 @@
 
                     <div class="modal-footer">
                         <div class="modal_footer_content" id="_step1">
+                            <button type="button" class="btn round btn-secondary" onclick="goBack();">Cancel</button>
                             <button type="submit" class="btn round btn-primary" form="register_employee">Create</button>
                         </div>
                             

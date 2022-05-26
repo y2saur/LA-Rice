@@ -44,7 +44,7 @@
                             style="background: #F0F0F0;">Inactive Employees</a></li>
                     </ul>
 
-                    <button class="btn btn-primary float-right" type="button" id="new_employee" onclick="window.location='/user_management/add_employee'">Add Employee</button>
+                    <button class="btn btn-primary btn-sm float-right" type="button" id="new_employee" onclick="window.location='/user_management/add_employee'">Add Employee <i class="fa fa-plus-circle" style="margin-left: 5px;"></i></button>
         
                     </div>
 
@@ -89,7 +89,7 @@
                                               {{else}}
                                                 <input class="form-check-input" name="register_checkbox" type="checkbox" value="{{this.employee_id}}" id="flexCheckChecked">
                                               {{/if}} -->
-                                              <div class="dropdown no-arrow">
+                                              <div class="dropdown no-arrow float">
                                                     <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                                                         <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                                                     </button>
@@ -126,6 +126,7 @@
                                         <th>Contact #</th>
                                         <th>Access Level</th>
                                         <th></th>
+                                        <th></th>
                                       </tr>
                                       </thead>
                                       {{#each employee_list.isActiveEmployees}}
@@ -151,15 +152,17 @@
                                               {{else}}
                                                 <input class="form-check-input" name="register_checkbox" type="checkbox" value="{{this.employee_id}}" id="flexCheckChecked">
                                               {{/if}}
-                                              <div class="dropdown no-arrow ml-3">
-                                                    <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                                                        <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                                                        <a class="dropdown-item notSidebar" href="/user_management/employee_details&id={{this.employee_id}}">View Details</a>
-                                                    </div>
-                                                </div>
                                             </div>
+                                          </td>
+                                          <td>
+                                              <div class="dropdown no-arrow ml-3">
+                                                <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
+                                                  <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
+                                                </button>
+                                                <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
+                                                  <a class="dropdown-item notSidebar" href="/user_management/employee_details&id={{this.employee_id}}">View Details</a>
+                                                </div>
+                                              </div>
                                           </td>
                                         </tr>
                                       {{/each}}

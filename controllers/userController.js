@@ -55,6 +55,7 @@ exports.deactivateAccount = function(req, res) {
 						if (err)
 							throw err;
 						else {
+							req.flash('success_msg', "User account deactivated: " + req.query.username);
 							res.redirect('/user_management');
 						}
 					});
@@ -109,6 +110,7 @@ exports.registerUser = function(req, res) {
 										//send sms
 										globe.sendSMS(subs[x], "One Time Password: " + detail_result[i].otp);//add opt
 										console.log(detail_result[i].employee_id + ": SEND SMS");
+										req.flash('success_msg', "User account created for: " + detail_result[i].username + ". Instruct user to check their phone for the OTP.");
 										subscribed = true;
 									}
 								if(!subscribed)
@@ -152,7 +154,7 @@ exports.resendOTP = function(req, res) {
 									req.flash('success_msg', "OTP sent to: " + emp[i].username);
 								}
 							if(!subscribed)
-								otp_msg = otp_msg + 'User not subscribed (OTP: ' + emp[i].otp + '). ' + 'Advise User to send "INFO" to 21663543.';
+								otp_msg = otp_msg + 'User not subscribed (OTP: ' + emp[i].otp + '). ' + 'Instruct User to send "INFO" to 21663543.';
 								// otp_msg = otp_msg + emp[i].username + ": " + emp[i].otp + "\n";
 						}
 						req.flash('error_msg', otp_msg);
@@ -339,7 +341,7 @@ exports.registerEmployee = function(req, res) {
 		position: req.body.position,
 		last_name: req.body.last_name,
 		first_name: req.body.first_name,
-		phone_number: req.body.phone_number
+		phone_number: req.body.phone_number.substring(1)
 	}
 	employeeModel.addSingleEmployee(employee_obj, function(err, add_status) {
 		if (err)
@@ -354,7 +356,9 @@ exports.registerEmployee = function(req, res) {
 					}
 				});
 			}
-			res.redirect(`/user_management/employee_details&id=${add_status.insertId}`);
+			req.flash('success_msg', "Employee record added for: " + req.body.first_name + ' ' + req.body.last_name);
+			res.redirect('/user_management')
+			// res.redirect(`/user_management/employee_details&id=${add_status.insertId}`);
 		}
 	});
 }
@@ -368,6 +372,7 @@ exports.updateUserDetails = function(req, res) {
 				if (err)
 					throw err;
 				else {
+					req.flash('success_msg', "User account updated for: " + username);
 					res.redirect('/user_management');
 				}
 			});

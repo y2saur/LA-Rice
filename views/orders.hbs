@@ -87,7 +87,7 @@
                                     <div class="form-row">
                                         <div class="col-3 col-sm-3 col-md-3"><label style="font-weight: bold">Farm</label>
                                             <div id="lp-name-wrapper"></div>
-                                            <select class="form-control required" id="farm" name="farm" form="new_purchase">
+                                            <select class="form-select required" id="farm" name="farm" form="new_purchase">
                                                 <option disabled selected value> -- select an option -- </option>
                                                 {{#each farms}}
                                                     <option value="{{this.farm_id}}">{{this.farm_name}}</option>
@@ -115,7 +115,7 @@
                                     <div class="form-row last_item new-item" id="row1">
                                         <div class="col-4 col-sm-4 col-md-4">
                                             <div id="lp-name-wrapper" style="margin-top: 10px;">
-                                                <select class="form-control purchase_item_type " id="item_type1" name="item[0][type]" form="new_purchase">
+                                                <select class="form-select purchase_item_type " id="item_type1" name="item[0][type]" form="new_purchase">
                                                     <option value="Seed">Seed</option>
                                                     <option value="Pesticide">Pesticide</option>
                                                     <option value="Fertilizer">Fertilizer</option>
@@ -124,7 +124,7 @@
                                         </div>
                                         <div class="col-4 col-sm-4 col-md-4">
                                             <div id="lp-name-wrapper" style="margin-top: 10px;">
-                                                <select class="form-control required" id="item1" name="item[0][item]" form="new_purchase">
+                                                <select class="form-select required" id="item1" name="item[0][item]" form="new_purchase">
                                                     <option disabled selected value> -- select an option -- </option>
                                                     {{#each seeds}}
                                                         <option class="material_item1"value="{{this.id}}">{{this.name}}</option>
