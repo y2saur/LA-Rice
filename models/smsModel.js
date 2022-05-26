@@ -72,6 +72,7 @@ exports.getSubscriptions = function(next){
     var sql = "SELECT *,  a.date as last_message, a.time as last_time FROM (SELECT im.message_id, im.message, im.employee_id, im.date, im.time  FROM inbound_msg im UNION SELECT om.message_id, om.message, om.employee_id, om.date, om.time FROM outbound_msg om ORDER BY date DESC, time DESC) a INNER JOIN employee_table et USING (employee_id) group by employee_id;";
     
     mysql.query(sql, next);
+    //console.log(sql);
     return sql;
 }
 

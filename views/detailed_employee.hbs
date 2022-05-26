@@ -137,7 +137,11 @@
                                         </div>
 
                                         <div class="col">
-                                            
+                                            <label for="last_name">Assigned Farm Manager:</label>
+                                            <div class="d-flex">
+                                                <div>{{farm_mngr.last_name}}, {{farm_mngr.first_name}}</div>
+                                                <div class="ml-auto mr-5 font-weight-bold"><a href="/sms/messages#activeMessages">Contact</a></div>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -216,6 +220,22 @@
                                     </div>
                                 </div>
                             {{/compareTwoValues}}
+
+                            {{#if employee_details.access_token}}
+
+                            {{else}}
+                            <div class="form-group pt-3" style="margin-left: 5px;">
+                                <div class="row">
+                                    <div class="col" style="padding-top: 5px;">
+                                        <div class="d-flex flex-column">
+                                            <span class="text-danger font-weight-bold">Employee is not yet subscribed to Globelabs API!</span>
+                                            <span class="text-danger font-weight-bold">Instruct employee to send "INFO" to 21663543</span>
+                                        </div>
+                                            
+                                    </div>
+                                </div>
+                            </div>
+                            {{/if}}
                                 
                
                         </div>

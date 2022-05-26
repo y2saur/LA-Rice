@@ -25,6 +25,11 @@ exports.getSpecificFarm = function(data, next) {
 	mysql.query(sql, next);
 }
 
+exports.getAssignedFarmManagers = function(next) {
+	var sql = `select * from ( select farm_id, employee_id, last_name, first_name, phone_number from employee_table join farm_assignment using(employee_id) where position = 'Farm Manager' union select farm_id, null, null, null, null from farm_table ) as t group by farm_id`;
+	mysql.query(sql, next);
+}
+
 exports.getForecastedYieldRecord1 = function(data, next) {
 	if (data.calendar_id.length != 0) {
 		var sql = "SELECT calendar_id, temp, humidity, pressure, rainfall, seed_id, harvested, N, P, K, seed_rate, forecast FROM forecasted_yield where ";

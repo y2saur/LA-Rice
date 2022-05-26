@@ -151,6 +151,14 @@
                                               {{else}}
                                                 <input class="form-check-input" name="register_checkbox" type="checkbox" value="{{this.employee_id}}" id="flexCheckChecked">
                                               {{/if}}
+                                              <div class="dropdown no-arrow ml-3">
+                                                    <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
+                                                        <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
+                                                        <a class="dropdown-item notSidebar" href="/user_management/employee_details&id={{this.employee_id}}">View Details</a>
+                                                    </div>
+                                                </div>
                                             </div>
                                           </td>
                                         </tr>

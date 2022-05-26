@@ -294,10 +294,24 @@ exports.getDetailedEmployee = function(req, res) {
 				if (err)
 					throw err;
 				else {
+					//console.log(employee_details);
 					html_data['employee_details'] = employee_details[0];
 					html_data['farm_list'] = farm_list;
-					//console.log(html_data);
-					res.render('detailed_employee', html_data);
+
+					if (employee_details[0].farm_id != null) {
+						farmModel.getAssignedFarmManagers(function(err, farm_mngrs) {
+							if (err)
+								throw err;
+							else {
+								html_data['farm_mngr'] = farm_mngrs.filter(e => e.farm_id == employee_details[0].farm_id)[0];
+								console.log(html_data);
+								res.render('detailed_employee', html_data);
+							}
+						});
+					}
+					else {
+						res.render('detailed_employee', html_data);
+					}
 				}
 			});
 					
