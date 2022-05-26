@@ -70,11 +70,17 @@ exports.globe_inbound_msg = function(req, res){
             if(err)
                 console.log(err);
             else{
-                smsModel.insertOutboundMsg("YOU HAVE UNSUBSCRIBED", employee_details[0].employee_id, function(err, last_id){
+                systemSettingModel.getCurrentSettings(function(err, system_settings) {
                     if(err)
                         throw err;
                     else{
-                        console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                        smsModel.insertOutboundMsg("YOU HAVE UNSUBSCRIBED", employee_details[0].employee_id, system_settings[0].system_date, function(err, last_id){
+                            if(err)
+                                throw err;
+                            else{
+                                console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                            }
+                        });
                     }
                 });
             }
@@ -94,49 +100,48 @@ exports.globe_inbound_msg = function(req, res){
                     var message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message;
                     var message_id = req.body.inboundSMSMessageList.inboundSMSMessage[0].messageId;
                     var employee_id = employee_details[0].employee_id;
-
-                    //Store message to db
-                    smsModel.insertInboundMsg(message, message_id, employee_id, function(err, success){
-                        
-                    });
-
-                    //POCESS MESSAGE
-                    var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(" ");
-                    var msg;
-
-                    //CHECK FOR PAST OUTBOUND MESSAGE FROM USER
-                    smsModel.getLastOutboundMessage({employee_id : employee_details[0].employee_id}, function(err, last_msg){
+                    systemSettingModel.getCurrentSettings(function(err, system_settings) {
                         if (err)
                             throw err;
-                        else{
-                            var last_message = last_msg[0].message.split("\n");
-                            //check last message
+                        else {
+                            //Store message to db
+                            smsModel.insertInboundMsg(message, message_id, employee_id, system_settings[0].system_date, function(err, success){
+                                
+                            });
 
-                            if(last_message[0].includes("Due Today")){ //Checks if last message is due today
-                                dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
-                            }
-                            else if(last_message[0].includes("PESTE/SAKIT SINTOMAS")){
-                                //FOR PD SYMPTOMS
+                            //POCESS MESSAGE
+                            var text_message = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(" ");
+                            var msg;
 
-                                //CREATE NOTIF WITH CUSTOM URL
-                                var symptoms_from_user = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(",");
-                                var url = "/pest_and_disease/diagnose?symptoms=";
-                                for(var i = 0; i < symptoms_from_user.length; i++){
-                                    url = url + symptoms_from_user[i];
+                            //CHECK FOR PAST OUTBOUND MESSAGE FROM USER
+                            smsModel.getLastOutboundMessage({employee_id : employee_details[0].employee_id}, function(err, last_msg){
+                                if (err)
+                                    throw err;
+                                else{
+                                    var last_message = last_msg[0].message.split("\n");
+                                    //check last message
 
-                                    //Check if symptom is in db
+                                    if(last_message[0].includes("Due Today")){ //Checks if last message is due today
+                                        dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
+                                    }
+                                    else if(last_message[0].includes("PESTE/SAKIT SINTOMAS")){
+                                        //FOR PD SYMPTOMS
+
+                                        //CREATE NOTIF WITH CUSTOM URL
+                                        var symptoms_from_user = req.body.inboundSMSMessageList.inboundSMSMessage[0].message.split(",");
+                                        var url = "/pest_and_disease/diagnose?symptoms=";
+                                        for(var i = 0; i < symptoms_from_user.length; i++){
+                                            url = url + symptoms_from_user[i];
+
+                                            //Check if symptom is in db
 
 
-                                    if(i != symptoms_from_user.length - 1)
-                                        url = url + "-";
-                                }
+                                            if(i != symptoms_from_user.length - 1)
+                                                url = url + "-";
+                                        }
 
-                                url = url + "&farm=" + employee_details[0].farm_id;
+                                        url = url + "&farm=" + employee_details[0].farm_id;
 
-                                systemSettingModel.getCurrentSettings(function(err, system_settings) {
-                                    if (err)
-                                        throw err;
-                                    else {
                                         // system_settings[0].system_date
                                         //Create notif
                                         var notif = {
@@ -159,24 +164,24 @@ exports.globe_inbound_msg = function(req, res){
                                         });
                                         //SEND SMS REPLY
                                         sendOutboundMsg(employee_details[0], "Maraming Salamat!");
-                                    }
-                                });
 
-                                        
-                            }
-                            else{
-                                console.log(text_message[0].toLowerCase());
-                                switch (text_message[0]){
-                                    case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
-                                    case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
-                                    case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
-                                    case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
-                                    case "TAPOS1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
-                                    case "TAPOS2" : msg = updateDiagnosis(employee_details[0], text_message); break;
-                                    case "TULONG" : sendSMSActions(employee_details[0]); break;
-                                    default : sendOutboundMsg(employee_details[0], 'Natanggap namin ang iyong tugon.\n\nPara sa karagdagang kaalaman, magsend ng "TULONG" sa 21663543'); break; //Change to storing to db
-                                } 
-                            }
+                                                
+                                    }
+                                    else{
+                                        console.log(text_message[0].toLowerCase());
+                                        switch (text_message[0]){
+                                            case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
+                                            case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
+                                            case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
+                                            case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
+                                            case "TAPOS1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
+                                            case "TAPOS2" : msg = updateDiagnosis(employee_details[0], text_message); break;
+                                            case "TULONG" : sendSMSActions(employee_details[0]); break;
+                                            default : sendOutboundMsg(employee_details[0], 'Natanggap namin ang iyong tugon.\n\nPara sa karagdagang kaalaman, magsend ng "TULONG" sa 21663543'); break; //Change to storing to db
+                                        } 
+                                    }
+                                }
+                            });
                         }
                     });
                 }
@@ -246,39 +251,45 @@ function getExistingDiagnosis(employee){
                     throw err;
                 else{
                     console.log(crop_calendar);
-                    var message = "LISTAHAN NG MGA PESTE/SAKIT\n";
-                    pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnoses){
-                        if(err)
-                            throw err;
-                        else{
-                            //Loop throgh present diagnoses
-                            var ctr = 0;
-                            for(var i = 0; i < diagnoses.length; i++){
-                                if(diagnoses[i].status == "Present"){
-                                    ctr++;
-                                    //Add to message
-                                    var type;
-                                    if(diagnoses[i].type == "Pest"){
-                                        type = "PESTE";
-                                    }
-                                    else{
-                                        type = "SAKIT";
-                                    }
-
-                                    message = message + "\nDIAGNOSE ID: " + diagnoses[i].diagnosis_id + "\n" + type + ": " + diagnoses[i].name + "\nPETSA: " + dataformatter.formatDate(diagnoses[i].date_diagnosed, "mm DD, YYYY") + "\n";
-                                }
-                            }
-                            console.log(message);
-                            if(ctr == 0){
-                                message = message + "\nWalang lumalaganap na peste/sakit.";
-                            }
+                    if(crop_calendar.length == 0){
+                        var message = "Walang aktibong crop calendar sa ngayon para sa " + farm_name + ".\n\nPara sa karagdagang impormasyon, makipag-ugnayan sa mga empleyado sa opisina.";
+                        sendOutboundMsg(employee, message);
+                    }
+                    else{
+                        var message = "LISTAHAN NG MGA PESTE/SAKIT\n";
+                        pestdiseaseModel.getDiagnosis({farm_id : farm_id}, null, function(err, diagnoses){
+                            if(err)
+                                throw err;
                             else{
-                                message = message + 'Upang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543';
+                                //Loop throgh present diagnoses
+                                var ctr = 0;
+                                for(var i = 0; i < diagnoses.length; i++){
+                                    if(diagnoses[i].status == "Present"){
+                                        ctr++;
+                                        //Add to message
+                                        var type;
+                                        if(diagnoses[i].type == "Pest"){
+                                            type = "PESTE";
+                                        }
+                                        else{
+                                            type = "SAKIT";
+                                        }
+
+                                        message = message + "\nDIAGNOSE ID: " + diagnoses[i].diagnosis_id + "\n" + type + ": " + diagnoses[i].name + "\nPETSA: " + dataformatter.formatDate(diagnoses[i].date_diagnosed, "mm DD, YYYY") + "\n";
+                                    }
+                                }
+                                console.log(message);
+                                if(ctr == 0){
+                                    message = message + "\nWalang lumalaganap na peste/sakit.";
+                                }
+                                else{
+                                    message = message + '\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543';
+                                }
+                                //Send outbound message
+                                sendOutboundMsg(employee, message);
                             }
-                            //Send outbound message
-                            sendOutboundMsg(employee, message);
-                        }
-                    });
+                        });
+                    }
                 }
             });
         }
@@ -339,7 +350,7 @@ function updateWO(emp, message, req){
                                                 else {
                                                     //Continue to update wo
                                                     var date = dataformatter.formatDate(new Date(), "YYYY-MM-DD");
-                                                    woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                                                    woModel.updateWorkOrder({status : "Completed", date_completed : system_settings[0].system_date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
                                                         if (err)
                                                             throw err;
                                                         else {
@@ -350,7 +361,7 @@ function updateWO(emp, message, req){
                                                             time = time.toLocaleTimeString();
 
                                                             var notif = {
-                                                                date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD'),
+                                                                date : system_settings[0].system_date,
                                                                 farm_id : wo_details[0].farm_id,
                                                                 notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
                                                                 notification_desc: ``,
@@ -388,7 +399,57 @@ function updateWO(emp, message, req){
                                     }
                                 });
                             }
-                        };
+                            else if(wo_details[0].type == 'Harvest'){
+                                var msg = "Upang mag-ani, makipag-ugnayan sa opisina.";
+                                sendOutboundMsg(emp, msg);
+                            }
+                            else{
+                                //Continue to update wo
+                                var date = system_settings[0].system_date;
+                                woModel.updateWorkOrder({status : "Completed", date_completed : date}, {work_order_id : wo_details[0].work_order_id}, function(err, result){
+                                    if (err)
+                                        throw err;
+                                    else {
+                                        var msg = "Maraming Salamat!\n\nTapos na ang work order " + message[1] + ".\n" + wo_details[0].type + "\n" + wo_details[0].crop_plan;
+                                        
+                                        //Create notif
+                                        var time = new Date();
+                                        time = time.toLocaleTimeString();
+
+                                        var notif = {
+                                            date : date,
+                                            farm_id : wo_details[0].farm_id,
+                                            notification_title : `Completed Work Order: ${wo_details[0].work_order_idd}`,
+                                            notification_desc: ``,
+                                            url : `/farms/work_order&id=${wo_details[0].work_order_id}`,
+                                            icon : "digging",
+                                            color : "primary",
+                                            type: `NEW_WO`,
+                                            time: time
+                                        };
+                                        notifModel.createNotif(notif, function(err, success){
+                                            if (err) {
+                                                throw err;
+                                            }
+                                            else {
+                                                notifModel.createUserNotif(function(err, user_notif_status) {
+                                                    if (err)
+                                                        throw err;
+                                                    else {
+                                                        
+                                                    }
+                                                });
+                                            }
+                                        });
+                                        sendOutboundMsg(emp, msg);
+                                    }
+                                });
+                            }
+                        }
+                        else{
+                            var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
+                            sendOutboundMsg(emp, msg);
+                        }
                     }
                     // else {
                     //     //Continue to update wo
@@ -665,15 +726,14 @@ exports.registerUser = function(req,res){
 const translator = require('../public/js/translator.js');
 
 //SEND MESSAGE TO USER FROM APP
-exports.globe_outbound_msg = async function(req, res){
+exports.globe_outbound_msg = function(req, res){
     console.log("sending outbound message");
     console.log(req.query);
     var employee_id = req.query.employee_id;
     var message = req.query.message;
-    var translated_msg = await translator.translateText(message);
+    // var translated_msg = await translator.translateText(message);
 
     
-    console.log(translated_msg.data[0].translations[0].text);
     //GET EMPLOYEE DETAILS
     smsModel.getEmployeeDetails({key : "employee_id", value : employee_id}, function(err, employee_details){
         if(err)
@@ -686,7 +746,7 @@ exports.globe_outbound_msg = async function(req, res){
                     res.send("No access token");
                 }
                 else{
-                    sendOutboundMsg(emp, translated_msg.data[0].translations[0].text);
+                    sendOutboundMsg(emp, message);
                     res.send("message sent");
                 }
             }
@@ -696,30 +756,37 @@ exports.globe_outbound_msg = async function(req, res){
 
 
 function sendOutboundMsg(emp, message){
-    smsModel.insertOutboundMsg(message, emp.employee_id, function(err, last_id){
+    systemSettingModel.getCurrentSettings(function(err, system_settings) {
         if(err)
             throw err;
         else{
-            console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
-            var last = last_id.insertId;
-            var send_message = { method: 'POST',
-                            url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
-                            qs: { 'access_token': emp.access_token },
-                            headers: 
-                            { 'Content-Type': 'application/json' },
-                            body: 
-                            { 'outboundSMSMessageRequest': 
-                                { 'clientCorrelator': last,
-                                'senderAddress': shortcode,
-                                'outboundSMSTextMessage': { 'message': message },
-                                'address': emp.phone_number } },
-                            json: true };
-            request(send_message, function (error, response, body) {
-                if (error) throw new Error(error);
-                console.log(body);
-                });
+            smsModel.insertOutboundMsg(message, emp.employee_id, system_settings[0].system_date, function(err, last_id){
+                if(err)
+                    throw err;
+                else{
+                    console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                    var last = last_id.insertId;
+                    var send_message = { method: 'POST',
+                                    url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
+                                    qs: { 'access_token': emp.access_token },
+                                    headers: 
+                                    { 'Content-Type': 'application/json' },
+                                    body: 
+                                    { 'outboundSMSMessageRequest': 
+                                        { 'clientCorrelator': last,
+                                        'senderAddress': shortcode,
+                                        'outboundSMSTextMessage': { 'message': message },
+                                        'address': emp.phone_number } },
+                                    json: true };
+                    request(send_message, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(body);
+                        });
+                }
+            });
         }
     });
+    
 }
 
 function sendUnregisteredOutboundMsg(emp, message){
@@ -1016,29 +1083,36 @@ function sendSMSActions(employee){
 //EXTERNAL SMS SEND
 exports.sendSMS = function(emp, message){
     // console.log(emp);
-    smsModel.insertOutboundMsg(message, emp.employee_id, function(err, last_id){
+
+    systemSettingModel.getCurrentSettings(function(err, system_settings) {
         if(err)
             throw err;
         else{
-            
-            var last = last_id.insertId;
-            var send_message = { method: 'POST',
-                            url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
-                            qs: { 'access_token': emp.access_token },
-                            headers: 
-                            { 'Content-Type': 'application/json' },
-                            body: 
-                            { 'outboundSMSMessageRequest': 
-                                { 'clientCorrelator': last,
-                                'senderAddress': shortcode,
-                                'outboundSMSTextMessage': { 'message': message },
-                                'address': emp.phone_number } },
-                            json: true };
-            request(send_message, function (error, response, body) {
-                if (error) throw new Error(error);
-                console.log(error);
-                console.log(body);
-                console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+            smsModel.insertOutboundMsg(message, emp.employee_id, system_settings[0].system_date, function(err, last_id){
+                if(err)
+                    throw err;
+                else{
+                    
+                    var last = last_id.insertId;
+                    var send_message = { method: 'POST',
+                                    url: 'https://devapi.globelabs.com.ph/smsmessaging/v1/outbound/' + shortcode + '/requests',
+                                    qs: { 'access_token': emp.access_token },
+                                    headers: 
+                                    { 'Content-Type': 'application/json' },
+                                    body: 
+                                    { 'outboundSMSMessageRequest': 
+                                        { 'clientCorrelator': last,
+                                        'senderAddress': shortcode,
+                                        'outboundSMSTextMessage': { 'message': message },
+                                        'address': emp.phone_number } },
+                                    json: true };
+                    request(send_message, function (error, response, body) {
+                        if (error) throw new Error(error);
+                        console.log(error);
+                        console.log(body);
+                        console.log("SUCCESSFULLY INSERTED OUTBOUND MSG");
+                    });
+                }
             });
         }
     });

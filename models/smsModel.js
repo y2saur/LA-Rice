@@ -47,20 +47,22 @@ exports.getEmployeeDetails = function(data, next){
     return sql;
 }
 
-exports.insertInboundMsg = function(message, message_id, employee_id, next){
-    var sql = "INSERT INTO inbound_msg (message_id, message, employee_id, date, time) VALUES (?,?,?, DATE(NOW()), TIME(NOW()))";
+exports.insertInboundMsg = function(message, message_id, employee_id, date, next){
+    var sql = "INSERT INTO inbound_msg (message_id, message, employee_id, date, time) VALUES (?,?,?,?, TIME(NOW()))";
     sql = mysql.format(sql, message_id);
     sql = mysql.format(sql, message);
     sql = mysql.format(sql, employee_id);
+    sql = mysql.format(sql, date);
 
     mysql.query(sql, next);
     return sql;
 }
 
-exports.insertOutboundMsg = function(message, employee_id, next){
-    var sql = "INSERT INTO outbound_msg (employee_id, message, date, time) VALUES (?, ?, DATE(NOW()), TIME(NOW()) - INTERVAL -5 SECOND);";
+exports.insertOutboundMsg = function(message, employee_id, date, next){
+    var sql = "INSERT INTO outbound_msg (employee_id, message, date, time) VALUES (?, ?, ?, TIME(NOW()) - INTERVAL -5 SECOND);";
     sql = mysql.format(sql, employee_id);
     sql = mysql.format(sql, message);
+    sql = mysql.format(sql, date);
 
     mysql.query(sql, next);
     return sql;
