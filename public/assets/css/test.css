@@ -429,13 +429,13 @@ a.page-link:hover {
 /* NOTIFICATIONS */
 
 .dropdown-item.d-flex.align-items-center.notification {
-    background-color: #7D7D7D !important;
+    background-color: #7D7D7D ;
     border-style: none;
 }
 
-.dropdown-item.d-flex.align-items-center.notification:hover {
+/*.dropdown-item.d-flex.align-items-center.notification:hover {
     background-color: #BDBE14 !important;
-}
+}*/
 
 .dropdown-item.text-center.small.text-white-500.notifShowAlerts {
     background-color: #7D7D7D !important;

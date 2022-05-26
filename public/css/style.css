@@ -1,3 +1,29 @@
+.notification_tab .dropdown-header, .notification_tab .dropdown-item {
+	background-color: #f2f2f2 !important;
+	border-radius:  8px;
+	color:  black;
+}
+
+.notification_tab .dropdown-header {
+	font-size:  18px;
+	font-weight:  800;
+	text-align: center;
+}
+
+.notification_tab .dropdown-item:hover {
+	background-color: #ececec !important;
+	color:  black;
+}
+
+.notif_dropdown .dropdown-item {
+	background-color: #7D7D7D !important;
+}
+
+.notif_dropdown .dropdown-item:hover {
+	background-color: #BDBE14 !important;
+}
+
+
 /** UI Color Theme **/
 .primary {
 	background-color: #DEB887;

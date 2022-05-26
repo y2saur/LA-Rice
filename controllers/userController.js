@@ -1,6 +1,7 @@
 const userModel = require('../models/userModel');
 const employeeModel = require('../models/employeeModel');
 const farmModel = require('../models/farmModel');
+const systemSettingModel = require('../models/systemSettingModel.js');
 const { validationResult } = require('express-validator');
 const dataformatter = require('../public/js/dataformatter.js');
 const bcrypt = require('bcrypt');
@@ -11,7 +12,7 @@ const e = require('connect-flash');
 
 const saltRounds = 10;
 
-function initializeSessionInfo(session, obj) {
+function initializeSessionInfo(session, obj, system_settings) {
 	var date = new Date();
 	date = dataformatter.formatDate(date, 'YYYY-MM-DD')
 
@@ -19,10 +20,8 @@ function initializeSessionInfo(session, obj) {
 	session.username = obj.username;
 	session.employee_id = obj.employee_id;
 	
-	if (!session.hasOwnProperty('cur_date')) {
-		session.cur_date = date;
-	}
-
+	session.cur_date = system_settings.system_date;
+	console.log(session.cur_date);
 	return session;
 }
 
@@ -234,12 +233,19 @@ exports.initializePassword = function(req, res) {
 						if (err)
 							throw err;
 						else {
-							// Update session object once matched!
-							req.session = initializeSessionInfo(req.session, user_details[0]);
+							systemSettingModel.getCurrentSettings(function(err, system_settings) {
+								if (err)
+									throw err;
+								else {
+									// Update session object once matched!
+									req.session = initializeSessionInfo(req.session, user_details[0], system_settings[0]);
 
-							req.flash('success_msg', 'Password changed for: ' + user_details[0].username);
-							
-							res.redirect('/login');	
+									req.flash('success_msg', 'Password changed for: ' + user_details[0].username);
+									
+									res.redirect('/login');	
+								}
+							});
+									
 						}
 					});	
 				}
@@ -457,10 +463,18 @@ exports.loginUser = function(req, res) {
 									if (err)
 										throw err;
 									else {
-										// Update session object once matched!
-										req.session = initializeSessionInfo(req.session, user_details[0]);
-										
-										res.redirect('/crop_calendar');	
+										systemSettingModel.getCurrentSettings(function(err, system_settings) {
+											if (err)
+												throw err;
+											else {
+												// Update session object once matched!
+												req.session = initializeSessionInfo(req.session, user_details[0], system_settings[0]);
+
+												req.flash('success_msg', 'Password changed for: ' + user_details[0].username);
+												
+												res.redirect('/');	
+											}
+										});
 									}
 								});								
 							} 

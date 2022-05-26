@@ -13,6 +13,8 @@ const notifController = require('../controllers/notificationController.js');
 const disasterController = require('../controllers/disasterController.js');
 const globe = require('../controllers/smsController.js');
 
+const systemSettingModel = require('../models/systemSettingModel.js');
+
 const dataformatter = require('../public/js/dataformatter.js');
 
 const { isPrivate, isAdmin, isSales, isPurchasing, isLogistics } = require('../middlewares/checkAuth');
@@ -90,8 +92,15 @@ router.get("/ajaxGetWorkOrders", workOrderController.ajaxGetWorkOrders);
 
 //Account Management
 router.get('/login', (req, res) => {
-	var date = req.query.cur_date != undefined ? req.query.cur_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD');
-  res.render('login', { cur_date: date, title: 'Login | LA Rice Mill' } );
+	systemSettingModel.getCurrentSettings(function(err, system_settings) {
+		if (err)
+			throw err;
+		else {
+			var date = req.query.cur_date != undefined ? req.query.cur_date : system_settings[0].hasOwnProperty('system_date') ? system_settings[0].system_date : dataformatter.formatDate(new Date(), 'YYYY-MM-DD');
+		  res.render('login', { cur_date: date, title: 'Login | LA Rice Mill' } );
+		}
+	});
+			
 });
 router.get('/initialize_account', userController.getInitializePassword);
 router.post('/initialize_password', userController.initializePassword);
@@ -307,7 +316,7 @@ router.get('/updatePurchase', materialController.updatePurchase);
 router.get('/getMaterialsAjax/:type', materialController.getMaterialsAjax);
 
 router.get("/updateNotif", notifController.updateNotif);
-router.get("/notifications",  openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , notifController.getNotificationTab);
+router.get("/notifications",  isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , notifController.getNotificationTab);
 
 
 

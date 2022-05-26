@@ -26,12 +26,12 @@
                                 <li class="nav-item"><a id="notifs-tab" class="nav-link active" data-toggle="tab" href="#all_notifs"role="tab" aria-controls="notifs" aria-selected="true" 
                                     style="background: #F0F0F0;">ALL</a></li>
 
-                                <li class="nav-item"><a id="primary-tab" class="nav-link" data-toggle="tab" href="#primary_notif" role="tab" aria-controls="primary" aria-selected="false" 
+                                <!-- <li class="nav-item"><a id="primary-tab" class="nav-link" data-toggle="tab" href="#primary_notif" role="tab" aria-controls="primary" aria-selected="false" 
                                     style="background: #F0F0F0;">Primary</a></li>
                                 <li class="nav-item"><a id="warning-tab" class="nav-link" data-toggle="tab" href="#warning_notif"role="tab" aria-controls="warning" aria-selected="false" 
                                     style="background: #F0F0F0;">Warning</a></li>
                                 <li class="nav-item"><a id="danger-tab" class="nav-link" data-toggle="tab" href="#danger_notif"role="tab" aria-controls="danger" aria-selected="false" 
-                                    style="background: #F0F0F0;">Danger</a></li>
+                                    style="background: #F0F0F0;">Danger</a></li> -->
 
                             </ul>
 
@@ -44,7 +44,7 @@
 
                             </div>
 
-                            <div class="card-body">
+                            <div class="card-body notification_tab">
                                     
                                     {{!-- TAB CONTENT --}}
 
@@ -52,7 +52,7 @@
 
                                         {{!-- TAB 1 --}}
                                         <div class="tab-pane fade show active" id="all_notifs" role="tabpanel" aria-labelledby="notifs-tab">
-                                            {{#each all}}
+                                            <!-- {{#each all}}
                                                 <a class="rounded mt-2 d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}" style="padding: 10px; background: {{#if this.done}}#EEEEEE{{else}}#ffffff{{/if}};">
                                                     <div class="mr-3">
                                                         <div class="bg-{{this.color}} icon-circle"><i class="fas fa-{{this.icon}} text-white"></i></div>
@@ -65,13 +65,65 @@
                                                         </div>
                                                     </div>
                                                 </a>
+                                            {{/each}} -->
+                                            {{#if notif_obj.disaster}}
+                                            <div class="dropdown-header border border-rounded" style="border-style: none;">Disaster Warnings</div>
+                                            {{#each notif_obj.disaster}}
+                                                <a class="w-100 border-rounded dropdown-item d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}">
+                                                    <div class="mr-3">
+                                                        <div class="bg-{{this.color}} icon-circle" style=""><i class="fas fa-{{this.icon}} text-white" style="color: white !important;"></i></div>
+                                                    </div>
+                                                    <div class="" style="max-width: 80% !important;">
+                                                        <span class="w-100 small " style="">{{this.date}}</span>
+                                                        <p class="w-100 small text-dark" style="font-weight:bold">{{this.notification_title}}</p>
+                                                        <div class="text-truncate d-block w-100" style="">{{#if this.notification_desc}}{{this.notification_desc}}{{else}}No description available...{{/if}}</div>
+                                                    </div>
+                                                </a>
+                                                <div class="dropdown-divider"></div>
                                             {{/each}}
+                                            {{/if}}
+
+                                            <div class="dropdown-header mt-5 border-rounded" style="border-style: none;" id="new_notif_lbl">New</div>
+                                            {{#if notif_obj.new}}
+                                            {{#each notif_obj.new}}
+                                                <a class="w-100 border-rounded dropdown-item d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}">
+                                                    <div class="mr-3">
+                                                        <div class="bg-{{this.color}} icon-circle" style=""><i class="fas fa-{{this.icon}} text-white" style="color: white !important;"></i></div>
+                                                    </div>
+                                                    <div class="" style="max-width: 80% !important;">
+                                                        <span class="w-100 small " style="">{{this.date}}</span>
+                                                        <p class="w-100 small text-dark" style=" font-weight:bold">{{this.notification_title}}</p>
+                                                        <div class="text-truncate d-block w-100" style="">{{#if this.notification_desc}}{{this.notification_desc}}{{else}}No description available...{{/if}}</div>
+                                                    </div>
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                            {{/each}}
+                                            {{else}}
+                                            <div class="w-100 border-rounded dropdown-item align-items-center notification text-center mx-auto" style="border-style: none;" id="new_notif_na">N/A</div>
+                                            {{/if}}
+
+                                            {{#if notif_obj.earlier}}
+                                            <div class="dropdown-header mt-5 border-rounded" style="border-style: none;">Earlier</div>
+                                            {{#each notif_obj.earlier}}
+                                                <a class="w-100 border-rounded dropdown-item d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}" >
+                                                    <div class="mr-3">
+                                                        <div class="bg-{{this.color}} icon-circle" style=""><i class="fas fa-{{this.icon}} text-white" style="color: white !important;"></i></div>
+                                                    </div>
+                                                    <div class="" style="max-width: 80% !important;">
+                                                        <span class="w-100 small " style="">{{this.date}}</span>
+                                                        <p class="w-100 small text-dark" style=" font-weight:bold">{{this.notification_title}}</p>
+                                                        <div class="text-truncate d-block w-100" style="">{{#if this.notification_desc}}{{this.notification_desc}}{{else}}No description available...{{/if}}</div>
+                                                    </div>
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                            {{/each}}
+                                            {{/if}}
                                         </div>
                                         {{!-- END OF TAB 1 --}}
 
                                         {{!-- TAB 2 --}}
                                         <div class="tab-pane fade" id="primary_notif" role="tabpanel" aria-labelledby="primary-tab">
-                                            {{#each primary}}
+                                            {{#each notif_obj.primary}}
                                                 <a class="rounded mt-2 d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}" style="padding: 10px; background: {{#if this.done}}#EEEEEE{{else}}#ffffff{{/if}};">
                                                     <div class="mr-3">
                                                         <div class="bg-{{this.color}} icon-circle"><i class="fas fa-{{this.icon}} text-white"></i></div>
@@ -89,7 +141,7 @@
                                 
                                         {{!-- TAB 3 --}}
                                         <div class="tab-pane fade" id="warning_notif" role="tabpanel" aria-labelledby="warning-tab">
-                                            {{#each warning}}
+                                            {{#each notif_obj.warning}}
                                                 <a class="rounded mt-2 d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}" style="padding: 10px; background: {{#if this.done}}#EEEEEE{{else}}#ffffff{{/if}};">
                                                     <div class="mr-3">
                                                         <div class="bg-{{this.color}} icon-circle"><i class="fas fa-{{this.icon}} text-white"></i></div>
@@ -107,7 +159,7 @@
 
                                         {{!-- TAB 4 --}}
                                         <div class="tab-pane fade" id="danger_notif" role="tabpanel" aria-labelledby="danger-tab">
-                                            {{#each danger}}
+                                            {{#each notif_obj.danger}}
                                                 <a class="rounded mt-2 d-flex align-items-center notification" id="{{this.notification_id}}" href="{{this.url}}" style="padding: 10px; background: {{#if this.done}}#EEEEEE{{else}}#ffffff{{/if}};">
                                                     <div class="mr-3">
                                                         <div class="bg-{{this.color}} icon-circle"><i class="fas fa-{{this.icon}} text-white"></i></div>

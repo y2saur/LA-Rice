@@ -203,37 +203,58 @@ exports.ajaxNotifList = function(req, res) {
 exports.getNotificationTab = function(req,res){
     var html_data = {};
     html_data = js.init_session(html_data, 'role', 'name', 'username', 'notification_tab', req.session);
-    notifModel.getAllNotifs(function(err, notifs){
-        if(err)
+    notifModel.getUserNotifs({ employee_id: req.session.employee_id }, function(err, user_notif_list) {
+        if (err)
             throw err;
-        else{
-            var i;
-            for(i = 0; i < notifs.length; i++){
-                notifs[i].date = dataformatter.formatDate(new Date(notifs[i].date), 'mm DD, YYYY');
-                if(notifs[i].status == 0)
-                    notifs[i]["done"] = true;
-            }
-            html_data["all"] = notifs;
+        else {
+            user_notif_list.forEach(function(item, index) {
+                user_notif_list[index].date = dataformatter.formatDate(new Date(item.date), 'mm DD, YYYY');
+            })
+            var notif_obj = { new: [], earlier: [], disaster: [], danger: [], primary: [], warning: [] };
+            notif_obj.new = user_notif_list.filter(e => e.isSeen == 0);
+            notif_obj.earlier = user_notif_list.filter(e => e.isSeen == 1);
+            notif_obj.disaster = user_notif_list.filter(e => e.isSeen == 1 && e.type == 'DISASTER_WARNING' && dataformatter.dateDiff(req.session.cur_date, e.date) >=0 && dataformatter.dateDiff(req.session.cur_date, e.date) <= 30);
+            notif_obj.danger = user_notif_list.filter(e => e.color == 'danger');
+            notif_obj.primary = user_notif_list.filter(e => e.color == 'primary');
+            notif_obj.warning = user_notif_list.filter(e => e.color == 'warning');
 
-            //FILTER NOTIFS
-            var danger = [];
-            var primary = [];
-            var warning = [];
-            for(var i = 0; i < notifs.length; i++){
-                switch(notifs[i].color){
-                    case "danger" : danger.push(notifs[i]); break;
-                    case "primary" : primary.push(notifs[i]); break;
-                    case "warning" : warning.push(notifs[i]); break;
-                }
-            }
+            html_data['notif_obj'] = notif_obj;
+            html_data["notifs"] = req.notifs;
 
-            html_data["danger"] = danger;
-            html_data["primary"] = primary;
-            html_data["warning"] = warning;
+            res.render("notifications", html_data);
         }
-        html_data["notifs"] = req.notifs;
-        res.render("notifications", html_data);
     });
+    // notifModel.getAllNotifs(function(err, notifs){
+    //     if(err)
+    //         throw err;
+    //     else{
+    //         var i;
+    //         for(i = 0; i < notifs.length; i++){
+    //             notifs[i].date = dataformatter.formatDate(new Date(notifs[i].date), 'mm DD, YYYY');
+    //             if(notifs[i].status == 0)
+    //                 notifs[i]["done"] = true;
+    //         }
+    //         html_data["all"] = notifs;
+
+    //         //FILTER NOTIFS
+    //         var danger = [];
+    //         var primary = [];
+    //         var warning = [];
+    //         for(var i = 0; i < notifs.length; i++){
+    //             switch(notifs[i].color){
+    //                 case "danger" : danger.push(notifs[i]); break;
+    //                 case "primary" : primary.push(notifs[i]); break;
+    //                 case "warning" : warning.push(notifs[i]); break;
+    //             }
+    //         }
+
+    //         html_data["danger"] = danger;
+    //         html_data["primary"] = primary;
+    //         html_data["warning"] = warning;
+    //     }
+    //     html_data["notifs"] = req.notifs;
+    //     res.render("notifications", html_data);
+    // });
 }
 
 exports.createNotif = function(req,res) {
