@@ -101,7 +101,7 @@ router.get('/login', (req, res) => {
 				res.render('login', { cur_date : date, title: 'Login | LA Rice Mill'});
 			}
 			else{
-				res.redirect('/crop_calendar');
+				res.redirect('/');
 			}
 		}
 	});

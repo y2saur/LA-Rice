@@ -12,6 +12,42 @@ if (view == 'orders') {
     });
 }
 
+else if (view == 'farms') {
+    $('.table.table-striped.table-bordered.tablesorter').DataTable( {
+      "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+      "search": {
+        //   "caseInsensitive": false
+      },
+      "order": [[ 4, "asc" ]]
+    });
+}
+
+else if (view == 'crop_calendar_detailed') {
+    $('#fertilizer_history').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "search": {
+          //   "caseInsensitive": false
+        },
+        "order": [[ 1, "desc" ],]
+      });
+
+    $('#pesticideApplicationTable').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "search": {
+          //   "caseInsensitive": false
+        },
+        "order": [[ 1, "desc" ],]
+      });
+
+    $('#ipi-table').DataTable( {
+      "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+      "search": {
+        //   "caseInsensitive": false
+      },
+      "order": [[ 3, "desc" ]]
+    });
+}
+
 else if (view == 'pest_and_disease_discover') {
     $('.table.table-striped.table-bordered.tablesorter').DataTable( {
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
@@ -62,9 +98,15 @@ else if (view == 'user_management') {
         },
         "order": [[ 0, "desc" ]],
         "columnDefs": [ {
-            "targets": 4,
-            "orderable": false
-            } ]
+            "targets": [4,5],
+            "orderable": false,
+            },
+            
+            {
+                "targets": [3],
+                "searchable": false
+            } 
+        ]    
     });
 
     $('#inactiveEmployeesTable').DataTable( { //One table only
@@ -76,7 +118,13 @@ else if (view == 'user_management') {
         "columnDefs": [ {
             "targets": 4,
             "orderable": false
-            } ]
+            },
+
+            {
+                "targets": [3],
+                "searchable": false
+            } 
+        ]
     });
 }
 

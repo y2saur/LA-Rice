@@ -105,7 +105,7 @@
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
-                                <label for="access_level">Access Level</label>
+                                <label for="access_level">Access Level <span style="color: #CA4E0C;">*</span></label>
                                 <select class="form-select" name="access_level" id="access_level" disabled>
                                     <option value="0" {{#compareTwoValues this.access_level 0 operator='==='}}selected{{/compareTwoValues}}>Administrator</option>
                                     <option value="1" {{#compareTwoValues this.access_level 1 operator='==='}}selected{{/compareTwoValues}}>Office Worker</option>

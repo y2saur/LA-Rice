@@ -306,7 +306,7 @@ html, body {
                                                                         <td>{{this.date_completed}}</td>
                                                                         <td>{{this.fertilizer_name}}</td>
                                                                         <td>{{this.amount}}</td>
-                                                                        <td>{{this.status}}
+                                                                        <td class="{{this.status}}">{{this.status}}
                                                                                <span>
                                                                                 <div class="dropdown no-arrow" style="display:inline-block; float: right">
                                                                                     <button id="more" class="btn btn-primary btn-sm dropdown-toggle dropdown no-arrow" aria-expanded="false" data-bs-toggle="dropdown" type="button">
@@ -367,7 +367,7 @@ html, body {
                                 
                                                     <div class="card shadow mb-4">
                                                         <div class="card-header mini2 py-3" style="height: auto; border-style: none">
-                                                            <h6 class="fw-bold m-0">Pest/Disease Workorder History<br></h6>
+                                                            <h6 class="fw-bold m-0">Pesticide Application History<br></h6>
                                                         </div>
                                                         <div class="card-body">
                                                                 <div>
@@ -389,7 +389,7 @@ html, body {
                                                                             <td>{{this.date_completed}}</td>
                                                                             <td>{{this.type}}</td>
                                                                             <td>{{this.notes}}</td>
-                                                                            <td>{{this.status}}
+                                                                            <td class="{{this.status}}">{{this.status}}
                                                                             <span>
                                                                                 <div class="dropdown no-arrow" style="display:inline-block; float: right">
                                                                                     <button id="more" class="btn btn-primary btn-sm dropdown-toggle dropdown no-arrow" aria-expanded="false" data-bs-toggle="dropdown" type="button">
@@ -453,13 +453,13 @@ html, body {
                                                         <tbody id="materials_table">
                                                             {{#each workorders}}
                                                                 <tr>
-                                                                    <td>WO-{{this.work_order_id}}</td>
+                                                                    <td>{{this.work_order_id}}</td>
                                                                     <td>{{this.type}}</td>
                                                                     <td>{{this.date_start}}</td>
                                                                     <td>{{this.date_completed}}</td>
                                                                   
                                                                     <td>{{this.notes}}</td>
-                                                                    <td>{{this.status}}
+                                                                    <td class="{{this.status}}">{{this.status}}
                                                                     <span>
                                                                         <div class="dropdown no-arrow" style="display:inline-block; float: right">
                                                                             <button id="more" class="btn btn-primary btn-sm dropdown-toggle dropdown no-arrow" aria-expanded="false" data-bs-toggle="dropdown" type="button">
@@ -479,7 +479,7 @@ html, body {
                                       
                                                                 {{#each wo_list}}
                                                                 <tr role="row">
-                                                                        <td>{{this.status}}</td>
+                                                                        <td class="{{this.status}}">{{this.status}}</td>
                                                                         <td>{{this.farm_name}}</td>
                                                                         <td>{{this.type}}</td>
                                                                         <td>{{this.crop_plan}}</td>

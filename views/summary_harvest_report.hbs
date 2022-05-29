@@ -34,6 +34,10 @@
 	#totalSummary td {
 		background-color: #EEEEEE !important;
 	}
+
+	.accordion-toggle > td:hover {
+		background-color: #e4eaec;
+	}
 </style>
 
 <div class="container-fluid" style="color: #332C1F;">
@@ -353,7 +357,7 @@
 								<div class="form-row ml-3 mt-3">
 								    <div class="form-group mr-3">
 								      <label class="ml-1" for="date_range_end">Farm Filter 1</label>
-								      <select class="form-control" id="farm_filter1" name="farm_filter1">
+								      <select class="form-select" id="farm_filter1" name="farm_filter1">
 							      			{{#each farm_list}}
 							      				{{#if this.extra}}
 							      				
@@ -366,7 +370,7 @@
 
 									<div class="form-group">
 								      <label class="ml-1" for="date_range_end">Crop Plan </label>
-										<select class="form-control" id="nutrient_plan_filter1" name="nutrient_plan_filter1">
+										<select class="form-select" id="nutrient_plan_filter1" name="nutrient_plan_filter1">
 							      			{{#each nutrient_filter.crop_plan1}}
 							      				<option value="{{this.calendar_id}}" {{#if this.checked}}selected{{/if}}>{{this.crop_plan}}</option>
 							      			{{/each}}
@@ -379,7 +383,7 @@
 
 									<div class="form-group mr-3">
 								      <label class="ml-1" for="date_range_end">Farm Filter 2</label>
-								      <select class="form-control" id="farm_filter2" name="farm_filter2">
+								      <select class="form-select" id="farm_filter2" name="farm_filter2">
 								      		<option selected>...</option>
 							      			{{#each farm_list}}
 							      				{{#if this.extra}}
@@ -392,7 +396,7 @@
 									</div>
 									<div class="form-group">
 								      <label class="ml-1" for="date_range_end">Crop Plan </label>
-								      <select class="form-control" id="nutrient_plan_filter2" name="nutrient_plan_filter2">
+								      <select class="form-select" id="nutrient_plan_filter2" name="nutrient_plan_filter2">
 								      		<option selected>...</option>
 							      			{{#each nutrient_filter.crop_plan2}}
 							      				<option value="{{this.calendar_id}}" {{#if this.checked}}selected{{/if}}>{{this.crop_plan}}</option>
@@ -449,7 +453,7 @@
 									<div class=" w-50 mx-auto">
 										<table class="table" id="exception1">
 											{{#if exception1.good}}
-											<tr colspan="6" class="bg-success text-white text-center"><td>What Went Right</td></tr>
+											<tr colspan="6" class="bg-success text-white text-center"><td style="color: white;">What Went Right</td></tr>
 											{{#each exception1.good}}
 
 												<tr colspan="6" data-toggle="collapse" data-target="#good{{@index}}" class="accordion-toggle">
@@ -465,7 +469,7 @@
 													<td style="padding: 0px; margin: 0px;">
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr>
+															<tr style="background-color: #e4eaec;">
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -485,7 +489,7 @@
 											{{/if}}
 
 											{{#if exception1.bad}}
-											<tr colspan="6" class="bg-danger text-white text-center"><td>What Went Wrong</td></tr>
+											<tr colspan="6" class="bg-danger text-white text-center"><td style="color: white;">What Went Wrong</td></tr>
 											{{#each exception1.bad}}
 												<tr colspan="6" data-toggle="collapse" data-target="#bad{{@index}}" class="accordion-toggle">
 													<td>
@@ -500,7 +504,7 @@
 													<td style="padding: 0px; margin: 0px;">
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr>
+															<tr style="background-color:#e4eaec">
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -520,7 +524,7 @@
 											{{/if}}
 
 											{{#if exception1.improvement}}
-											<tr colspan="6" class="bg-secondary text-white text-center"><td>What Can be Improved</td></tr>
+											<tr colspan="6" class="bg-secondary text-white text-center"><td style="color: white;">What Can be Improved</td></tr>
 											{{#each exception1.improvement}}
 												<tr colspan="6" data-toggle="collapse" data-target="#improvement{{@index}}" class="accordion-toggle">
 													<td>
@@ -535,7 +539,7 @@
 													<td>
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr>
+															<tr style="background-color: #e4eaec;">
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
