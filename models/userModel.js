@@ -56,7 +56,7 @@ exports.deleteUser = function(data, next) {
 }
 
 exports.getEmployeeDetails = function(employee_id, next){
-	var sql = "SELECT * FROM employee_table WHERE employee_id = ?;";
+	var sql = "SELECT * FROM employee_table et LEFT JOIN farm_assignment fa USING (employee_id) LEFT JOIN farm_table ft USING (farm_id) WHERE employee_id = ?;";
 
 	sql = mysql.format(sql, employee_id);
 	mysql.query(sql, next);
