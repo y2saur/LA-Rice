@@ -29,42 +29,29 @@
 
 
                     {{!-- <div class="btn-group" role="group"><button class="btn btn-primary" type="button" style="background: #BDBE14;font-weight: bold;border-style: none;border-left-color: rgba(78,115,223,0);border-radius: 10px;padding: 4px 10px;">Farms</button><a class="btn btn-primary" role="button" style="margin-left: 10px;background: rgba(189,190,20,0);border-style: none;border-color: var(--bs-pink);padding: 4px 10px;" href="Materials.html">Materials</a></div> --}}
-                    {{#compareTwoValues this.access_level 0 operator='!='}}
-                    <!-- <div class="dropdown no-arrow" style="padding-top: 5px">
-                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                        </button>
-
-                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                            <a class="dropdown-item notSidebar" href="/deactivateAccount?username={{username}}&status=deactivate">&nbsp;Deactivate User</a>
-                     
-                        {{#compareTwoValues this.otp null operator='!='}}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
-                        {{/compareTwoValues}}
-                    
-                        </div>
-                    </div> -->
-
-                    {{else}}
-
-                    {{#compareTwoValues this.access_level 0 operator='=='}}
-                    {{#compareTwoValues this.otp null operator='!='}}
+                    {{#compareTwoValues employee_details.isActive 0 operator='!='}}
                     <div class="dropdown no-arrow" style="padding-top: 5px">
                         <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                             <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                         </button>
 
                         <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                           
-                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
-            
-                    
+                            <a class="dropdown-item notSidebar" href="/makeInactive?employee_id={{employee_details.employee_id}}&status=inactive">Make Inactive</a>
                         </div>
                     </div>
-                    {{/compareTwoValues}}
-                    {{/compareTwoValues}}
-                    
+
+                    {{else}}
+                    <div class="dropdown no-arrow" style="padding-top: 5px">
+                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
+                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
+                        </button>
+
+                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
+                            <a class="dropdown-item notSidebar" href="/makeActive?employee_id={{employee_details.employee_id}}&status=active">Make Active</a>
+                            <a class="dropdown-item notSidebar" href="/deleteEmployee?employee_id={{employee_details.employee_id}}&status=delete">Delete Employee</a>
+                        </div>
+                    </div>
+
                     {{/compareTwoValues}}
 
                 </div>

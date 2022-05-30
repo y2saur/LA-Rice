@@ -83,12 +83,7 @@
                                             </select>
                                           </td>
                                           <td>
-                                            <div class="form-check">
-                                              <!-- {{#if user_id}}
-                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked disabled>
-                                              {{else}}
-                                                <input class="form-check-input" name="register_checkbox" type="checkbox" value="{{this.employee_id}}" id="flexCheckChecked">
-                                              {{/if}} -->
+                                               <center>
                                               <div class="dropdown no-arrow float">
                                                     <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                                                         <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
@@ -108,7 +103,7 @@
                                                         {{/compareTwoValues}}
                                                     </div>
                                                 </div>
-                                            </div>
+                                          </center>
                                           </td>
                                         </tr>
                                       {{/each}}
@@ -146,23 +141,29 @@
                                             </select>
                                           </td>
                                           <td>
-                                            <div class="form-check">
+                                        
+                                            <div class="form-check" style="margin-left: 0px; text-align:center">
                                               {{#if user_id}}
                                                 <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked disabled>
                                               {{else}}
                                                 <input class="form-check-input" name="register_checkbox" type="checkbox" value="{{this.employee_id}}" id="flexCheckChecked">
                                               {{/if}}
+                                          
                                             </div>
                                           </td>
                                           <td>
-                                              <div class="dropdown no-arrow ml-3">
+                                            <center>
+                                              <div class="dropdown no-arrow float">
                                                 <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                                                   <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                                                 </button>
                                                 <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
                                                   <a class="dropdown-item notSidebar" href="/user_management/employee_details&id={{this.employee_id}}">View Details</a>
+                                                  <div class="dropdown-divider"></div>
+                                                  <a class="dropdown-item notSidebar" href="/makeInactive?employee_id={{this.employee_id}}&status=inactive">Make Inactive</a>
                                                 </div>
                                               </div>
+                                            </center>
                                           </td>
                                         </tr>
                                       {{/each}}
@@ -201,13 +202,20 @@
                                             </select>
                                           </td>
                                           <td>
-                                            <div class="form-check">
-                                              <!-- {{#if user_id}}
-                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked disabled>
-                                              {{else}}
-                                                <input class="form-check-input" name="register_checkbox" type="checkbox" value="{{this.employee_id}}" id="flexCheckChecked">
-                                              {{/if}} -->
-                                            </div>
+                                            <center>
+                                              <div class="dropdown no-arrow float">
+                                                <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
+                                                  <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
+                                                </button>
+                                                <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
+                                                  <a class="dropdown-item notSidebar" href="/user_management/employee_details&id={{this.employee_id}}">View Details</a>
+                                                  <div class="dropdown-divider"></div>
+                                                  <a class="dropdown-item notSidebar" href="/makeActive?employee_id={{this.employee_id}}&status=active">Make Active</a>
+                                                  <div class="dropdown-divider"></div>
+                                                  <a class="dropdown-item notSidebar" href="/deleteEmployee?employee_id={{this.employee_id}}&status=delete">Delete Employee</a>
+                                                </div>
+                                              </div>
+                                              </center>
                                           </td>
                                         </tr>
                                       {{/each}}

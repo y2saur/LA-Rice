@@ -244,6 +244,11 @@ router.get('/resendOTP', userController.resendOTP);
 router.post('/update_employee', employeeController.updateEmployeeDetails);
 router.post('/update_user', userController.updateUserDetails);
 
+router.get('/makeInactive', employeeController.makeInactive);
+router.get('/makeActive', employeeController.makeActive);
+
+router.get('/deleteEmployee', employeeController.deleteEmployee);
+
 router.get('/profile', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getProfile);
 router.post('/update_profile', userController.updateProfile);
 

@@ -70,7 +70,7 @@
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="position">Position </label>
                                 <select class="form-select" id="position" name="position" required>
-                                    <option>...</option>
+                                    <option value="">...</option>
                                     <option value="Office Worker">Office Worker</option>
                                     <option value="Farm Manager">Farm Manager</option>
                                     <option value="Farmer">Farmer</option>
@@ -81,7 +81,7 @@
                                 </div>
                             </div>
 
-                            <div class="" id="farm_assignment_cont">
+                            <div class="" id="farm_assignment_cont" style="display: none;">
                                 <div class="form-group" style="margin-left: 5px;">
                                     <div class="row">
 
@@ -242,8 +242,10 @@
         position = $(this).val();
         str = `<option>...</option>`;
         $('#farm_assignment_cont').addClass('hide');
+         $('#farm_assignment_cont').hide();
         if (position == 'Farmer' || position == 'Farm Manager') {
             $('#farm_assignment_cont').removeClass('hide');
+             $('#farm_assignment_cont').toggle();
 
             if (position == 'Farmer') {
                 $.get('/get_farm_list', {}, function(result) {

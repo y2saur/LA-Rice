@@ -67,3 +67,9 @@ exports.updateAccount = function(query, update, next) {
 	};
 	mysql.query(sql, next);
 }
+
+exports.deleteEmployee = function(data, next) {
+	var sql = `delete from employee_table where ?`;
+	sql = mysql.format(sql, data);
+	mysql.query(sql, next);
+}

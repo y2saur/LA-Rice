@@ -35,8 +35,6 @@ exports.getUsers = function(req, res) {
 }
 
 exports.updateEmployeeDetails = function(req, res) {
-
-
 	var position = req.body.position; 
 	var last_name = req.body.last_name;
 	var first_name = req.body.first_name;
@@ -70,4 +68,55 @@ exports.updateEmployeeDetails = function(req, res) {
 		}
 	});
 	
+}
+
+exports.makeInactive = function(req, res) {	
+	employeeModel.updateAccount({ employee_id: req.query.employee_id }, { isActive: 0}, function(err, result) {
+		if (err)
+			throw err;
+		else {
+			if (req.query.status == 'inactive') {
+			req.flash('success_msg', "Employee now inactive: Employee ID " + req.query.employee_id);
+			res.redirect(`/user_management`);	
+			}
+			else {
+				//Err message
+				res.redirect('/user_management');
+			}
+		}
+	});	
+}
+
+exports.makeActive = function(req, res) {	
+	employeeModel.updateAccount({ employee_id: req.query.employee_id }, { isActive: 1}, function(err, result) {
+		if (err)
+			throw err;
+		else {
+			if (req.query.status == 'active') {
+			req.flash('success_msg', "Employee now active: Employee ID " + req.query.employee_id);
+			res.redirect(`/user_management`);	
+			}
+			else {
+				//Err message
+				res.redirect('/user_management');
+			}
+		}
+	});
+}
+
+exports.deleteEmployee = function(req, res) {	
+	employeeModel.deleteEmployee({ employee_id: req.query.employee_id }, function(err, result) {
+		if (err)
+			throw err;
+		else {
+			if (req.query.status == 'delete') {
+			req.flash('success_msg', "Employee deleted: Employee ID " + req.query.employee_id);
+			res.redirect(`/user_management`);	
+			}
+			else {
+				//Err message
+				res.redirect('/user_management');
+			}
+		}
+	});
 }
