@@ -174,6 +174,7 @@ exports.globe_inbound_msg = function(req, res){
                                             case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                             case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
                                             case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
+                                            case "5" : msg = wosToday(employee_details[0]); break; //Get workorders that start today
                                             case "TAPOS1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
                                             case "TAPOS2" : msg = updateDiagnosis(employee_details[0], text_message); break;
                                             case "TULONG" : sendSMSActions(employee_details[0]); break;
@@ -193,6 +194,71 @@ exports.globe_inbound_msg = function(req, res){
     // this.globe_outbound_msg;
     // this.getAccessToken;
     return true;
+}
+
+
+function wosToday(employee){
+    systemSettingModel.getCurrentSettings(function(err, system_settings) {
+        if(err)
+            throw err;
+        else{
+            employeeModel.queryEmployee({employee_id: employee.employee_id}, function(err, emp){ //employee.employee_id
+                if(err)
+                    console.log(err);
+                else{
+                    //Get active crop calendar
+                    var farm_name = emp[0].farm_name;
+                    cropCalendarModel.getCurrentCropCalendar({farm_name : farm_name}, function(err, crop_calendar){
+                        if(err)
+                            throw err;
+                        else{
+                            console.log(crop_calendar);
+
+                            //ADD ERROR HANDLING
+                            if(crop_calendar.length == 0){
+                                var message = "Walang aktibong crop calendar sa ngayon para sa " + farm_name + ".\n\nPara sa karagdagang impormasyon, makipag-ugnayan sa mga empleyado sa opisina.";
+                                sendOutboundMsg(employee, message);
+                            }
+                            else{
+                                //Get work orders
+                                var wo_query = {
+                                    where: {
+                                        key: ['crop_calendar_id'],
+                                        value: [crop_calendar[0].calendar_id]
+                                    },
+                                    order: ['work_order_table.date_start ASC']
+                                };
+                                woModel.getWorkOrders(wo_query, async function(err, wos){
+                                    if(err)
+                                        throw err;
+                                    else{
+                                        var message = "WORK ORDERS NGAYON ARAW\nFarm: " + farm_name + "\n";
+                                        console.log(wos);
+                                        var not_completed = [];
+                                        for(var i = 0; i < wos.length; i++){
+                                            if(wos[i].date_start == system_settings[0].system_date && wos[i].status != "Completed"){
+                                                var wo_type = await translator.translateText(wos[i].type);
+                                                not_completed.push(wos[i]); 
+                                                wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
+                                                wos[i].date_due = dataformatter.formatDate(wos[i].date_due, 'mm DD, YYYY');
+                                                message = message + "\n\nWork Order ID: "+ wos[i].work_order_id + "\n" + wo_type.data[0].translations[0].text + " (" + wos[i].notif_type + ")"+ "\nSimula: " + wos[i].date_start + "\nTapos: " + wos[i].date_due + "\nKalagayan: " + wos[i].status;
+                                            }
+                                        }  
+                                        message = message + '\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543';
+                                        console.log(message);
+
+                                        //Send outbound message
+                                        sendOutboundMsg(employee, message);
+                                    }
+                                }); 
+                            }   
+                        }
+                    });
+                }
+            });
+        }
+    });
+    
 }
 
 function updateDiagnosis(employee, message){
