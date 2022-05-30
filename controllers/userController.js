@@ -377,22 +377,34 @@ exports.registerEmployee = function(req, res) {
 		first_name: req.body.first_name,
 		phone_number: req.body.phone_number.substring(1)
 	}
-	employeeModel.addSingleEmployee(employee_obj, function(err, add_status) {
+
+	var phone_number = req.body.phone_number.substring(1);
+
+	employeeModel.queryEmployee({phone_number: phone_number}, function(err, emp) {
 		if (err)
 			throw err;
+		else if (emp.length !== 0) {
+			req.flash('error_msg', 'Mobile Number "' + req.body.phone_number + '" is already taken. Please input a different number.');
+			res.redirect(`/user_management/add_employee`);	
+		}
 		else {
-			if (req.body.farm_assignment != '...') {
-				farmModel.assignFarmer({ employee_id: add_status.insertId, farm_id: req.body.farm_assignment, status: 'Active'}, function(err, assign_status) {
-					if (err)
-						throw err;
-					else {
-						console.log(assign_status);
+			employeeModel.addSingleEmployee(employee_obj, function(err, add_status) {
+				if (err)
+					throw err;
+				else {
+					if (req.body.farm_assignment != '...') {
+						farmModel.assignFarmer({ employee_id: add_status.insertId, farm_id: req.body.farm_assignment, status: 'Active'}, function(err, assign_status) {
+							if (err)
+								throw err;
+							else {
+								console.log(assign_status);
+							}
+						});
 					}
-				});
-			}
-			req.flash('success_msg', "Employee record added for: " + req.body.first_name + ' ' + req.body.last_name);
-			res.redirect('/user_management')
-			// res.redirect(`/user_management/employee_details&id=${add_status.insertId}`);
+					req.flash('success_msg', "Employee record added for: " + req.body.first_name + ' ' + req.body.last_name);
+					res.redirect('/user_management')
+				}
+			});	
 		}
 	});
 }
