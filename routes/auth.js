@@ -241,6 +241,7 @@ router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
 router.get('/resendOTP', userController.resendOTP);
 
+router.post('/update_employee', employeeController.updateEmployeeDetails);
 router.post('/update_user', userController.updateUserDetails);
 
 router.get('/profile', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getProfile);

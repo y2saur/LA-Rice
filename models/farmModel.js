@@ -84,6 +84,12 @@ exports.assignFarmer = function(data, next) {
 	mysql.query(sql, next);
 }
 
+exports.deleteAssignedFarmer = function(data, next) {
+	var sql = `delete from farm_assignment where ?`;
+	sql = mysql.format(sql, data);
+	mysql.query(sql, next);
+}
+
 exports.addAssignedFarmers = function(data, next) {
 	var sql = "insert into farm_assignment (employee_id, farm_id, status) values ?";
 	sql = mysql.format(sql, data);

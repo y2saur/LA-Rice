@@ -109,7 +109,7 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="position">Position </label>
-                                <input type="text" class="form-control" id="position" placeholder="{{position}}" name="position" value="{{position}}" disabled></input>
+                                <input type="text" class="form-select" id="position" placeholder="{{position}}" name="position" value="{{position}}" disabled></input>
 
                                 </div>
 
@@ -123,7 +123,7 @@
 
                                         <div class="col" style="padding-top: 5px;">
                                             <label for="last_name">Farm Assignment</label>
-                                            <select class="form-control" id="farm_assignment" name="farm_assignment" disabled>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment" disabled>
                                                 <option>...</option>
                                                 {{#each farm_list}}
                                                 <option value="{{this.farm_id}}" {{#compareTwoValues ../employee_details.farm_id this.farm_id operator='==='}}selected{{/compareTwoValues}}>{{this.farm_name}}</option>
@@ -152,7 +152,7 @@
 
                                         <div class="col" style="padding-top: 5px;">
                                             <label for="last_name">Farm Assignment</label>
-                                            <select class="form-control" id="farm_assignment" name="farm_assignment" disabled>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment" disabled>
                                                 <option>...</option>
                                                 {{#each farm_list}}
                                                 <option value="{{this.farm_id}}" {{#compareTwoValues ../employee_details.farm_id this.farm_id operator='==='}}selected{{/compareTwoValues}}>{{this.farm_name}}</option>
