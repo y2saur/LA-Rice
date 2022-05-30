@@ -84,11 +84,16 @@ else if (view == 'user_management') {
         "search": {
             // "caseInsensitive": false
         },
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "columnDefs": [ {
             "targets": 4,
             "orderable": false
-            } ]
+            }, 
+
+            {   "sType": "numeric", 
+                "aTargets": [3] 
+            }
+        ]
     });
 
     $('#activeEmployeesTable').DataTable( { //One table only
@@ -96,9 +101,9 @@ else if (view == 'user_management') {
         "search": {
             // "caseInsensitive": false
         },
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "columnDefs": [ {
-            "targets": [4,5],
+            "targets": [3,4,5],
             "orderable": false,
             },
             
@@ -114,9 +119,9 @@ else if (view == 'user_management') {
         "search": {
             // "caseInsensitive": false
         },
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "columnDefs": [ {
-            "targets": 4,
+            "targets": [3,4],
             "orderable": false
             },
 
