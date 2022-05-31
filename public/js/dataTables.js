@@ -12,6 +12,42 @@ if (view == 'orders') {
     });
 }
 
+else if (view == 'farms') {
+    $('.table.table-striped.table-bordered.tablesorter').DataTable( {
+      "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+      "search": {
+        //   "caseInsensitive": false
+      },
+      "order": [[ 4, "asc" ]]
+    });
+}
+
+else if (view == 'crop_calendar_detailed') {
+    $('#fertilizer_history').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "search": {
+          //   "caseInsensitive": false
+        },
+        "order": [[ 1, "desc" ],]
+      });
+
+    $('#pesticideApplicationTable').DataTable( {
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "search": {
+          //   "caseInsensitive": false
+        },
+        "order": [[ 1, "desc" ],]
+      });
+
+    $('#ipi-table').DataTable( {
+      "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+      "search": {
+        //   "caseInsensitive": false
+      },
+      "order": [[ 3, "desc" ]]
+    });
+}
+
 else if (view == 'pest_and_disease_discover') {
     $('.table.table-striped.table-bordered.tablesorter').DataTable( {
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
@@ -48,11 +84,16 @@ else if (view == 'user_management') {
         "search": {
             // "caseInsensitive": false
         },
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "columnDefs": [ {
             "targets": 4,
             "orderable": false
-            } ]
+            }, 
+
+            {   "sType": "numeric", 
+                "aTargets": [3] 
+            }
+        ]
     });
 
     $('#activeEmployeesTable').DataTable( { //One table only
@@ -60,11 +101,17 @@ else if (view == 'user_management') {
         "search": {
             // "caseInsensitive": false
         },
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "columnDefs": [ {
-            "targets": 4,
-            "orderable": false
-            } ]
+            "targets": [3,4,5],
+            "orderable": false,
+            },
+            
+            {
+                "targets": [3],
+                "searchable": false
+            } 
+        ]    
     });
 
     $('#inactiveEmployeesTable').DataTable( { //One table only
@@ -72,11 +119,17 @@ else if (view == 'user_management') {
         "search": {
             // "caseInsensitive": false
         },
-        "order": [[ 0, "desc" ]],
+        "order": [[ 0, "asc" ]],
         "columnDefs": [ {
-            "targets": 4,
+            "targets": [3,4],
             "orderable": false
-            } ]
+            },
+
+            {
+                "targets": [3],
+                "searchable": false
+            } 
+        ]
     });
 }
 

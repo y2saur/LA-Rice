@@ -16,7 +16,7 @@
                     
                     <div class="col" style="max-width: 70px; padding-top: 2px">
 
-                        <button type="submit" class="btn btn-primary btn-md" id="back" onclick='history.back()'> <!-- Replace later to window.location -->
+                        <button type="submit" class="btn btn-primary btn-md" id="back" onclick='window.location="/user_management"'> <!-- Replace later to window.location -->
                             <i class="far fa-long-arrow-left d-lg-flex justify-content-lg-center" id="backIcon"></i>
                         </button>        
 
@@ -29,42 +29,29 @@
 
 
                     {{!-- <div class="btn-group" role="group"><button class="btn btn-primary" type="button" style="background: #BDBE14;font-weight: bold;border-style: none;border-left-color: rgba(78,115,223,0);border-radius: 10px;padding: 4px 10px;">Farms</button><a class="btn btn-primary" role="button" style="margin-left: 10px;background: rgba(189,190,20,0);border-style: none;border-color: var(--bs-pink);padding: 4px 10px;" href="Materials.html">Materials</a></div> --}}
-                    {{#compareTwoValues this.access_level 0 operator='!='}}
-                    <!-- <div class="dropdown no-arrow" style="padding-top: 5px">
-                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
-                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
-                        </button>
-
-                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                            <a class="dropdown-item notSidebar" href="/deactivateAccount?username={{username}}&status=deactivate">&nbsp;Deactivate User</a>
-                     
-                        {{#compareTwoValues this.otp null operator='!='}}
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
-                        {{/compareTwoValues}}
-                    
-                        </div>
-                    </div> -->
-
-                    {{else}}
-
-                    {{#compareTwoValues this.access_level 0 operator='=='}}
-                    {{#compareTwoValues this.otp null operator='!='}}
+                    {{#compareTwoValues employee_details.isActive 0 operator='!='}}
                     <div class="dropdown no-arrow" style="padding-top: 5px">
                         <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                             <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
                         </button>
 
                         <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
-                           
-                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
-            
-                    
+                            <a class="dropdown-item notSidebar" href="/makeInactive?employee_id={{employee_details.employee_id}}&status=inactive">Make Inactive</a>
                         </div>
                     </div>
-                    {{/compareTwoValues}}
-                    {{/compareTwoValues}}
-                    
+
+                    {{else}}
+                    <div class="dropdown no-arrow" style="padding-top: 5px">
+                        <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
+                            <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
+                        </button>
+
+                        <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
+                            <a class="dropdown-item notSidebar" href="/makeActive?employee_id={{employee_details.employee_id}}&status=active">Make Active</a>
+                            <a class="dropdown-item notSidebar" href="/deleteEmployee?employee_id={{employee_details.employee_id}}&status=delete">Delete Employee</a>
+                        </div>
+                    </div>
+
                     {{/compareTwoValues}}
 
                 </div>
@@ -74,24 +61,26 @@
                 <div class="card-body">
 
                     {{!-- START FORM --}}
-                    <form id="register_employee" action="/register_employee" method="post">
+                    <form id="update_employee" action="/update_employee" method="post">
 
                     <div class="tab">
                     <div class="modal_body_content" id="body_step1">
                             <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Employee Information</h5>
+
+                            {{> messages}}
 
                             <div class="form-group" style="margin-left: 5px;">
                               <div class="row">
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="last_name">Last Name </label>
-                                <input type="text" class="form-control" id="last_name" placeholder="Last name..." name="last_name" value="{{employee_details.last_name}}" required disabled></input>
+                                <input type="text" class="form-control" id="last_name" placeholder="{{employee_details.last_name}}" name="last_name" value="{{employee_details.last_name}}" required></input>
 
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="first_name">First Name </label>
-                                <input type="text" class="form-control" id="first_name" placeholder="First name..." name="first_name" value="{{employee_details.first_name}}" required disabled></input>
+                                <input type="text" class="form-control" id="first_name" placeholder="{{employee_details.first_name}}" name="first_name" value="{{employee_details.first_name}}" required></input>
 
                                 </div>
 
@@ -103,14 +92,13 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="mobile_number">Mobile Number </label>
-                                <input type="text" class="form-control" id="mobile_number" placeholder="..." name="phone_number" value="{{employee_details.phone_number}}" required disabled></input>
+                                <input type="text" class="form-control" id="mobile_number" placeholder="0{{employee_details.phone_number}}"  pattern="[0]{1}[9]{1}[0-9]{9}" maxlength="11" name="phone_number" value="0{{employee_details.phone_number}}" required></input>
 
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="position">Position </label>
-                                <select class="form-control" id="position" name="position" required disabled>
-                                    <option>...</option>
+                                <select class="form-select" id="position" name="position" required>
                                     <option value="Office Worker" {{#compareTwoValues employee_details.position 'Office Worker' operator='==='}}selected{{/compareTwoValues}}>Office Worker</option>
                                     <option value="Farm Manager" {{#compareTwoValues employee_details.position 'Farm Manager' operator='==='}}selected{{/compareTwoValues}}>Farm Manager</option>
                                     <option value="Farmer" {{#compareTwoValues employee_details.position 'Farmer' operator='==='}}selected{{/compareTwoValues}}>Farmer</option>
@@ -128,7 +116,7 @@
 
                                         <div class="col" style="padding-top: 5px;">
                                             <label for="last_name">Farm Assignment</label>
-                                            <select class="form-control" id="farm_assignment" name="farm_assignment" disabled>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment">
                                                 <option>...</option>
                                                 {{#each farm_list}}
                                                 <option value="{{this.farm_id}}" {{#compareTwoValues ../employee_details.farm_id this.farm_id operator='==='}}selected{{/compareTwoValues}}>{{this.farm_name}}</option>
@@ -140,7 +128,7 @@
                                             <label for="last_name">Assigned Farm Manager:</label>
                                             <div class="d-flex">
                                                 <div>{{farm_mngr.last_name}}, {{farm_mngr.first_name}}</div>
-                                                <div class="ml-auto mr-5 font-weight-bold"><a href="/sms/messages#activeMessages">Contact</a></div>
+                                                <div class="ml-auto mr-5 font-weight-bold"><a href="/sms/messages#activeMessages" class="viewDetails">Contact</a></div>
                                             </div>
                                         </div>
 
@@ -156,7 +144,7 @@
 
                                         <div class="col" style="padding-top: 5px;">
                                             <label for="last_name">Farm Assignment</label>
-                                            <select class="form-control" id="farm_assignment" name="farm_assignment" disabled>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment">
                                                 <option>...</option>
                                                 {{#each farm_list}}
                                                 <option value="{{this.farm_id}}" {{#compareTwoValues ../employee_details.farm_id this.farm_id operator='==='}}selected{{/compareTwoValues}}>{{this.farm_name}}</option>
@@ -173,8 +161,33 @@
                                 </div>
                             </div>
                             {{/compareTwoValues}}
-
+                            
                             {{#compareTwoValues employee_details.position 'Office Worker' operator='==='}}
+                            <div class="" id="farm_assignment_cont" style="display:none">
+                                <div class="form-group" style="margin-left: 5px;">
+                                    <div class="row">
+
+                                        <div class="col" style="padding-top: 5px;">
+                                            <label for="farm_assignment_new">Farm Assignment</label>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment">
+                                                <option>...</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col">
+                                            
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            {{/compareTwoValues}}
+              
+                            <input type="hidden" name="employee_id" id="employee_id" value="{{employee_details.employee_id}}">
+
+
+                            {{!-- {{#compareTwoValues employee_details.position 'Office Worker' operator='==='}}
                                 <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Login Information</h5>
 
                                 {{> messages}}
@@ -219,7 +232,7 @@
 
                                     </div>
                                 </div>
-                            {{/compareTwoValues}}
+                            {{/compareTwoValues}} --}}
 
                             {{#if employee_details.access_token}}
 
@@ -250,7 +263,8 @@
 
                     <div class="modal-footer">
                         <div class="modal_footer_content" id="_step1">
-                            <!-- <button type="submit" class="btn round btn-primary" form="register_employee">Create</button> -->
+                            <button type="button" class="btn round btn-secondary" onclick='window.location="/user_management"'>Cancel</button>
+                            <button type="submit" class="btn round btn-primary" form="update_employee">Save</button>
                         </div>
                             
                       </div>
@@ -264,7 +278,7 @@
 </div>
 
 <script>
-    var view = "detailed_user";
+    var view = "detailed_employee";
     function goBack() {
       window.history.back();
     }
@@ -330,8 +344,10 @@
         position = $(this).val();
         str = `<option>...</option>`;
         $('#farm_assignment_cont').addClass('hide');
+        $('#farm_assignment_cont').hide();
         if (position == 'Farmer' || position == 'Farm Manager') {
             $('#farm_assignment_cont').removeClass('hide');
+            $('#farm_assignment_cont').toggle();
 
             if (position == 'Farmer') {
                 $.get('/get_farm_list', {}, function(result) {
@@ -350,7 +366,8 @@
             $('#farm_assignment').append(str);
         }
         else if (position == 'Office Worker') {
-
+           str = `<option selected>...</option>`;
+           $('#farm_assignment').append(str);
         }     
     });
 </script>

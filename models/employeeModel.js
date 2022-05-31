@@ -57,3 +57,19 @@ exports.getRelatedEmployees = function(data, next){
 	mysql.query(sql, next);
 	return sql;
 }
+
+exports.updateAccount = function(query, update, next) {
+	var sql = `update employee_table set ? where ?`;
+	sql = mysql.format(sql, update);
+	sql = mysql.format(sql, query);
+	while (sql.includes("'null'")) {
+		sql = sql.replace("'null'", null);
+	};
+	mysql.query(sql, next);
+}
+
+exports.deleteEmployee = function(data, next) {
+	var sql = `delete from employee_table where ?`;
+	sql = mysql.format(sql, data);
+	mysql.query(sql, next);
+}

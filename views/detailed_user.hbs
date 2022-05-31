@@ -16,7 +16,7 @@
                     
                     <div class="col" style="max-width: 70px; padding-top: 2px">
 
-                        <button type="submit" class="btn btn-primary btn-md" id="back" onclick='history.back()'> <!-- Replace later to window.location -->
+                        <button type="submit" class="btn btn-primary btn-md" id="back" onclick='window.location="/user_management"'> <!-- Replace later to window.location -->
                             <i class="far fa-long-arrow-left d-lg-flex justify-content-lg-center" id="backIcon"></i>
                         </button>        
 
@@ -109,12 +109,66 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="position">Position </label>
-                                <input type="text" class="form-control" id="position" placeholder="{{position}}" name="position" value="{{position}}" disabled></input>
+                                <input type="text" class="form-select" id="position" placeholder="{{position}}" name="position" value="{{position}}" disabled></input>
 
                                 </div>
 
                                 </div>
                             </div>
+
+                            {{#compareTwoValues employee_details.position 'Farmer' operator='==='}}
+                            <div class="" id="farm_assignment_cont">
+                                <div class="form-group" style="margin-left: 5px;">
+                                    <div class="row">
+
+                                        <div class="col" style="padding-top: 5px;">
+                                            <label for="last_name">Farm Assignment</label>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment" disabled>
+                                                <option>...</option>
+                                                {{#each farm_list}}
+                                                <option value="{{this.farm_id}}" {{#compareTwoValues ../employee_details.farm_id this.farm_id operator='==='}}selected{{/compareTwoValues}}>{{this.farm_name}}</option>
+                                                {{/each}}
+                                            </select>
+                                        </div>
+
+                                        <div class="col">
+                                            <label for="last_name">Assigned Farm Manager:</label>
+                                            <div class="d-flex">
+                                                <div>{{farm_mngr.last_name}}, {{farm_mngr.first_name}}</div>
+                                                <div class="ml-auto mr-5 font-weight-bold"><a href="/sms/messages#activeMessages" class="viewDetails">Contact</a></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            {{/compareTwoValues}}
+
+                            {{#compareTwoValues employee_details.position 'Farm Manager' operator='==='}}
+                            <div class="" id="farm_assignment_cont">
+                                <div class="form-group" style="margin-left: 5px;">
+                                    <div class="row">
+
+                                        <div class="col" style="padding-top: 5px;">
+                                            <label for="last_name">Farm Assignment</label>
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment" disabled>
+                                                <option>...</option>
+                                                {{#each farm_list}}
+                                                <option value="{{this.farm_id}}" {{#compareTwoValues ../employee_details.farm_id this.farm_id operator='==='}}selected{{/compareTwoValues}}>{{this.farm_name}}</option>
+                                                {{/each}}
+                                            </select>
+                                        </div>
+
+                                        <div class="col">
+                                            
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            {{/compareTwoValues}}
 
                             <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Login Information</h5>
 
@@ -160,6 +214,22 @@
 
                                 </div>
                             </div>
+
+                            {{#if employee_details.access_token}}
+
+                            {{else}}
+                            <div class="form-group pt-3" style="margin-left: 5px;">
+                                <div class="row">
+                                    <div class="col" style="padding-top: 5px;">
+                                        <div class="d-flex flex-column">
+                                            <span class="text-danger font-weight-bold">User is not yet subscribed to Globelabs API!</span>
+                                            <span class="text-danger font-weight-bold">Instruct user to send "INFO" to 21663543.</span>
+                                        </div>
+                                            
+                                    </div>
+                                </div>
+                            </div>
+                            {{/if}}
                
                     </div>
                      </div>
@@ -173,7 +243,7 @@
 
                     <div class="modal-footer">
                         <div class="modal_footer_content" id="_step1">
-                            <button type="button" class="btn round btn-secondary" onclick="goBack();">Cancel</button>
+                            <button type="button" class="btn round btn-secondary" onclick='window.location="/user_management"'>Cancel</button>
                             <button type="submit" class="btn round btn-primary" form="update_user">Save</button>
                         </div>
                             
@@ -244,4 +314,37 @@ function fixStepIndicator(n) {
 
 }
 
+</script>
+
+<script type="text/javascript">
+    var position; 
+    var farm_list;
+    var str = ``;
+    $('#position').on('change', function() {
+        position = $(this).val();
+        str = `<option>...</option>`;
+        $('#farm_assignment_cont').addClass('hide');
+        if (position == 'Farmer' || position == 'Farm Manager') {
+            $('#farm_assignment_cont').removeClass('hide');
+
+            if (position == 'Farmer') {
+                $.get('/get_farm_list', {}, function(result) {
+                    farm_list = result;
+                });
+            }
+            else {
+                $.get('/getFarmWithoutManager', {}, function(result) {
+                    farm_list = result;
+                });
+            }
+            farm_list.forEach(function(item) {
+                str += `<option value="${item.farm_id}">${item.farm_name}</option>`;
+            });
+            $('#farm_assignment').empty();
+            $('#farm_assignment').append(str);
+        }
+        else if (position == 'Office Worker') {
+
+        }     
+    });
 </script>

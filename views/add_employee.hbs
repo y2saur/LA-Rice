@@ -40,6 +40,8 @@
                     <div class="modal_body_content" id="body_step1">
                             <h5 for="" style="font-weight: bold; padding-bottom: 20px; padding-top: 10px">Employee Information</h5>
 
+                            {{> messages}}
+
                             <div class="form-group" style="margin-left: 5px;">
                               <div class="row">
 
@@ -63,14 +65,14 @@
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="mobile_number">Mobile Number </label>
-                                <input type="text" class="form-control" id="mobile_number" placeholder="e.g., 09123456789" pattern="[0]{1}[9]{1}[0-9]{9}" class="form-control" maxlength="11" required name="phone_number" required></input>
+                                <input type="text" class="form-control" id="phone_number" placeholder="e.g., 09123456789" pattern="[0]{1}[9]{1}[0-9]{9}" class="form-control" maxlength="11" required name="phone_number" required></input>
 
                                 </div>
 
                                 <div class="col" style="padding-top: 5px;">
                                 <label for="position">Position </label>
-                                <select class="form-control" id="position" name="position" required>
-                                    <option>...</option>
+                                <select class="form-select" id="position" name="position" required>
+                                    <option value="">...</option>
                                     <option value="Office Worker">Office Worker</option>
                                     <option value="Farm Manager">Farm Manager</option>
                                     <option value="Farmer">Farmer</option>
@@ -81,13 +83,13 @@
                                 </div>
                             </div>
 
-                            <div class="" id="farm_assignment_cont">
+                            <div class="" id="farm_assignment_cont" style="display: none;">
                                 <div class="form-group" style="margin-left: 5px;">
                                     <div class="row">
 
                                         <div class="col" style="padding-top: 5px;">
                                             <label for="last_name">Farm Assignment</label>
-                                            <select class="form-control" id="farm_assignment" name="farm_assignment">
+                                            <select class="form-select" id="farm_assignment" name="farm_assignment">
                                                 <option>...</option>
                                             </select>
                                         </div>
@@ -242,8 +244,10 @@
         position = $(this).val();
         str = `<option>...</option>`;
         $('#farm_assignment_cont').addClass('hide');
+         $('#farm_assignment_cont').hide();
         if (position == 'Farmer' || position == 'Farm Manager') {
             $('#farm_assignment_cont').removeClass('hide');
+             $('#farm_assignment_cont').toggle();
 
             if (position == 'Farmer') {
                 $.get('/get_farm_list', {}, function(result) {

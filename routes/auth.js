@@ -101,7 +101,7 @@ router.get('/login', (req, res) => {
 				res.render('login', { cur_date : date, title: 'Login | LA Rice Mill'});
 			}
 			else{
-				res.redirect('/crop_calendar');
+				res.redirect('/');
 			}
 		}
 	});
@@ -241,7 +241,13 @@ router.post('/reset_password', userController.resetPassword);
 router.get('/deactivateAccount', userController.deactivateAccount);
 router.get('/resendOTP', userController.resendOTP);
 
+router.post('/update_employee', employeeController.updateEmployeeDetails);
 router.post('/update_user', userController.updateUserDetails);
+
+router.get('/makeInactive', employeeController.makeInactive);
+router.get('/makeActive', employeeController.makeActive);
+
+router.get('/deleteEmployee', employeeController.deleteEmployee);
 
 router.get('/profile', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , userController.getProfile);
 router.post('/update_profile', userController.updateProfile);

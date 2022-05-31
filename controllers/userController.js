@@ -114,10 +114,11 @@ exports.registerUser = function(req, res) {
 										subscribed = true;
 									}
 								if(!subscribed)
-									otp_msg = otp_msg + detail_result[i].username + ": " + detail_result[i].otp + "\n";
+									// otp_msg = otp_msg + detail_result[i].username + ": " + detail_result[i].otp + "\n";
+									otp_msg = otp_msg + "User account created for: " + detail_result[i].username + '. Instruct unsubscribed user to send "INFO" to 21663543 to receive ' + "OTP(" + detail_result[i].otp + ").";
 							}
 							req.flash('error_msg', otp_msg);
-							res.redirect('/registration');
+							res.redirect('/user_management');
 						});
 					}
 				});
@@ -128,7 +129,7 @@ exports.registerUser = function(req, res) {
 	else {
 		const messages = errors.array().map((item) => item.msg);
 		req.flash('error_msg', messages.join(' '));
-		res.redirect('/registration')
+		res.redirect('/user_management')
 	}
 };
 
@@ -154,11 +155,11 @@ exports.resendOTP = function(req, res) {
 									req.flash('success_msg', "OTP sent to: " + emp[i].username);
 								}
 							if(!subscribed)
-								otp_msg = otp_msg + 'User not subscribed (OTP: ' + emp[i].otp + '). ' + 'Instruct User to send "INFO" to 21663543.';
+								otp_msg = otp_msg + 'User not subscribed (OTP: ' + emp[i].otp + '). ' + 'Instruct user to send "INFO" to 21663543.';
 								// otp_msg = otp_msg + emp[i].username + ": " + emp[i].otp + "\n";
 						}
 						req.flash('error_msg', otp_msg);
-						res.redirect('/registration');
+						res.redirect('/user_management');
 					});
 				}
 				else {
@@ -279,9 +280,42 @@ exports.getDetailedUser = function(req, res) {
 			html_data["first_name"] = user_details[0].first_name;
 			html_data["position"] = user_details[0].position;
 			html_data["otp"] = user_details[0].otp;
+			html_data["access_token"] = user_details[0].access_token;
 			html_data["phone_number"] = '0' + user_details[0].phone_number;
 
-			res.render('detailed_user', html_data);
+			var query2 = { employee_id: user_details[0].employee_id };
+
+			employeeModel.aggregatedEmployeeDetail(query2, function(err, employee_details) {
+				if (err)
+					throw err;
+				else {
+					farmModel.getAllFarms(function(err, farm_list) {
+						if (err)
+							throw err;
+						else {
+							//console.log(employee_details);
+							html_data['employee_details'] = employee_details[0];
+							html_data['farm_list'] = farm_list;
+		
+							if (employee_details[0].farm_id !== null) {
+								farmModel.getAssignedFarmManagers(function(err, farm_mngrs) {
+									if (err)
+										throw err;
+									else {
+										html_data['farm_mngr'] = farm_mngrs.filter(e => e.farm_id == employee_details[0].farm_id)[0];
+										console.log(html_data);
+										res.render('detailed_user', html_data);
+									}
+								});
+							}
+							else {
+								res.render('detailed_user', html_data);
+							}
+						}
+					});
+							
+				}
+			});
 			
 		}
 	});
@@ -343,22 +377,34 @@ exports.registerEmployee = function(req, res) {
 		first_name: req.body.first_name,
 		phone_number: req.body.phone_number.substring(1)
 	}
-	employeeModel.addSingleEmployee(employee_obj, function(err, add_status) {
+
+	var phone_number = req.body.phone_number.substring(1);
+
+	employeeModel.queryEmployee({phone_number: phone_number}, function(err, emp) {
 		if (err)
 			throw err;
+		else if (emp.length !== 0) {
+			req.flash('error_msg', 'Mobile Number "' + req.body.phone_number + '" is already taken. Please input a different number.');
+			res.redirect(`/user_management/add_employee`);	
+		}
 		else {
-			if (req.body.farm_assignment != '...') {
-				farmModel.assignFarmer({ employee_id: add_status.insertId, farm_id: req.body.farm_assignment, status: 'Active'}, function(err, assign_status) {
-					if (err)
-						throw err;
-					else {
-						console.log(assign_status);
+			employeeModel.addSingleEmployee(employee_obj, function(err, add_status) {
+				if (err)
+					throw err;
+				else {
+					if (req.body.farm_assignment != '...') {
+						farmModel.assignFarmer({ employee_id: add_status.insertId, farm_id: req.body.farm_assignment, status: 'Active'}, function(err, assign_status) {
+							if (err)
+								throw err;
+							else {
+								console.log(assign_status);
+							}
+						});
 					}
-				});
-			}
-			req.flash('success_msg', "Employee record added for: " + req.body.first_name + ' ' + req.body.last_name);
-			res.redirect('/user_management')
-			// res.redirect(`/user_management/employee_details&id=${add_status.insertId}`);
+					req.flash('success_msg', "Employee record added for: " + req.body.first_name + ' ' + req.body.last_name);
+					res.redirect('/user_management')
+				}
+			});	
 		}
 	});
 }
@@ -373,7 +419,7 @@ exports.updateUserDetails = function(req, res) {
 					throw err;
 				else {
 					req.flash('success_msg', "User account updated for: " + username);
-					res.redirect('/user_management');
+					res.redirect(`/user_management&id=${user_id}`);	
 				}
 			});
 		});
