@@ -443,6 +443,7 @@ exports.ajaxNutrientTimingChart = function(req, res) {
 				if (err)
 					throw err;
 				else {
+					console.log(nutrient_chart.filter(e => e.crop_calendar_id == '105' && e.application_type == 'Applied' && e.nutrient_type == 'K'));
 					reportModel.getPDOccurence({ calendar_id: sql_filter }, function(err, pd_chart) {
 						if (err)
 							throw err;
@@ -495,6 +496,7 @@ exports.ajaxNutrientTimingChart = function(req, res) {
 																												throw err;
 																											else {
 																												html_data['exception2'] = processFertilizerApplications(fr_items1, wo_list1, calendar_details1[0], pd_chart1);
+
 																												res.send(html_data);
 																											}
 																										});

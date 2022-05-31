@@ -95,26 +95,32 @@ exports.getPDOccurence = function(data1, next) {
 }
 
 exports.getNutrientChart = function(data1, data2, next) {
-	var sql = "select * from ( SELECT 'Applied' as application_type, case when fertilizer_name = 'Fertilizer 16-20-0' then 'P' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as nutrient_type, wot.date_completed, wot.date_start, wot.date_due, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ? ";
+	var sql = "select * from ( SELECT 'Applied' as application_type, case when fertilizer_name = 'Fertilizer 16-20-0' then 'P' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as nutrient_type, wot.date_completed, wot.date_start, wot.date_due, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE (? ";
 	for (var i = 0; i < data1.crop_calendar_id.length; i++) {
 		sql = mysql.format(sql, { crop_calendar_id: parseInt(data1.crop_calendar_id[i]) });
 		if (i < data1.crop_calendar_id.length - 1)
 			sql += ' or ?';
+		if (i == data1.crop_calendar_id.length - 1)
+			sql += ') ';
 	}
-	sql += " AND wot.type = 'Fertilizer Application' union SELECT 'Applied', case when fertilizer_name = 'Fertilizer 16-20-0' then 'N' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as type, wot.date_completed, wot.date_start, wot.date_due, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE ? ";
+	sql += " AND wot.type = 'Fertilizer Application' union SELECT 'Applied', case when fertilizer_name = 'Fertilizer 16-20-0' then 'N' when fertilizer_name = 'Potash 0-0-60' then 'K' when fertilizer_name = 'Urea 46-0-0' then 'N' end as type, wot.date_completed, wot.date_start, wot.date_due, wrt.qty, ft.fertilizer_name, N, P, K, crop_calendar_id FROM work_order_table wot JOIN wo_resources_table wrt USING (work_order_id) JOIN fertilizer_table ft ON wrt.item_id = ft.fertilizer_id WHERE (? ";
 	for (var i = 0; i < data1.crop_calendar_id.length; i++) {
 		sql = mysql.format(sql, { crop_calendar_id: parseInt(data1.crop_calendar_id[i]) });
 		if (i < data1.crop_calendar_id.length - 1)
 			sql += ' or ?';
+		if (i == data1.crop_calendar_id.length - 1)
+			sql += ') ';
 	}
-	sql += " AND wot.type = 'Fertilizer Application' and fertilizer_name = 'Fertilizer 16-20-0' union SELECT 'Recommended', CASE WHEN fertilizer_name = 'Fertilizer 16-20-0' THEN 'P' WHEN fertilizer_name = 'Potash 0-0-60' THEN 'K' WHEN fertilizer_name = 'Urea 46-0-0' THEN 'N' END AS nutrient_type, fri.target_application_date, null, null, fri.amount, ft.fertilizer_name, N, P, K, calendar_id FROM fertilizer_recommendation_plan frp JOIN fertilizer_recommendation_items fri USING (fr_plan_id) JOIN fertilizer_table ft USING (fertilizer_id) WHERE ? ";
+	sql += " AND wot.type = 'Fertilizer Application' and fertilizer_name = 'Fertilizer 16-20-0' union SELECT 'Recommended', CASE WHEN fertilizer_name = 'Fertilizer 16-20-0' THEN 'P' WHEN fertilizer_name = 'Potash 0-0-60' THEN 'K' WHEN fertilizer_name = 'Urea 46-0-0' THEN 'N' END AS nutrient_type, fri.target_application_date, null, null, fri.amount, ft.fertilizer_name, N, P, K, calendar_id FROM fertilizer_recommendation_plan frp JOIN fertilizer_recommendation_items fri USING (fr_plan_id) JOIN fertilizer_table ft USING (fertilizer_id) WHERE (? ";
 	for (var i = 0; i < data2.calendar_id.length; i++) {
 		sql = mysql.format(sql, { calendar_id: parseInt(data2.calendar_id[i]) });
 		if (i < data2.calendar_id.length - 1)
 			sql += ' or ?';
+		if (i == data2.calendar_id.length - 1)
+			sql += ') ';
 	}
 	sql += ") as t group by crop_calendar_id, application_type, date_completed, nutrient_type";
-	//console.log(sql);
+
 	mysql.query(sql, next);
 }
 

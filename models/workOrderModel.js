@@ -68,7 +68,9 @@ exports.getGroupedWO = function(type, filter, next) {
 }
 
 exports.getWorkOrders = function(query, next) {
-	var sql = 'select case when DATE(now()) = date_due then "Due Today" when now() > date_due then "Overdue" when date_add(now(), interval 3 day) >= date_due then "Due soon" else  "Due in a week" end as notif_type, crop_plan, work_order_table.*, case when notes is null then "N/A" else notes end as wo_notes , farm_table.farm_name, farm_table.farm_id from work_order_table join crop_calendar_table on crop_calendar_id = calendar_id join farm_table using (farm_id) ';
+	var date = '';
+
+	var sql = 'select CASE when date(system_date) = date_start and date_start = date_due then "Start and due today" when date(system_date) = date_start then "Starting today" when DATE_ADD(date(date_start), INTERVAL 3 DAY) >= system_date then "Starting soon" WHEN date(system_date) = date_due THEN "Due Today" WHEN date(system_date) > date_due THEN "Overdue" WHEN DATE_ADD(date(system_date), INTERVAL 3 DAY) >= date_due THEN "Due soon" ELSE "Due in a week" END AS notif_type, crop_plan, work_order_table.*, case when notes is null then "N/A" else notes end as wo_notes , farm_table.farm_name, farm_table.farm_id from work_order_table join crop_calendar_table on crop_calendar_id = calendar_id join farm_table using (farm_id) join system_settings_table  ';
 	if (JSON.stringify(query) != '{ }') {
 		if (query.hasOwnProperty('where') && query.where != null) {
 			for (var i = 0; i < query.where.key.length; i++) {
@@ -134,7 +136,7 @@ exports.getWorkOrders = function(query, next) {
 			
 		}
 	}
-
+	
 	mysql.query(sql, next);
 }
 
