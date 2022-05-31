@@ -465,3 +465,7 @@ input, select, textarea{
 textarea:focus, input:focus {
     color: #332C1F;
 }
+
+select.form-select.form-select-sm {
+    cursor: pointer;
+}

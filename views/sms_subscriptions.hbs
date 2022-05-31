@@ -176,7 +176,7 @@
                                             <th>Farm Assigned</th>
                                             <th>Role</th>
                                             <th>Access Token</th>
-                                            <th></th>
+                                            {{!-- <th></th> --}}
                                         </tr>
 
                                     </thead>
@@ -189,8 +189,8 @@
                                                 <td>0{{phone_number}}</td>
                                                 <td>{{farm_name}}</td>
                                                 <td>{{position}}</td>
-                                                <td style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 150px;">{{access_token}}</td>
-                                                <td> 
+                                                <td style="overflow: hidden; white-space: wrap; text-overflow: ellipsis; max-width: 150px;">{{access_token}}</td>
+                                                {{!-- <td> 
                                 
                                                     <div class="dropdown no-arrow">
                                                         <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
@@ -203,7 +203,7 @@
                                                         </div>
                                                     </div>
                                                     
-                                                </td>                                        
+                                                </td>                                         --}}
                                             </tr>
                                         {{/each}}
 

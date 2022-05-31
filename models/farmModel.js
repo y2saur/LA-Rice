@@ -84,6 +84,22 @@ exports.assignFarmer = function(data, next) {
 	mysql.query(sql, next);
 }
 
+exports.queryAssignedFarmer = function(data, next) {
+	var sql = `select * from farm_assignment where ?`;
+	sql = mysql.format(sql, data);
+	mysql.query(sql, next);
+}
+
+exports.updateAssignedFarmer = function(query, update, next) {
+	var sql = `update farm_assignment set ? where ?`;
+	sql = mysql.format(sql, update);
+	sql = mysql.format(sql, query);
+	while (sql.includes("'null'")) {
+		sql = sql.replace("'null'", null);
+	};
+	mysql.query(sql, next);
+}
+
 exports.deleteAssignedFarmer = function(data, next) {
 	var sql = `delete from farm_assignment where ?`;
 	sql = mysql.format(sql, data);
