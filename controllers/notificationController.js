@@ -30,7 +30,7 @@ exports.getNotification = function(req, res, next) {
                 switch (wo_list[i].notif_type) {
                     case "Due Today" : 
                     title = `"Due today work order: ${wo_list[i].work_order_id}"`;
-                    desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} Due today"`;
+                    desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} due today"`;
                     color = `"warning"`;
                     break;
                     case 'Overdue':
@@ -47,6 +47,21 @@ exports.getNotification = function(req, res, next) {
                     title = `"Incoming work order: ${wo_list[i].work_order_id} due in a week"`;
                     desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} due in a week"`;
                     color = `"warning"`;
+                    break;
+                    case "Starting and due today" : 
+                    title = `"Starting and due today work order: ${wo_list[i].work_order_id}"`;
+                    desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} starting and due today"`;
+                    color = `"warning"`;
+                    break;
+                    case "Starting today" : 
+                    title = `"Starting today work order: ${wo_list[i].work_order_id}"`;
+                    desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} starting today"`;
+                    color = `"primary"`;
+                    break;
+                    case "Starting soon" : 
+                    title = `"Starting soon work order: ${wo_list[i].work_order_id}"`;
+                    desc = `"${wo_list[i].type} for ${wo_list[i].farm_name} with WO ${wo_list[i].work_order_id} starting soon"`;
+                    color = `"primary"`;
                     break;
                 }
                 var time = new Date();
@@ -138,6 +153,8 @@ exports.getNotification = function(req, res, next) {
                         if (err)
                             throw err;
                         else {
+                            user_notif_list = user_notif_list.filter(e => e.date <= new Date(req.session.cur_date));
+
                             user_notif_list.forEach(function(item, index) {
                                 user_notif_list[index].date = dataformatter.formatDate(new Date(item.date), 'mm DD, YYYY');
                             })
@@ -146,7 +163,7 @@ exports.getNotification = function(req, res, next) {
                             notif_obj.earlier = user_notif_list.filter(e => e.isSeen == 1);
                             notif_obj.earlier = notif_obj.earlier.slice(0, 10);
                             notif_obj.disaster = user_notif_list.filter(e => e.isSeen == 1 && e.type == 'DISASTER_WARNING' && dataformatter.dateDiff(req.session.cur_date, e.date) >=0 && dataformatter.dateDiff(req.session.cur_date, e.date) <= 30);
-
+                            //console.log(notif_obj.disaster);
                             req.notifs = notif_obj;
 
                             return next();
@@ -181,6 +198,8 @@ exports.ajaxNotifList = function(req, res) {
             if (err)
                 throw err;
             else {
+                user_notif_list = user_notif_list.filter(e => e.date <= new Date(req.session.cur_date));
+
                 user_notif_list = user_notif_list.filter(e => e.isSeen == 0);
                 user_notif_list.forEach(function(item, index) {
                     user_notif_list[index].date = dataformatter.formatDate(new Date(item.date), 'mm DD, YYYY');
@@ -207,6 +226,8 @@ exports.getNotificationTab = function(req,res){
         if (err)
             throw err;
         else {
+            user_notif_list = user_notif_list.filter(e => e.date <= new Date(req.session.cur_date));
+
             user_notif_list.forEach(function(item, index) {
                 user_notif_list[index].date = dataformatter.formatDate(new Date(item.date), 'mm DD, YYYY');
             })
