@@ -3,9 +3,11 @@ const workOrderModel = require('../models/workOrderModel.js');
 const employeeModel = require('../models/employeeModel.js');
 const dataformatter = require('../public/js/dataformatter.js');
 const smsModel = require('../models/smsModel.js');
+const farmModel = require('../models/farmModel.js');
 const js = require('../public/js/session.js');
 const globe = require('../controllers/smsController.js');
 var request = require('request');
+const translator = require('../public/js/translator.js');
 
 
 exports.getNotification = function(req, res, next) {
@@ -124,29 +126,91 @@ exports.getNotification = function(req, res, next) {
                                 throw err;
                             else{
                                 console.log("TEST SEND SMS --------------------------------------");
-                                //look for workerorders due today
-                                for(var i = 0; i < notif_query.length; i++){
-                                    //console.log(notif_query[i].notification_title);
-                                    if(notif_query[i].notification_title.includes("Due today")){
-                                        console.log("entered");
-                                        console.log(farmers);
-                                        var wo_id = notif_query[i].url.split("=");
-                                        
-                                        var msg = "Work Order " + wo_id[1].replace('"', "") + " Due Today\n\n" + notif_query[i].notification_desc + "\n\nTapos na ba ang work order na ito?\n\nMagreply ng 'OO' o 'HINDI'";
-                                        //Loop through farmer with same farm
-                                        for(var x = 0; x < farmers.length; x++){
-                                            if(farmers[x].farm_id == notif_query[i].farm_id){
-                                                //SEND SMS
-                                                console.log("SEND SMS --------------------------------------");
-                                                globe.sendSMS(farmers[x], msg);
+
+                                //Get list of farms
+                                farmModel.getAllFarms(async function(err, farms){
+                                    if(err)
+                                        throw err;
+                                    else{
+                                        farms.forEach(function(item){
+                                            item.start_today = "-1",
+                                            item.due_today = "-1"
+                                        });
+                                        console.log(farms);
+                                        //look for workerorders due today
+                                        for(var i = 0; i < notif_query.length; i++){
+
+                                            for(var x = 0; x < farms.length; x++){
+                                                if(notif_query[i].farm_id == farms[x].farm_id){
+                                                    //console.log(notif_query[i].notification_title);
+
+                                                    var wo_id = notif_query[i].url.split("=");
+                                                    var new_desc = await translator.translateText(notif_query[i].notification_desc.replace('"', ""));
+                                                    if(notif_query[i].notification_title.includes("Due today")){
+                                                        
+                                                        farms[x].due_today = "Work Order " + wo_id[1].replace('"', "") + " katapusan ngayong araw\n" + new_desc.data[0].translations[0].text + "\n\n";
+                                                        // var msg1 = "Work Order " + wo_id[1].replace('"', "") + " katapusan ngayon araw\n\n" + notif_query[i].notification_desc;
+
+                                                        //Loop through farmer with same farm
+                                                        // for(var x = 0; x < farmers.length; x++){
+                                                        //     if(farmers[x].farm_id == notif_query[i].farm_id){
+                                                        //         //SEND SMS
+                                                        //         console.log("SEND SMS --------------------------------------");
+                                                        //         globe.sendSMS(farmers[x], msg1);
+                                                        //     }
+                                                        // }
+                                                    }
+                                                    else if(notif_query[i].notification_title.includes("Starting today")){
+                                                        farms[x].start_today =  "Work Order " + wo_id[1].replace('"', "") + " ay magsisimula ngayong araw.\n" + new_desc.data[0].translations[0].text + "\n\n";
+
+
+                                                        // var msg2 = "Work Order " + wo_id[1].replace('"', "") + " Due Today\n\n" + notif_query[i].notification_desc;
+
+                                                        //Loop through farmer with same farm
+                                                        // for(var x = 0; x < farmers.length; x++){
+                                                        //     if(farmers[x].farm_id == notif_query[i].farm_id){
+                                                        //         //SEND SMS
+                                                        //         console.log("SEND SMS --------------------------------------");
+                                                        //         globe.sendSMS(farmers[x], msg2);
+                                                        //     }
+                                                        // }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        for(var i = 0; i < farms.length; i++){
+                                            var msg = dataformatter.formatDate(new Date(req.session.cur_date), "mm DD, YYYY") + "\n" + farms[i].farm_name;
+                                            if(farms[i].start_today != "-1"){
+                                                msg = msg +"\n\nMAGSISIMULA NGAYONG ARAW " + "\n\n";
+                                                msg = msg + farms[i].start_today;
+                                            }
+                                            
+                                            if(farms[i].due_today != "-1"){
+                                                msg = msg + "DAPAT MATAPOS NGAYONG ARAW\n\n";
+                                                msg = msg + farms[i].due_today;
+                                            }
+                                            console.log(msg);
+
+                                            if(farms[i].due_today != "-1" && farms[i].start_today != "-1"){
+                                                //Send to all farmers with the same farm id
+                                                for(var x = 0; x < farmers.length; x++){
+                                                    if(farmers[x].farm_id == farms[i].farm_id){
+                                                        //SEND SMS
+                                                        console.log("SEND SMS --------------------------------------");
+                                                        globe.sendSMS(farmers[x], msg);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
-                                }
-
+                                });
                             }
                         });
 
+                    }
+                    else{
+                        console.log("No new notifs");
                     }
 
                     notifModel.getUserNotifs({ employee_id: req.session.employee_id }, function(err, user_notif_list) {

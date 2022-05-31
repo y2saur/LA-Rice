@@ -13,6 +13,7 @@ var request = require("request");
 const { text } = require('express');
 const dataformatter = require('../public/js/dataformatter.js');
 const { formatDate } = require('../public/js/dataformatter.js');
+const translator = require('../public/js/translator.js');
 
 //API Key for WEATHER API
 var key = '2ae628c919fc214a28144f699e998c0f'; // Paid API Key
@@ -236,7 +237,7 @@ function wosToday(employee){
                                         console.log(wos);
                                         var not_completed = [];
                                         for(var i = 0; i < wos.length; i++){
-                                            if(wos[i].date_start == system_settings[0].system_date && wos[i].status != "Completed"){
+                                            if(dataformatter.formatDate(wos[i].date_start, "YYYY-MM-DD") == system_settings[0].system_date && wos[i].status != "Completed"){
                                                 var wo_type = await translator.translateText(wos[i].type);
                                                 not_completed.push(wos[i]); 
                                                 wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');
@@ -789,7 +790,7 @@ exports.registerUser = function(req,res){
     return true;
 }
 
-const translator = require('../public/js/translator.js');
+
 
 //SEND MESSAGE TO USER FROM APP
 exports.globe_outbound_msg = function(req, res){
@@ -1136,7 +1137,7 @@ exports.incomingWO = function(req, res){
 }
 
 function sendSMSActions(employee){
-    var msg = 'Nakalagay sa baba ang mga aksyon na pwedeng gawin.\n\n1 - Weather Forecast\n2 - Mga kailangan gawin\n3 - Mag-ulat ng mga sintomas\n4 - Lumalaganap na Pesta/Sakit\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543\n\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543\n\nUpang magsagawa ng aksyon, mag-send ng <numero ng aksyon> sa 21663543';
+    var msg = 'Nakalagay sa baba ang mga aksyon na pwedeng gawin.\n\n1 - Weather Forecast\n2 - Mga kailangan gawin\n3 - Mag-ulat ng mga sintomas\n4 - Lumalaganap na Pesta/Sakit\n5 - Works Orders para sa araw ngayon\n\nUpang magreport ng work order na tapos na, magsend ng "TAPOS1<space>Word order ID" sa 21663543\n\nUpang magreport ng peste/sakit na naresulba na, magsend ng "TAPOS2<space>Diagnosis ID" sa 21663543\n\nUpang magsagawa ng aksyon, mag-send ng <numero ng aksyon> sa 21663543';
 
     sendOutboundMsg(employee, msg);
 }
