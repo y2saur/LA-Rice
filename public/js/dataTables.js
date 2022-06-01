@@ -18,7 +18,7 @@ else if (view == 'farms') {
       "search": {
         //   "caseInsensitive": false
       },
-      "order": [[ 4, "asc" ]]
+      "order": [[ 6, "desc" ]]
     });
 }
 

@@ -36,7 +36,7 @@
 	}
 
 	.accordion-toggle > td:hover {
-		background-color: #e4eaec;
+		background-color: #EEEEEE;
 	}
 </style>
 
@@ -266,13 +266,13 @@
 									<div class="form-group">
 										<label class="form-check-label">Cycles Included:</label>
 										<div class="ml-4">
-										  <input class="form-check-input " type="checkbox" id="early_cycle" name="early_cycle" checked value="Early">
+										  <input class="form-check-input " type="checkbox" id="early_cycle" name="early_cycle" checked value="Early" style="cursor: pointer;">
 										  <label class="form-check-label" for="early_cycle">
 										    Early Cycles
 										  </label>
 										</div>
 										<div class="ml-4">
-										  <input class="form-check-input" type="checkbox" id="late_cycle" name="late_cycle" checked value="Late">
+										  <input class="form-check-input" type="checkbox" id="late_cycle" name="late_cycle" checked value="Late" style="cursor: pointer;">
 										  <label class="form-check-label" for="late_cycle">
 										    Late Cycles
 										  </label>
@@ -284,7 +284,7 @@
 										  <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;" value="{{crop_plans.start}} to {{crop_plans.end}}">
 										</p>
 										<div class="slider-wrap">
-											<div class="slider" id="slider-range"></div>
+											<div class="slider" id="slider-range" style="cursor: pointer;"></div>
 										</div>
 									</div>
 								    <div class="form-group mx-3">
@@ -357,7 +357,7 @@
 								<div class="form-row ml-3 mt-3">
 								    <div class="form-group mr-3">
 								      <label class="ml-1" for="date_range_end">Farm Filter 1</label>
-								      <select class="form-select" id="farm_filter1" name="farm_filter1">
+								      <select class="form-select" id="farm_filter1" name="farm_filter1" style="cursor: pointer;">
 							      			{{#each farm_list}}
 							      				{{#if this.extra}}
 							      				
@@ -370,7 +370,7 @@
 
 									<div class="form-group">
 								      <label class="ml-1" for="date_range_end">Crop Plan </label>
-										<select class="form-select" id="nutrient_plan_filter1" name="nutrient_plan_filter1">
+										<select class="form-select" id="nutrient_plan_filter1" name="nutrient_plan_filter1" style="cursor: pointer;">
 							      			{{#each nutrient_filter.crop_plan1}}
 							      				<option value="{{this.calendar_id}}" {{#if this.checked}}selected{{/if}}>{{this.crop_plan}}</option>
 							      			{{/each}}
@@ -383,7 +383,7 @@
 
 									<div class="form-group mr-3">
 								      <label class="ml-1" for="date_range_end">Farm Filter 2</label>
-								      <select class="form-select" id="farm_filter2" name="farm_filter2">
+								      <select class="form-select" id="farm_filter2" name="farm_filter2" style="cursor: pointer;">
 								      		<option selected>...</option>
 							      			{{#each farm_list}}
 							      				{{#if this.extra}}
@@ -396,7 +396,7 @@
 									</div>
 									<div class="form-group">
 								      <label class="ml-1" for="date_range_end">Crop Plan </label>
-								      <select class="form-select" id="nutrient_plan_filter2" name="nutrient_plan_filter2">
+								      <select class="form-select" id="nutrient_plan_filter2" name="nutrient_plan_filter2" style="cursor: pointer;">
 								      		<option selected>...</option>
 							      			{{#each nutrient_filter.crop_plan2}}
 							      				<option value="{{this.calendar_id}}" {{#if this.checked}}selected{{/if}}>{{this.crop_plan}}</option>
@@ -469,7 +469,7 @@
 													<td style="padding: 0px; margin: 0px;">
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr style="background-color: #e4eaec;">
+															<tr style="background-color: #EEEEEE;">
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -504,7 +504,7 @@
 													<td style="padding: 0px; margin: 0px;">
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr style="background-color:#e4eaec">
+															<tr style="background-color:#EEEEEE">
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -539,7 +539,7 @@
 													<td>
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr style="background-color: #e4eaec;">
+															<tr style="background-color: #EEEEEE;">
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">

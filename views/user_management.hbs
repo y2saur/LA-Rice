@@ -94,12 +94,12 @@
                                                         
                                                         {{#compareTwoValues this.access_level 0 operator='!='}}
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item notSidebar" href="/deactivateAccount?username={{this.username}}&status=deactivate">&nbsp;Deactivate</a>
+                                                        <a class="dropdown-item notSidebar" href="/deactivateAccount?username={{this.username}}&status=deactivate">Deactivate</a>
                                                         {{/compareTwoValues}}
 
                                                         {{#compareTwoValues this.otp null operator='!='}}
                                                         <div class="dropdown-divider"></div>
-                                                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">&nbsp;Resend OTP</a>
+                                                        <a class="dropdown-item notSidebar" href="/resendOTP?username={{this.username}}&status=resend">Resend OTP</a>
                                                         {{/compareTwoValues}}
                                                     </div>
                                                 </div>
