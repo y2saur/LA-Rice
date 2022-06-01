@@ -41,7 +41,7 @@ function dataValidation(step) {
 			pass = validatePolygon();
 
 			if (!pass) {
-				$('#geotag_lbl').after().append('<label class="inp-error">Please select atleast 4 points</label>');
+				$('#geotag_lbl').after().append('<label class="inp-error">Please select at least 4 points</label>');
 			}
 		}
 	}

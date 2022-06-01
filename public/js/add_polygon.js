@@ -91,6 +91,16 @@ function checkContainer() {
     setTimeout(checkContainer, 50); //wait 50 ms, then try again
     }
 }
+
+// Add the control to the map.
+map.addControl(
+    new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    mapboxgl: mapboxgl,
+    placeholder: 'Search for address', // Placeholder text for the search bar
+
+    })
+    );
 // END OF ADD FARM PAGE
 
 // SHOW POLYGONS FROM AGRO API

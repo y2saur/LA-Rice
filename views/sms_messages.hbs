@@ -36,7 +36,7 @@ img {
 }
 
 .headind_srch { 
-    padding:10px 29px 10px 20px; overflow:hidden; border-bottom:1px solid #c4c4c4;
+    padding:0px; overflow:hidden; border-bottom:1px solid #c4c4c4;
 }
 
 .recent_heading h4 {
@@ -172,7 +172,9 @@ img {
 }
 
 .type_msg {
-    border-top: 1px solid #c4c4c4;position: relative;
+    border-top: 1px solid #c4c4c4;
+    position: relative;
+    padding-top: 25px !important;
 }
 
 .msg_send_btn {
@@ -223,8 +225,8 @@ img {
                         <li class="nav-item"><a id="active-messages-tab" class="nav-link active" data-toggle="tab" href="#activeMessages"role="tab" aria-controls="activeMessages" aria-selected="true" 
                             style="background: #F0F0F0;">Recent Messages</a></li>
 
-                        <li class="nav-item"><a id="archived-messages-tab" class="nav-link" data-toggle="tab" href="#archivedMessages"role="tab" aria-controls="archivedMessages" aria-selected="false" 
-                            style="background: #F0F0F0;">Archived</a></li>
+                        {{!-- <li class="nav-item"><a id="archived-messages-tab" class="nav-link" data-toggle="tab" href="#archivedMessages"role="tab" aria-controls="archivedMessages" aria-selected="false" 
+                            style="background: #F0F0F0;">Archived</a></li> --}}
                     </ul>
                         {{!-- <div class="dropdown no-arrow"><button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v d-xxl-flex justify-content-xxl-end text-gray-400"></i></button>
                             <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
@@ -252,9 +254,9 @@ img {
                                         <div class="inbox_msg">
                                             
                                             {{!-- INBOX DIV --}}
-                                            <div class="inbox_people" style="position: relative; height:720px; max-height: 720px">
+                                            <div class="inbox_people" style="position: relative; height:750px; max-height: 750px">
 
-                                            <div class="headind_srch">
+                                            <div class="headind_srch" style="padding: 10px;">
                                                 <div class="recent_heading">
                                                 <h4>Recent</h4>
                                                 </div>
@@ -313,9 +315,9 @@ img {
                                             {{!-- MESSAGES --}}
 
                                                 <div class="headind_srch" style="background-color: white;">
-                                                <div class="recent_heading"  style="width : 100% !important">
-                                                    <h4 id="texter_name"></h4> 
-                                                    <span id="texter_details" style="color:#646464"></span>
+                                                <div class="recent_heading" style="width: inherit; padding: 10px">
+                                                <h4 id="texter_name"></h4>
+                                                <span class="text-muted" id="texter_details"></span>
                                                 </div>
                                                 
                                                 </div>
@@ -345,7 +347,7 @@ img {
                                                 </div> --}}
                                             </div>
 
-                                            <div class="type_msg" style="padding-top: 20px;">
+                                            <div class="type_msg" style="padding-top: 25px; !important">
                                                
                                             <div class="row">
 
@@ -381,10 +383,10 @@ img {
                                 {{!-- END OF TAB 1 --}}
 
                                 {{!-- TAB 2 --}}
-                                <div class="tab-pane fade" id="archivedMessages" role="tabpanel" aria-labelledby="archived-messages-tab">
+                                {{!-- <div class="tab-pane fade" id="archivedMessages" role="tabpanel" aria-labelledby="archived-messages-tab">
                                 
                         
-                                </div>
+                                </div> --}}
                                 {{!-- END OF TAB 2 --}}
 
                             </div>
