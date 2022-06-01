@@ -98,7 +98,7 @@ $(document).ready(function(){
 
 function changeConversation(){
     $.get("/employeeDetails", {employee_id : $(".active_chat").attr("id")}, function(result){
-        $("#texter_name").text(result.first_name + " " + result.last_name);
+        $("#texter_name").text(result.first_name + " " + result.last_name + " +63" + result.phone_number);
     });
     $("#msgHistory").empty();
     // alert($(".active_chat").attr("id"));
