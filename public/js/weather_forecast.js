@@ -668,7 +668,7 @@ $(document).ready(function() {
 	// Run this each time a page is loaded
 	$.get('/get_weather_forecast', {}, function(forecast_result) {
 		//console.log(formatDate(new Date(forecast_result[0].date), 'YYYY-MM-DD'));
-		if (view == 'home' || view == 'add_crop_calendar') {
+		if (view == 'home') {
 			jQuery.ajaxSetup({async: false });
 			var hour = new Date();
 			hour = hour.getHours();
