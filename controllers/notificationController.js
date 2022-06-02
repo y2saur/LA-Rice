@@ -192,7 +192,7 @@ exports.getNotification = function(req, res, next) {
                                             }
                                             console.log(msg);
 
-                                            if(farms[i].due_today != "-1" && farms[i].start_today != "-1"){
+                                            if(farms[i].due_today != "-1" || farms[i].start_today != "-1"){
                                                 //Send to all farmers with the same farm id
                                                 for(var x = 0; x < farmers.length; x++){
                                                     if(farmers[x].farm_id == farms[i].farm_id){

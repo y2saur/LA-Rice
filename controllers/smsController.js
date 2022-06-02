@@ -170,15 +170,15 @@ exports.globe_inbound_msg = function(req, res){
                                     }
                                     else{
                                         console.log(text_message[0].toLowerCase());
-                                        switch (text_message[0]){
+                                        switch (text_message[0].toLowerCase()){
                                             case "1" : msg = getWeatherForecastMsg(employee_details[0]); break; //Weather Forecast
                                             case "2" : msg = getIncomingWos(employee_details[0]); break; //SEND PENDING AND OVERDUE WOs
                                             case "3" : msg = sendPDSymptoms(employee_details[0]); break; //INCOMING WORK ORDERS
                                             case "4" : msg = getExistingDiagnosis(employee_details[0]); break; //Get existing pest/disease
                                             case "5" : msg = wosToday(employee_details[0]); break; //Get workorders that start today
-                                            case "TAPOS1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
-                                            case "TAPOS2" : msg = updateDiagnosis(employee_details[0], text_message); break;
-                                            case "TULONG" : sendSMSActions(employee_details[0]); break;
+                                            case "tapos1" : msg = updateWO(employee_details[0], text_message, req); break; //When user wants to update wo
+                                            case "tapos2" : msg = updateDiagnosis(employee_details[0], text_message); break;
+                                            case "tulong" : sendSMSActions(employee_details[0]); break;
                                             default : sendOutboundMsg(employee_details[0], 'Natanggap namin ang iyong tugon.\n\nPara sa karagdagang kaalaman, magsend ng "TULONG" sa 21663543'); break; //Change to storing to db
                                         } 
                                     }
