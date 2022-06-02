@@ -121,7 +121,7 @@ exports.globe_inbound_msg = function(req, res){
                                 else{
                                     var last_message = last_msg[0].message.split("\n");
                                     //check last message
-
+                                    
                                     if(last_message[0].includes("Due Today")){ //Checks if last message is due today
                                         dueTodayReply(employee_details[0], req.body.inboundSMSMessageList.inboundSMSMessage[0].message, last_message[0]);
                                     }
@@ -145,14 +145,20 @@ exports.globe_inbound_msg = function(req, res){
 
                                         // system_settings[0].system_date
                                         //Create notif
+                                        var time = new Date();
+                                        time = time.toLocaleTimeString();
                                         var notif = {
                                             date : dataformatter.formatDate(new Date(system_settings[0].system_date), 'YYYY-MM-DD'),
                                             farm_id : employee_details[0].farm_id,
                                             notification_title : "Symptoms Reported",
+                                            notification_desc: null,
                                             url : url,
                                             icon : "fax",
-                                            color : "warning"
+                                            color : "warning",
+                                            type : "",
+                                            time: `"${time}"`
                                         };
+
                                         notifModel.createNotif(notif, function(err, success){
                                             res.send("ok");
                                             notifModel.createUserNotif(function(err, user_notif_status) {
@@ -1010,8 +1016,10 @@ function getIncomingWos(employee){
                                 var message = "WORK ORDERS\nFarm: " + farm_name + "\n";
                                 console.log(wos);
                                 var not_completed = [];
+                                var ctr = 0;
                                 for(var i = 0; i < wos.length; i++){
-                                    if(wos[i].status != "Completed"){
+                                    if(wos[i].status != "Completed" && ctr <= 5){
+                                        ctr++;
                                         var wo_type = await translator.translateText(wos[i].type);
                                         not_completed.push(wos[i]); 
                                         wos[i].date_start = dataformatter.formatDate(wos[i].date_start, 'mm DD, YYYY');

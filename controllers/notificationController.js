@@ -68,7 +68,7 @@ exports.getNotification = function(req, res, next) {
                 }
                 var time = new Date();
                 time = time.toLocaleTimeString();
-
+                
                 notif_obj_arr.push({
                     date: '"'+dataformatter.formatDate(new Date(req.session.cur_date), 'YYYY-MM-DD')+'"',
                     notification_title: title,
@@ -181,15 +181,17 @@ exports.getNotification = function(req, res, next) {
 
                                         for(var i = 0; i < farms.length; i++){
                                             var msg = dataformatter.formatDate(new Date(req.session.cur_date), "mm DD, YYYY") + "\n" + farms[i].farm_name;
+                                            if(farms[i].due_today != "-1"){
+                                                msg = msg + "\n\nDAPAT MATAPOS NGAYONG ARAW\n\n";
+                                                msg = msg + farms[i].due_today;
+                                            }
+                                            
                                             if(farms[i].start_today != "-1"){
                                                 msg = msg +"\n\nMAGSISIMULA NGAYONG ARAW " + "\n\n";
                                                 msg = msg + farms[i].start_today;
                                             }
                                             
-                                            if(farms[i].due_today != "-1"){
-                                                msg = msg + "DAPAT MATAPOS NGAYONG ARAW\n\n";
-                                                msg = msg + farms[i].due_today;
-                                            }
+                                            
                                             console.log(msg);
 
                                             if(farms[i].due_today != "-1" || farms[i].start_today != "-1"){
