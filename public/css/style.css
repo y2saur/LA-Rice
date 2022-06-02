@@ -552,11 +552,17 @@ div.scrollmenu {
 .Processing {
 	color : #F0A276;
 }
+.In-Progress {
+	color : #506F86; 
+}
 .Purchased {
 	color : #4BACAD;
 }
 .Completed {
 	color : #4BACAD;
+}
+.Cancelled {
+	color: #CA4E0C;
 }
 
 .Solved {

@@ -181,11 +181,14 @@
                                         <div class="card-header d-flex justify-content-between align-items-center" style="background: #939C1F;padding: 16px 20px;height: auto;">
                                             <h6 class="font-weight-bold m-0" style="color: #FFFFFF;">Weekly WO <small>(by status)</small></h6>
                                         </div>
-                                        <div class="card-body">
+                                        <div class="card-body" style="min-height: 181px;">
                                             <div class="w-100">
                                                 {{#if wo_status_data}}
                                                 <canvas id="weekly_wo" style="color: #332C1F !important;"></canvas>
+                                                <input type = "hidden" id = "data" value = {{wo_status_data}} />
+
                                                 {{else}}
+                                                <br><br>
                                                 <div class="font-weight-bold text-center mb-5" style="color: #332C1F !important;">No applicable work orders!</div>
                                                 {{/if}}
                                             </div>
@@ -233,7 +236,7 @@
                                                         </div>
                                             </span> --}}
                                         </div>
-                                        <span style="font-size: 14px;">{{this.date_due}}</span><br>
+                                        <span style="font-size: 14px;">Due: {{this.date_due}} </span><span style="font-size: 14px;" class="{{this.status}}">({{this.status}})</span><br>
 
                                         <span>
                                             <a class="viewDetails" href="/farms/work_order&id={{this.work_order_id}}">View Details</a>  
@@ -263,7 +266,6 @@
     var view = "home";
 
     $(document).ready(function() {
-
         {{#if wo_status_data}}
         var weekly_wo_data = {{{wo_status_data}}};
         var weeklyWOChart = new Chart(document.getElementById("weekly_wo"), {

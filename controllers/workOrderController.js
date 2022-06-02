@@ -576,6 +576,7 @@ exports.getWorkOrdersPage = function(req, res) {
 			for (var i = 0; i < list.length; i++) {
 				list[i].date_created = dataformatter.formatDate(new Date(list[i].date_created), 'YYYY-MM-DD');
 				list[i].date_due = dataformatter.formatDate(new Date(list[i].date_due), 'YYYY-MM-DD');
+				list[i].date_completed = list[i].date_completed == null ? 'N/A' : dataformatter.formatDate(new Date(list[i].date_completed), 'YYYY-MM-DD');
 				list[i].notes = list[i].notes == null ? 'N/A' : list[i].notes;
 			}
 
@@ -872,7 +873,7 @@ exports.getWorkOrdersDashboard_v2 = function(req, res) {
 		else {
 			for (var i = 0; i < list.length; i++) {
 
-				if (list[i].status == 'Pending') {
+				if (list[i].status == 'Pending' || list[i].status == 'In-Progress') {
 					list[i].date_created = dataformatter.formatDate(new Date(list[i].date_created), 'YYYY-MM-DD');
 					list[i].date_due = dataformatter.formatDate(new Date(list[i].date_due), 'YYYY-MM-DD');
 					list[i].notes = list[i].notes == null ? 'N/A' : list[i].notes;

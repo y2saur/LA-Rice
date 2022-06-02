@@ -88,7 +88,7 @@ exports.processNutrientChart = function(nutrients, pd) {
 	var type = ['Applied', 'Recommended'];
 	var nutrient_arr = ['N', 'P', 'K'];
 	var datasets = ['Applied - N', 'Recommended - N', 'Applied - P', 'Recommended - P', 'Applied - K', 'Recommended - K'];
-	var color_arr = ['#bdecff', '#0b86ba', '#aee8ae', '#0ea149', '#f7d6ff', '#b418de'];
+	var color_arr = ['#bdecff', '#0b86ba', '#c7f9ee', '#1ee6bf', '#f7d6ff', '#b418de']; // Old P 0b86ba 0ea149
 	var color_index = 0;
 	var filtered;
 	var dataset = [];
@@ -173,11 +173,12 @@ exports.processSeedChartData = function(calendars, seeds) {
 	// 	['#962995', '#ac44aa', '#c25cbf', '#d975d5', '#f08deb'],
 	// ]
 	var color_arr_set = [
-		['#29066B', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#7D3AC1', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#EB548C', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#EA7369', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#FDA587', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#29066B', '#29066B', "#29066B", "#29066B", '#29066B'],
+		['#EA7369', '#EA7369', "#EA7369", "#EA7369", '#EA7369'],
+		['#FDA587', '#FDA587', "#FDA587", "#FDA587", '#FDA587'],
+		['#7D3AC1', '#7D3AC1', "#7D3AC1", "#7D3AC1", '#7D3AC1'],
+		['#EB548C', '#EB548C', "#EB548C", "#EB548C", '#EB548C'],
+
 	]
 
 	var unique_cycles = [...new Set(calendars.map(item =>

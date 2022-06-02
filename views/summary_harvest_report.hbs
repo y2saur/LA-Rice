@@ -38,6 +38,16 @@
 	.accordion-toggle > td:hover {
 		background-color: #EEEEEE;
 	}
+
+	table#exception1.table tr.bg-success.text-white.text-center td, 
+	table#exception1.table tr.bg-danger.text-white.text-center td, 
+	table#exception1.table tr.bg-secondary.text-white.text-center td {
+		color: white !important;
+	}
+
+	.accordian-body.collapse.show td table.table tbody tr {
+		background-color: #EEEEEE !important;
+	}
 </style>
 
 <div class="container-fluid" style="color: #332C1F;">
@@ -453,7 +463,7 @@
 									<div class=" w-50 mx-auto">
 										<table class="table" id="exception1">
 											{{#if exception1.good}}
-											<tr colspan="6" class="bg-success text-white text-center"><td style="color: white;">What Went Right</td></tr>
+											<tr colspan="6" class="bg-success text-white text-center"><td>What Went Right</td></tr>
 											{{#each exception1.good}}
 
 												<tr colspan="6" data-toggle="collapse" data-target="#good{{@index}}" class="accordion-toggle">
@@ -469,7 +479,7 @@
 													<td style="padding: 0px; margin: 0px;">
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr style="background-color: #EEEEEE;">
+															<tr>
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -489,7 +499,7 @@
 											{{/if}}
 
 											{{#if exception1.bad}}
-											<tr colspan="6" class="bg-danger text-white text-center"><td style="color: white;">What Went Wrong</td></tr>
+											<tr colspan="6" class="bg-danger text-white text-center"><td>What Went Wrong</td></tr>
 											{{#each exception1.bad}}
 												<tr colspan="6" data-toggle="collapse" data-target="#bad{{@index}}" class="accordion-toggle">
 													<td>
@@ -504,7 +514,7 @@
 													<td style="padding: 0px; margin: 0px;">
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr style="background-color:#EEEEEE">
+															<tr>
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -524,7 +534,7 @@
 											{{/if}}
 
 											{{#if exception1.improvement}}
-											<tr colspan="6" class="bg-secondary text-white text-center"><td style="color: white;">What Can be Improved</td></tr>
+											<tr colspan="6" class="bg-secondary text-white text-center"><td>What Can be Improved</td></tr>
 											{{#each exception1.improvement}}
 												<tr colspan="6" data-toggle="collapse" data-target="#improvement{{@index}}" class="accordion-toggle">
 													<td>
@@ -539,7 +549,7 @@
 													<td>
 														<table class="table" style="background-color: gainsboro; margin: 0px;">
 															{{#each this.row_items}}
-															<tr style="background-color: #EEEEEE;">
+															<tr>
 																<td><a href="{{this.link_url}}">{{this.link_title}}</a></td>
 																<td>
 																	<div class="d-flex flex-column">
@@ -862,7 +872,7 @@
 		var str = ``;
 
 		if (data.good.length > 0) {
-			str += `<tr colspan="6" class="bg-success text-white text-center"><td>What Went Right</td></tr>`;
+			str += `<tr colspan="6" class="bg-success text-white text-center"><td style="color: white">What Went Right</td></tr>`;
 			data.good.forEach(function(item, index) {
 				str += `<tr colspan="6" data-toggle="collapse" data-target="#good${target}${index}" class="accordion-toggle"> <td> `;
 
@@ -871,14 +881,14 @@
 				}
 				str += `${item.row_title} </td> </tr> <tr class="accordian-body collapse" id="good${target}${index}"> <td style="padding: 0px; margin: 0px;"> <table class="table" style="background-color: gainsboro; margin: 0px;">`;
 				item.row_items.forEach(function(item1, index) {
-					str += `<tr> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
+					str += `<tr style="background-color: #EEEEEE;"> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
 				});
 				str += ` </table> </td> </tr>`;
 			});
 		}
 
 		if (data.bad.length > 0) {
-			str += `<tr colspan="6" class="bg-danger text-white text-center"><td>What Went Wrong</td></tr>`;
+			str += `<tr colspan="6" class="bg-danger text-white text-center"><td style="color: white;">What Went Wrong</td></tr>`;
 			data.bad.forEach(function(item, index) {
 				str += `<tr colspan="6" data-toggle="collapse" data-target="#bad${target}${index}" class="accordion-toggle"> <td> `;
 
@@ -888,14 +898,14 @@
 				str += `${item.row_title} </td> </tr> <tr class="accordian-body collapse" id="bad${target}${index}"> <td style="padding: 0px; margin: 0px;"> <table class="table" style="background-color: gainsboro; margin: 0px;">`;
 
 				item.row_items.forEach(function(item1, index) {
-					str += `<tr> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
+					str += `<tr style="background-color: #EEEEEE;"> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
 				});
 				str += ` </table> </td> </tr>`;
 			});
 		}
 
 		if (data.improvement.length > 0) {
-			str += `<tr colspan="6" class="bg-secondary text-white text-center"><td>What Can be Improved</td></tr>`;
+			str += `<tr colspan="6" class="bg-secondary text-white text-center"><td style="color: white;">What Can be Improved</td></tr>`;
 			data.improvement.forEach(function(item, index) {
 				str += `<tr colspan="6" data-toggle="collapse" data-target="#improvement${target}${index}" class="accordion-toggle"> <td> `;
 
@@ -905,7 +915,7 @@
 				str += `${item.row_title} </td> </tr> <tr class="accordian-body collapse" id="improvement${target}${index}"> <td style="padding: 0px; margin: 0px;"> <table class="table" style="background-color: gainsboro; margin: 0px;">`;
 
 				item.row_items.forEach(function(item1, index) {
-					str += `<tr> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
+					str += `<tr style="background-color: #EEEEEE;"> <td><a href="${item1.link_url}">${item1.link_title}</a></td> <td> <div class="d-flex flex-column"> <div>${item1.item_type}</div> <small>Application Range</small> <small>${item1.date_start} to ${item1.date_due}</small> <small class="mt-2">${item1.notes}</small> </div> </td> <td>${item1.report_notes}</td> </tr>`;
 				});
 				str += ` </table> </td> </tr>`;
 			});

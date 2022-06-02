@@ -1,8 +1,8 @@
 exports.formatWOStatusChart = function(data) {
 	var obj_data = { labels: [], datasets: [] };
 	var color, lbl, data2, data1;
-	// N, P, K
-	var color_arr = ['#2b6588', '#489740', "#fccb35", '#2b6588', '#489740', "#fccb35"];
+	// N, P, K CA4E0C FAC55B F0A276 506F86
+	var color_arr = ['#4BACAD', '#FAC55B', "#F0A276", '#506F86', '#2F3C4F', "#CA4E0C"];
 
 	const unique_cycles = [...new Set(data.map(e => e.farm_name).map(item => item))];
 	const unique_status = ['Completed', 'Pending (Regular)', 'Pending (Overdue)', 'In-Progress (Regular)', 'In-Progress (Overdue)', 'Cancelled'];
@@ -59,7 +59,7 @@ exports.formatProductionChart = function(data) {
 	var color, lbl, data2, data1;
 	var color_arr_set = [
 		['#29066B', '#7D3AC1', "#EB548C", "#EA7369", '#FDA587'],
-		['#caf270', '#45c490', "#008d93", "#2e5468", '#2e5468']
+		['#D4CDE2', '#E5D8F3', "#F8DBF0", "#FBE3E1", '#FBEDE8']
 	]
 	const unique_cycles = [...new Set(data.map(e => e.crop_plan).map(item => item))];
 	const unique_seeds = [...new Set(data.map(e => e.seed_name).map(item => item))];
@@ -114,7 +114,7 @@ exports.formatConsumptionChart = function(data) {
 	var obj_data = { labels: [], datasets: [] };
 	var color, lbl, data2, data1;
 	// N, P, K
-	var color_arr = ['#2b6588', '#489740', "#fccb35"];
+	var color_arr = ['#0b86ba', '#1ee6bf', "#b418de"];
 
 	const unique_cycles = [...new Set(data.map(e => e.crop_plan).map(item => item))];
 	const unique_nutrients = ['N', 'P', 'K'];
