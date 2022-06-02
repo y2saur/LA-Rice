@@ -149,30 +149,33 @@ exports.globe_inbound_msg = function(req, res){
                                         time = time.toLocaleTimeString();
                                         var notif = {
                                             date : dataformatter.formatDate(new Date(system_settings[0].system_date), 'YYYY-MM-DD'),
-                                            farm_id : employee_details[0].farm_id,
                                             notification_title : "Symptoms Reported",
-                                            notification_desc: null,
+                                            notification_desc: "New symptoms reported by farmer",
+                                            farm_id : employee_details[0].farm_id,
                                             url : url,
                                             icon : "fax",
                                             color : "warning",
-                                            type : "",
+                                            type : "PD_DIAGNOSED",
+                                            status : 1,
                                             time: `"${time}"`
                                         };
 
                                         notifModel.createNotif(notif, function(err, success){
-                                            res.send("ok");
-                                            notifModel.createUserNotif(function(err, user_notif_status) {
-                                                if (err)
-                                                    throw err;
-                                                else {
-                                                    
-                                                }
-                                            });
-                                        });
-                                        //SEND SMS REPLY
-                                        sendOutboundMsg(employee_details[0], "Maraming Salamat!");
-
-                                                
+                                            if(err){
+                                                console.log(err);
+                                                throw err;
+                                            }
+                                            else{
+                                                notifModel.createUserNotif(function(err, user_notif_status) {
+                                                    if (err)
+                                                        throw err;
+                                                    else {
+                                                        //SEND SMS REPLY
+                                                        sendOutboundMsg(employee_details[0], "Maraming Salamat!");
+                                                    }
+                                                });
+                                            }
+                                        });    
                                     }
                                     else{
                                         console.log(text_message[0].toLowerCase());

@@ -182,7 +182,7 @@ router.post('/pest_and_disease/frequency', environmentController.createPreventio
 // router.get('/pest_and_disease/diagnose_add_diagnosis', environmentController.getAddDiagnosis);
 router.get('/pest_and_disease/diagnose_add_pest',openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock , environmentController.getAddPest);
 router.get('/pest_and_disease/diagnose_add_disease', environmentController.getAddDisease);
-router.get('/pest_and_disease/diagnose_details', isPrivate, openWeatherController.updateWeatherData, notifController.getNotification, materialController.checkLowStock ,environmentController.getDiagnosisDetails);
+router.get('/pest_and_disease/diagnose_details', isPrivate, openWeatherController.updateWeatherData, materialController.checkLowStock ,environmentController.getDiagnosisDetails);
 router.post('/pest_and_disease/diagnose_details', environmentController.updateDiagnosis);
 
 router.get('/pest_and_disease/diagnose_detailed_diagnosis', environmentController.getDetailedDiagnosis);
