@@ -173,11 +173,11 @@ exports.processSeedChartData = function(calendars, seeds) {
 	// 	['#962995', '#ac44aa', '#c25cbf', '#d975d5', '#f08deb'],
 	// ]
 	var color_arr_set = [
-		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
-		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#29066B', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#7D3AC1', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#EB548C', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#EA7369', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#FDA587', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
 	]
 
 	var unique_cycles = [...new Set(calendars.map(item =>
@@ -220,7 +220,7 @@ exports.processSeedChartData = function(calendars, seeds) {
 	}
 	legends = [...new Map(legends.map(item =>
 	  [item.lbl, item])).values()];
-
+	console.log(legends);
 	return { seed: null, avg: null, data: obj_data, farm_legends: unique_farms.join().replace(/,/g, ' / '), legends: legends };
 }
 

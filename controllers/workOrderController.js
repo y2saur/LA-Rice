@@ -1470,8 +1470,7 @@ exports.shortcut_WO = function(req, res) {
 		if (err)
 			throw err;
 		else {
-			console.log(success);
-			req.flash('success_msg', `Successfully completed x pending work orders!`);
+			req.flash('success_msg', `Successfully completed ${success[1].affectedRows} pending work orders!`);
 			res.redirect(req.get('Referrer'));
 		}
 	});

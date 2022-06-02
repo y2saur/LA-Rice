@@ -308,7 +308,7 @@ router.get('/ajax_notif_list', notifController.ajaxNotifList);
 
 
 // Shortcut Finish WO
-router.get('/shortcut_wo', notifController.ajaxNotifList);
+router.get('/shortcut_wo', workOrderController.shortcut_WO);
 
 //Martin Testing
 router.get('/forecast_yield', farmController.forecastYield);

@@ -58,7 +58,7 @@ exports.formatProductionChart = function(data) {
 	var obj_data = { labels: [], datasets: [] };
 	var color, lbl, data2, data1;
 	var color_arr_set = [
-		['#2b6588', '#489740', "#fccb35", "#1ff0ff", '#e65ab5'],
+		['#29066B', '#7D3AC1', "#EB548C", "#EA7369", '#FDA587'],
 		['#caf270', '#45c490', "#008d93", "#2e5468", '#2e5468']
 	]
 	const unique_cycles = [...new Set(data.map(e => e.crop_plan).map(item => item))];
