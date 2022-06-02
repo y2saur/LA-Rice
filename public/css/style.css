@@ -472,6 +472,10 @@ div.scrollmenu {
 	padding-right : 10px;
 }
 
+.wo-card:hover{
+	opacity: 70%;
+}
+
 .link {
 	color:  #0000FF;
 }

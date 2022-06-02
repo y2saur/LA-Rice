@@ -2331,7 +2331,7 @@ exports.addDiagnosis = function(req,res){
 				latest = 0;
 				crop_plan = -1;
 
-				console.log(crop_calendar);
+				// console.log(crop_calendar);
 				//  //FIX HERE
 				for(i =0; i < crop_calendar.length; i++){
 					if(crop_calendar[i].farm_name == farm_name){
@@ -2523,15 +2523,15 @@ exports.addDiagnosis = function(req,res){
 													message = message + "\n" + name.data[0].translations[0].text + "\n" +  desc.data[0].translations[0].text + "\nPETSA: " + dataformatter.formatDate(new Date(workorders[i][0]), "mm DD, YYYY") + "\n"
 												}
 
-												console.log(diagnosis);
-												console.log(workorders);
-												console.log(message);
+										
 
 												//CREATE SMS FOR FARMERS WITHIN THE FARM
-												smsModel.getSMSEmployees({position : "Farm Manager"}, function(err, employees){
+												smsModel.getSMSEmployees({position : "Farmer"}, function(err, employees){
 													if(err)
 														throw err;
 													else{
+														console.log("dflskdjfhglsdkjfhglksdfjhglsdkjfhglsdkfjhg");
+														console.log(employees);
 														//set message
 														//FOr diagnosis deatails
 														//look for employees with the same farm id
