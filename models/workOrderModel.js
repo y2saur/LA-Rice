@@ -1,6 +1,11 @@
 var mysql = require('./connectionModel');
 mysql = mysql.connection;
 
+exports.finishShortcutWO = function(next) {
+	var sql = `update farm_materials fm right join (select wort.*, cct.farm_id from work_order_table wot join wo_resources_table wort using(work_order_id) join crop_calendar_table cct on crop_calendar_id = calendar_id where wot.status = 'Pending' or wot.status = 'In-Progress') t1 on fm.farm_id = t1.farm_id and fm.item_type = t1.type and fm.item_id = t1.item_id set current_amount = current_amount - qty; update work_order_table join system_settings_table set status = 'Completed', date_completed = (date_add(date_start, interval datediff(date_due, date_start)/2 day)) where date_start < system_date and (status = 'Pending' or status = 'In-Progress'); `;
+	mysql.query(sql, next);
+}
+
 exports.createWorkOrder = function(query, next) {
 	var sql = "insert into work_order_table set ?;";
 	sql = mysql.format(sql, query);

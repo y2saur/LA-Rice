@@ -1464,3 +1464,15 @@ exports.createWO = function(req, res){
 	});
 
 }
+
+exports.shortcut_WO = function(req, res) {
+	workOrderModel.finishShortcutWO(function(err, success) {
+		if (err)
+			throw err;
+		else {
+			console.log(success);
+			req.flash('success_msg', `Successfully completed x pending work orders!`);
+			res.redirect(req.get('Referrer'));
+		}
+	});
+}

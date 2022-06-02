@@ -136,7 +136,7 @@
               </button>
             </div>
             <div class="modal-body">
-              <small class="text-muted">* Features which depend on actual date such as weather forecasts and satellite imagery statistics such as Soil Moisture and NDVI will not reflect actual values if system date is changed. These will be replaced by the previous year's data of the changed date. </small>
+              <small class="text-muted">* Features which depend on actual date such as weather forecasts and satellite imagery statistics such as Soil Moisture and NDVI will not reflect actual values if system date is changed ahead of the true current date. These will be replaced by the previous year's data of the changed date. </small>
 
               <form action="/edit_system_date" id="edit_date_form" method="get">
                 <div class="form-group row">
@@ -158,6 +158,43 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
               <button type="submit" form="edit_date_form" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="wo_shortcut_modal" tabindex="-1" role="dialog" aria-labelledby="wo_shortcut_modal" aria-hidden="true" style="margin-left: 130px !important;">
+        <div class="modal-dialog modal-dialog-centered mx-auto" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Finish Work Orders Shortcut</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <small class="text-muted">* Pending and In-Progress work orders will be updated as completed with the date completed value taken from the average of the work order's start date and due date. Work orders with material resources will automatically be deducted. This is for demo purposes only. </small>
+
+              <form action="/shortcut_wo" id="shortcut_wo" method="get">
+                <div class="form-group row">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">True Current Date</label>
+                  <div class="col-sm-10">
+                    <input type="date" class="form-control" id="shortcut_cur_date" value="{{true_date}}" disabled>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="inputEmail3" class="col-sm-2 col-form-label">Current System Date</label>
+                  <div class="col-sm-10">
+                    <input type="date" class="form-control" id="shortcut_change_date" name="change_date" value="{{cur_date}}" disabled>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" form="shortcut_wo" class="btn btn-primary">Procceed</button>
             </div>
           </div>
         </div>

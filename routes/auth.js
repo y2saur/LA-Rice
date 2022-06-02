@@ -306,6 +306,10 @@ router.get('/update_user_notif_seen', notifController.updateSeenStatus);
 router.get('/ajax_notif_list', notifController.ajaxNotifList);
 /*** Notification Ajax End ***/
 
+
+// Shortcut Finish WO
+router.get('/shortcut_wo', notifController.ajaxNotifList);
+
 //Martin Testing
 router.get('/forecast_yield', farmController.forecastYield);
 router.get('/test_chart', reportController.testDisasterChart);
