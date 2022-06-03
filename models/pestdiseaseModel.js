@@ -1414,11 +1414,16 @@ exports.updatePDProbability = function(probability_id, probability, next){
 }
 
 exports.getProbabilities = function(type, id, next){
-	sql = 'SELECT *, AVG(pp.probability), MAX(date) FROM pd_probabilities pp INNER JOIN pest_table pt ON pt.pest_id = pp.pd_id JOIN farm_table using (farm_id) WHERE pp.pd_type = "Pest" GROUP BY pd_id UNION SELECT *, AVG(pp.probability), MAX(date)  FROM pd_probabilities pp INNER JOIN disease_table pt ON pt.disease_id = pp.pd_id  JOIN farm_table using (farm_id) WHERE pp.pd_type = "Disease" ';
+	sql = 'SELECT *, AVG(pp.probability), MAX(date) FROM pd_probabilities pp INNER JOIN pest_table pt ON pt.pest_id = pp.pd_id JOIN farm_table using (farm_id) WHERE pp.pd_type = "Pest" ';
+	if(id != null && id != ""){
+		sql = sql + " && farm_id = " + id.farm_id;
+	}
+	sql = sql + ' GROUP BY pd_id UNION SELECT *, AVG(pp.probability), MAX(date)  FROM pd_probabilities pp INNER JOIN disease_table pt ON pt.disease_id = pp.pd_id  JOIN farm_table using (farm_id) WHERE pp.pd_type = "Disease" ';
 	if(id != null && id != ""){
 		sql = sql + " && farm_id = " + id.farm_id;
 	}
 	sql = sql + " GROUP BY pd_id;";
+	console.log(sql);
 	mysql.query(sql, next); return(sql);
 };
 

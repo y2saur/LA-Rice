@@ -1269,7 +1269,15 @@ exports.getReportedSymptoms = function(req, res){
 
 
 
-
+exports.getCurrentDate = function(req,res){
+	systemSettingModel.getCurrentSettings(function(err, system_settings) {
+        if(err)
+            throw err;
+        else{
+            res.send(system_settings[0].system_date);
+        }
+    });
+}
 
 
 

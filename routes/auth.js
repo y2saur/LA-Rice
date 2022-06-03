@@ -354,5 +354,6 @@ router.get('/userConvos', globe.getUserConversation); //Gets conversation per us
 router.get('/employeeDetails', userController.getEmployeeDetails);
 router.get("/sendSMS", globe.globe_outbound_msg);
 router.get("/get_reported_symptoms", globe.getReportedSymptoms);
+router.get("/ajaxGetCurrentDate", globe.getCurrentDate);
 
 module.exports = router;
