@@ -542,10 +542,6 @@ function updateWO(emp, message, req){
                                     }
                                 });
                             }
-                            
-                            else if (wo_details[0].type == 'Fertilizer Application') {
-                                resource_type = 'Fertilizer'
-                            }
                         }
                         else{
                             var msg = "Mali ang work order ID na sinend (ibang farm). Pumili ng tamang work order ID.";
