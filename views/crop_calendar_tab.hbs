@@ -298,10 +298,32 @@
 {{!-- MATERIALS PDF --}}
 <div id="section-to-print" style="display: none; visibility: hidden">
     <div class="container-fluid" style="margin-top: 10px">
+
+        {{!-- HEADER --}}
+			<div class="row" style="margin-bottom: 20px;">
+		        <div class="col" style="background: #657429; padding: 20px">
+		            <div class="d-xxl-flex align-items-xxl-center">
+						<center style="margin-bottom: 20px;">
+							<img src="../../assets/img/LA_logo.png" style="width: 150px;margin-left: auto;margin-right: auto;">
+						</center>
+					</div>
+
+		            <div>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">LA Rice Mill</h1>
+		            </div>
+		            <div>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Required Materials Summary Report for All Active Farms</h1>
+		            </div>
+		            <div>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For Active Crop Cycles until {{calendar_details.crop_plan}}</h1>
+		            </div>
+		        </div>
+		    </div>
+	    {{!-- END OF HEADER --}}
         
-        <h1 style="font-size: 80px; font-weight: bold; color: #939C1F">{{crop_plan_details.crop_plan}}</h1>
+        {{!-- <h1 style="font-size: 80px; font-weight: bold; color: #939C1F">{{calendar_details.crop_plan}}</h1>
     
-        <h4 style="font-size: 30px; margin-bottom: 70px; margin-left: 10px">{{crop_plan_details.farm_name}}</h4>
+        <h4 style="font-size: 30px; margin-bottom: 70px; margin-left: 10px">{{crop_plan_details.farm_name}}</h4> --}}
 
         {{!-- No more space for this part :< --}}
         {{!-- <div class="container-fluid" style="background-color: white; padding: 20px; border-radius: 10px; width:auto; margin-top: 30px;">      
@@ -323,7 +345,7 @@
             </div>
         </div> --}}
 
-        <h4 style="font-size: 30px; font-weight: bold; margin-top: 30px; margin-bottom: 30px; margin-left: 20px; color: #939C1F">Required Materials Summary Report</h4>
+        {{!-- <h4 style="font-size: 30px; font-weight: bold; margin-top: 30px; margin-bottom: 30px; margin-left: 20px; color: #939C1F">Required Materials Summary Report</h4> --}}
         
         {{!-- SEEDS --}}
         <div class="container" style="position: relative;">

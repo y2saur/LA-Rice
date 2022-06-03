@@ -43,8 +43,17 @@ div.card-body h6, div.card-body p {
 #seedTable th, #seedTable td, #seedTable tr, 
 #fertilizerTable th, #fertilizerTable td, #fertilizerTable tr,
 #pesticideTable th, #pesticideTable td, #pesticideTable tr {
-    background-color: #EEEEEE !important;
-    border-style: none !important;
+   /* background-color: #EEEEEE !important;
+    border-style: none !important;*/
+    font-size: 20px !important;
+    padding: 20px;
+}
+
+#seedTable th, 
+#fertilizerTable th,
+#pesticideTable th {
+    background-color: #212529 !important;
+    color: white;
     font-size: 20px !important;
     padding: 20px;
 }
@@ -87,10 +96,6 @@ html, body {
      <div class="d-sm-flex justify-content-between align-items-center mb-4">
         <h3 class="text-dark mb-0">Farms &gt; {{title}}</h3><a class="btn btn-primary disabled btn-sm d-none d-sm-inline-block" role="button" style="background: rgba(78,115,223,0);color: #332c1f;border-color: rgba(51,44,31,0);">&nbsp;<br>&nbsp;<i class="far fa-clock" style="margin-right: 5px;"></i>{{cur_date}}<br><br></a>
     </div>
-    <!-- {{!-- HEADER --}}
-    <div class="d-sm-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-dark mb-0" style="font-family: Roboto, sans-serif;color: #584c33;font-weight: 500;">Farms</h3>
-    </div> -->
 
     <div class="row">
         <div class="col-lg-12 col-lg-12 col-xxl-12">
@@ -115,7 +120,6 @@ html, body {
                     </div>
 
 
-                    {{!-- <div class="btn-group" role="group"><button class="btn btn-primary" type="button" style="background: #BDBE14;font-weight: bold;border-style: none;border-left-color: rgba(78,115,223,0);border-radius: 10px;padding: 4px 10px;">Farms</button><a class="btn btn-primary" role="button" style="margin-left: 10px;background: rgba(189,190,20,0);border-style: none;border-color: var(--bs-pink);padding: 4px 10px;" href="Materials.html">Materials</a></div> --}}
                     <div class="dropdown no-arrow" style="padding-top: 5px">
                         <button id="more" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button">
                             <i class="fa fa-ellipsis-h d-lg-flex justify-content-lg-center"></i>
@@ -146,7 +150,7 @@ html, body {
                                                     <div class="table-responsive" style="border-style: none;">
                                                         <table class="table">
                                                             <thead>
-                                                                {{!-- <tr></tr> --}}
+                                                           
                                                             </thead>
                                                             <tbody>
                                                                 <tr style="border-style: none; height: 90px;">
@@ -228,12 +232,7 @@ html, body {
                                         <li class="nav-item"><a id="work-orders-tab" class="nav-link" data-toggle="tab" href="#work-orders"role="tab" aria-controls="work-orders" aria-selected="false" 
                                             style="background: #F0F0F0;">Work Orders</a></li>
                                     </ul>
-                                        {{!-- <div class="dropdown no-arrow"><button class="btn btn-link btn-sm dropdown-toggle" aria-expanded="false" data-bs-toggle="dropdown" type="button"><i class="fas fa-ellipsis-v d-xxl-flex justify-content-xxl-end text-gray-400"></i></button>
-                                            <div class="dropdown-menu shadow dropdown-menu-end animated--fade-in">
-                                                <p class="text-center dropdown-header">dropdown header:</p><a class="dropdown-item" href="#">&nbsp;Action</a><a class="dropdown-item" href="#">&nbsp;Another action</a>
-                                                    <div class="dropdown-divider"></div><a class="dropdown-item" href="#">&nbsp;Something else here</a>
-                                            </div>
-                                        </div> --}}
+                        
 
                                 </div>
 
@@ -314,9 +313,7 @@ html, body {
                                                                                     </button>
                                                                                     <div class="dropdown-menu notSidebar shadow dropdown-menu-end animated--fade-in">
                                                                                         <a class="dropdown-item notSidebar" href="/farms/work_order&id={{this.work_order_id}}">View Details</a>
-                                                                                            {{!-- <a class="dropdown-item notSidebar" href="#">&nbsp;Update</a>
-                                                                                            <div class="dropdown-divider"></div>
-                                                                                            <a class="dropdown-item notSidebar" href="#">&nbsp;Delete</a> --}}
+                                                                          
                                                                                     </div>
                                                                                 </div>
                                                                             </span> 
@@ -330,30 +327,6 @@ html, body {
                                                       
                                                     </div>
                                                 </div>
-          
-                                                {{!-- <div class="row">
-                                                <div class="col">
-                                                    <div class="card shadow mb-4">
-                                                        <div class="card-header mini2 py-3" style="height: auto; border-style: none">
-                                                            <h6 class="fw-bold m-0" style="color: #FFFFFF;">Optimal Recommendation<br></h6>
-                                                        </div>
-                                                        <div class="card-body">
-                                                            <table class="table" id="schedule_table">
-                                                                <tr>
-                                                                    <th>Application Date</th>
-                                                                    <th>Fertilizer</th>
-                                                                    <th>Description</th>
-                                                                    <th>Amount</th>
-                                                                    <th></th>
-                                                                </tr>
-                                                            </table>
-
-                                                            <button class="btn btn-success float-right hide mb-3" type="button" id="generate_wo">Submit</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div> --}}
-
                            
                                                 
                                             </div>
@@ -361,9 +334,7 @@ html, body {
 
                                             {{!-- TAB 3 --}}
                                             <div class="tab-pane fade" id="pesticide-application-plan" role="tabpanel" aria-labelledby="pesticide-application-tab">
-                                            
-                                            {{!-- <h6 style="font-weight: bold; margin-bottom: 10px; margin-top: 20px">Recently Detected Pests</h6> --}}
-                                         
+                                                             
                                 
                                                     <div class="card shadow mb-4">
                                                         <div class="card-header mini2 py-3" style="height: auto; border-style: none">
@@ -531,35 +502,40 @@ html, body {
     </div>
 </div>
 
+
 {{!-- MATERIALS PDF --}}
 <div id="section-to-print" style="display: none; visibility: hidden">
     <div class="container-fluid" style="margin-top: 10px">
+
+        {{!-- HEADER --}}
+			<div class="row" style="margin-bottom: 50px;">
+		        <div class="col" style="background: #657429; padding: 20px">
+		            <div class="d-xxl-flex align-items-xxl-center">
+						<center style="margin-bottom: 20px;">
+							<img src="../../assets/img/LA_logo.png" style="width: 150px;margin-left: auto;margin-right: auto;">
+						</center>
+					</div>
+
+		            <div>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">LA Rice Mill</h1>
+		            </div>
+		            <div>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 0px;">Required Materials Report for {{crop_plan_details.farm_name}}</h1>
+		            </div>
+		            <div>
+		                <h1 style="text-align: center;font-size: 22px;color: #F1E8D7;margin-bottom: 8px;">For the Crop Cycle in {{crop_plan_details.crop_plan}}</h1>
+		            </div>
+		        </div>
+		    </div>
+	    {{!-- END OF HEADER --}}
         
-        <h1 style="font-size: 70px; font-weight: bold; color: #939C1F">{{crop_plan_details.crop_plan}}</h1>
+        {{!-- <h1 style="font-size: 70px; font-weight: bold; color: #939C1F">{{crop_plan_details.crop_plan}}</h1>
     
-        <h4 style="font-size: 30px; margin-bottom: 70px; margin-left: 10px">{{crop_plan_details.farm_name}}</h4>
+        <h4 style="font-size: 30px; margin-bottom: 70px; margin-left: 10px">{{crop_plan_details.farm_name}}</h4> --}}
 
-        {{!-- No more space for this part :< --}}
-        {{!-- <div class="container-fluid" style="background-color: white; padding: 20px; border-radius: 10px; width:auto; margin-top: 30px;">      
-       
-            <div class="row" style="padding-left: 5px; margin-bottom: 30px">                         
-                <h5 class="text-dark mb-0" style="font-size: 20px;"><span style="font-weight: bold; margin-right: 80px">Land Preparation Date:</span> dd/mm/yyyy</h5>
-            </div>
 
-            <div class="row" style="padding-left: 5px; margin-bottom: 30px">                         
-                <h5 class="text-dark mb-0" style="font-size: 20px;"><span style="font-weight: bold; margin-right: 170px">Planting Dates:</span> dd/mm/yyyy to dd/mm/yyyy</h5>
-            </div>
 
-            <div class="row" style="padding-left: 5px; margin-bottom: 30px">                         
-                <h5 class="text-dark mb-0" style="font-size: 20px;"><span style="font-weight: bold; margin-right: 76px">Pest Application Dates:</span> dd/mm/yyyy to dd/mm/yyyy</h5>
-            </div>
-
-             <div class="row" style="padding-left: 5px; margin-bottom: 50px">                         
-                <h5 class="text-dark mb-0" style="font-size: 20px;"><span style="font-weight: bold; margin-right: 175px;">Harvest Dates:</span> dd/mm/yyyy to dd/mm/yyyy</h5>
-            </div>
-        </div> --}}
-
-        <h4 style="font-size: 30px; font-weight: bold; margin-top: 30px; margin-bottom: 30px; margin-left: 20px">Required Materials Report</h4>
+        {{!-- <h4 style="font-size: 30px; font-weight: bold; margin-top: 30px; margin-bottom: 30px; margin-left: 20px">Required Materials Report</h4> --}}
         
         {{!-- SEEDS --}}
         <div class="container" style="position: relative;">
@@ -686,6 +662,8 @@ html, body {
     </div> -->
   
 </div> 
+
+</div>
 {{!-- END OF MATERIALS PDF --}}
 
 <script>

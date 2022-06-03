@@ -405,6 +405,7 @@ exports.getCropCalendarTab = function(req, res) {
 										html_data['materials'] = material_obj;
 										html_data["notifs"] = req.notifs;
 										html_data['deficient_count'] = deficient_count;
+										html_data['calendar_details'] = list[0];
 
 										res.render('crop_calendar_tab', html_data);	
 									}
