@@ -35,7 +35,7 @@ function processOverviewFilter(data) {
 
 exports.getUpcomingWOByStatus = function(data, next) {
 	var sql = `SELECT ft.farm_name, COUNT(*) AS count, wot.status, case when (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1) then 'Normal' else 'Overdue' end as type,wot.crop_calendar_id FROM work_order_table wot JOIN crop_calendar_table cct ON wot.crop_calendar_id = cct.calendar_id join farm_table ft using(farm_id) WHERE (cct.status != 'Completed' AND (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1)) or (cct.status != 'Completed' and datediff(DATE('${data.date}'), wot.date_due) >= 0) GROUP BY wot.crop_calendar_id, wot.status, case when (YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) <= 1 AND YEARWEEK(DATE('${data.date}'), 0) - YEARWEEK(wot.date_start, 0) >= - 1) then 'Normal' else 'Overdue' end `;
-
+	// console.log(sql);
 	mysql.query(sql, next);
 }
 
