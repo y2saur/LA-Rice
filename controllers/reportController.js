@@ -911,6 +911,7 @@ exports.getSummaryHarvestReport = function(req, res) {
 																																											if (err)
 																																												throw err;
 																																											else {
+																																											console.log(farm_list);
 																																												html_data['exception1'] = processFertilizerApplications(fr_items, wo_list, calendar_details[0], pd_chart);
 																																												html_data['farm_list'] = farm_list;
 																																												html_data['json_nutrient'] = nutrient_chart_arr.dataset;

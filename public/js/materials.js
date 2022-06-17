@@ -221,6 +221,7 @@ $(document).ready(function(){
 
 function isComplete(count){
     var status = true;
+    var min;
     if($("#farm").val() == null){
         status = false;
         $("#farm").css("border-color", "red");
@@ -231,9 +232,18 @@ function isComplete(count){
             status = false;
             $("#item"+x).css("border-color", "red");
         }
-        if($("#item_amt"+x).val() <= 0 && $("#item_amt"+x).length > 0){
+
+        if($("#item_type"+x).val() == 'Seed')
+            min = 10;
+        else if($("#item_type"+x).val() == 'Pesticide')
+            min = 20;
+        else if($("#item_type"+x).val() == 'Fertilizer')
+            min = 30;
+
+        if($("#item_amt"+x).val() < min && $("#item_amt"+x).length > 0){
             status = false;
             $("#item_amt"+x).css("border-color", "red");
+            alert(`Amount of ${$('#item'+x+' option:selected').html()} should be greater than or equal to ${min}!`);
         }
     }
 

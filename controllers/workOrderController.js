@@ -942,6 +942,11 @@ exports.getWorkOrdersDashboard_v2 = function(req, res) {
 																html_data['wo_status_data'] = JSON.stringify(chart_formatter.formatWOStatusChart(wo_chart));
 															}
 
+															const today = new Date(req.session.cur_date);
+
+															html_data['firstDay'] = dataformatter.formatDate(new Date(today.setDate(today.getDate() - today.getDay())), 'mm DD, YYYY');
+															html_data['lastDay'] = dataformatter.formatDate(new Date(today.setDate(today.getDate() - today.getDay() + 6)), 'mm DD, YYYY');
+
 															html_data["notifs"] = req.notifs;
 
 															res.render('home_v2', html_data);

@@ -197,6 +197,7 @@ exports.updateWeatherData = function(req, res, next) {
 						}
 						else {
 							var precip_details = processPrecipChartData(precip_data)
+							req.raw_precip_data = precip_details.chart;
 							req.precip_data = JSON.stringify(precip_details.chart);
 							//req.outlook = { drought_summary: disaster_records[0].description, classification: disaster_records[0].type, last_update: dataformatter.formatDate(new Date(disaster_records[0].date_recorded), 'YYYY-MM-DD') };
 							

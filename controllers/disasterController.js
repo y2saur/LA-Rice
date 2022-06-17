@@ -56,7 +56,7 @@ exports.getDisasterManagement = function(req, res) {
 					html_data['active_drought'] = active_drought;
 					html_data['inactive_drought'] = inactive_drought;
 					
-
+					html_data['precip_data_range'] = `${req.raw_precip_data.labels[0]} - ${req.raw_precip_data.labels[req.raw_precip_data.labels.length-1]}`
 					html_data['precip_data'] = req.precip_data;
 					res.render('disaster_warnings', html_data);					
 				}

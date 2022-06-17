@@ -266,8 +266,9 @@
 						<div class="w-100">
 							<div class="w-100 d-flex flex-column ">
 								<div class="text-white w-100 px-3 py-2 text-center bg-dark">
-									<div>Historical Harvests</div>
-									<div class="text-small" style="font-size: 10px;">
+									<div>Historical Harvests Per Crop Cycle (grouped per farm)</div>
+									<!-- class="text-small" style="font-size: 10px;" -->
+									<div  id="historical_harvest_chart_lbls">
 										{{seed_chart_lbls}}
 									</div>
 								</div>
@@ -307,15 +308,21 @@
 											  </button>
 											  <ul class="dropdown-menu checkbox-menu allow-focus farm_dropdown" aria-labelledby="dropdownMenu1">
 											  	{{#each farm_list}}
-											  		<li >
+											  		{{#if this.extra}}
+							      				
+								      				{{else}}
+								      				<li >
 												      <label>
 												        <input type="checkbox" name="farm_filter" {{#if this.checked}}checked{{/if}} value="{{this.farm_name}}">{{this.farm_name}}
 												      </label>
 												    </li>
+								      				{{/if}}
+											  		
 											  	{{/each}}
 											  </ul>
 											</div>
 									</div>
+
 									<div class="form-group align-bottom ml-3">
 										<div class="h-100 align-bottom align-text-bottom mt-2">
 											<button class="btn btn-primary mt-4" id="filter_seed_chart" type="button">Filter</button>	
@@ -360,8 +367,16 @@
 						<div class="w-100 d-flex">
 						<div class="w-100">
 							<div class="d-flex flex-column " >
-								<div class="text-white w-100 px-3 py-2 text-center bg-dark">
-									Nutrient Timing {{this.farm_name}}
+								<div class="text-white w-100 px-3 py-2 text-center bg-dark d-flex flex-column">
+									<div>Nutrient Timing {{this.farm_name}}</div>
+									<div id="nutrient_timing_lbl">
+										{{#each farm_list}}
+											{{#if this.nutrient_check1}}{{this.farm_name}}{{/if}}
+						      			{{/each}}
+						      			 ({{#each nutrient_filter.crop_plan1}}
+							      				{{#if this.checked}}{{this.crop_plan}}{{/if}}
+							      			{{/each}})
+									</div>
 								</div>
 								<!-- Nutrient chart filters -->
 								<div class="form-row ml-3 mt-3">
@@ -976,6 +991,14 @@
 			}
 			else {
 				// Ajax and update chart
+				var lbl = ``;
+				plans.forEach(function(item, index) {
+					if (index == 1) {
+						lbl += ` vs `;
+					}
+					lbl += `${farms[index]} (${plans[index]})`;
+				});
+				$('#nutrient_timing_lbl').html(`${lbl}`);
 				$.get('/update_nutrient_chart', { calendars: calendars, farms: farms, plans: plans }, function(result) {
 					// Update chart
 					result.obj.forEach(function(item, index) {
@@ -1184,6 +1207,13 @@
 			seedChart.data = result.stringify;
 			seedChart.update();
 		});
+
+		var lbl = (selected_farms.toString());
+
+		while (lbl.includes(',')) {
+			lbl = lbl.replace(',', ' / ');
+		}
+		$('#historical_harvest_chart_lbls').html(`${lbl}`);
 	});
 
 </script>
