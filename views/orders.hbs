@@ -78,12 +78,27 @@
             <div role="tablist" id="accordion-1" style="margin-bottom: 20px;">
                 <div class="card shadow mb-4">
                     <div class="card-header" role="tab" style="background: #939C1F;padding: 16px 20px;height: auto;">
-                        <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="false" aria-controls="accordion-1 .item-1" href="#accordion-1 .item-1" style="font-size: 16px;color: rgb(255,255,255);font-weight: bold;">Create New Purchase Request</a></h5>
+                        <h5 class="mb-0"><a data-toggle="collapse" aria-expanded="true" aria-controls="accordion-1 .item-1" href="#accordion-1 .item-1" style="font-size: 16px;color: rgb(255,255,255);font-weight: bold;">Create New Purchase Request</a></h5>
                     </div>
-                    <div class="collapse item-1" role="tabpanel" data-parent="#accordion-1">
+                    <div class="collapse item-1 show" role="tabpanel" data-parent="#accordion-1">
                         <div class="card-body" id="step1_new_purchase" style="color: #332c1f;">
                             <form id="new_purchase" action="/addPurchase" method="post"></form>
                                 <fieldset>
+                                    <div class="form-row d-flex flex-column text-muted mb-2">
+                                        <small>* Purchase orders are subject to minimum quantity orders as follows:</small>
+                                        <div class="ml-3 d-flex" style="width: 100px;">
+                                            <small>Seed: </small>
+                                            <small class="ml-auto">10</small>
+                                        </div>
+                                        <div class="ml-3 d-flex" style="width: 100px;">
+                                            <small>Pesticide: </small>
+                                            <small class="ml-auto">20</small>
+                                        </div>
+                                        <div class="ml-3 d-flex" style="width: 100px;">
+                                            <small>Fertilizer: </small>
+                                            <small class="ml-auto">30</small>
+                                        </div>
+                                    </div>
                                     <div class="form-row">
                                         <div class="col-3 col-sm-3 col-md-3"><label style="font-weight: bold">Farm</label>
                                             <div id="lp-name-wrapper"></div>
